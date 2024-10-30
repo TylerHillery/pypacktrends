@@ -43,14 +43,18 @@ caddy_container = docker.Container(
     image=caddy_image.ref,
     name=CADDY_SERVICE_NAME,
     ports=[
-        {"internal": 80, "external": 80},
-        {"internal": 443, "external": 443},
+        docker.ContainerPortArgs(internal=80, external=80),
+        docker.ContainerPortArgs(internal=443, external=443),
     ],
     volumes=[
-        {"volume_name": caddy_data_volume.name, "container_path": "/data"},
-        {"volume_name": caddy_config_volume.name, "container_path": "/config"},
+        docker.ContainerVolumeArgs(
+            volume_name=caddy_data_volume.name, container_path="/data"
+        ),
+        docker.ContainerVolumeArgs(
+            volume_name=caddy_config_volume.name, container_path="/config"
+        ),
     ],
-    networks_advanced=[{"name": caddy_network.name}],
+    networks_advanced=[docker.ContainerNetworksAdvancedArgs(name=caddy_network.name)],
     envs=[
         f"BACKEND_PORT={BACKEND_PORT}",
         f"BACKEND_SERVICE_NAME={BACKEND_SERVICE_NAME}",
@@ -77,14 +81,14 @@ backend_container = docker.Container(
     f"{BACKEND_SERVICE_NAME}-container",
     image=backend_image.ref,
     name=BACKEND_SERVICE_NAME,
-    ports=[{"internal": BACKEND_PORT, "external": BACKEND_PORT}],
-    networks_advanced=[{"name": caddy_network.name}],
-    healthcheck={
-        "test": ["CMD", "curl", "-f", f"http://localhost:{BACKEND_PORT}/health-check/"],
-        "interval": "10s",
-        "timeout": "5s",
-        "retries": 5,
-    },
+    ports=[docker.ContainerPortArgs(internal=BACKEND_PORT, external=BACKEND_PORT)],
+    networks_advanced=[docker.ContainerNetworksAdvancedArgs(name=caddy_network.name)],
+    healthcheck=docker.ContainerHealthcheckArgs(
+        tests=["CMD", "curl", "-f", f"http://localhost:{BACKEND_PORT}/health-check/"],
+        interval="10s",
+        timeout="5s",
+        retries="5",
+    ),
     restart="unless-stopped",
 )
 
