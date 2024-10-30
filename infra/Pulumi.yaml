@@ -1,0 +1,7 @@
+name: pypacktrends
+description: "Pulumi project for pypacktrends"
+runtime:
+  name: python
+  options:
+    toolchain: pip
+    virtualenv: .venv
