@@ -2,17 +2,17 @@ import pulumi
 import pulumi_docker as docker
 import pulumi_docker_build as docker_build
 
-BACKEND_PATH = "../backend"
-BACKEND_PORT = 8000
-BACKEND_SERVICE_NAME = "pypacktrends-backend"
-CADDY_PATH = "../caddy"
-CADDY_SERVICE_NAME = "caddy"
-DOMAIN = "localhost"
-DOCKER_REPOSITORY = "tylerhillery"
+config = pulumi.Config()
+BACKEND_PATH = config.get("backend-path") or "../backend"
+BACKEND_PORT = config.get_int("backend-port") or 8000
+BACKEND_SERVICE_NAME = config.get("backend-service-name") or "pypacktrends-backend"
+CADDY_PATH = config.get("caddy-path") or "../caddy"
+CADDY_SERVICE_NAME = config.get("caddy-service-name") or "caddy"
+DOMAIN = config.get("domain") or "localhost"
+DOCKER_REPOSITORY = config.get("docker-respoitory") or "tylerhillery"
+STACK_NAME = pulumi.get_stack()
 
-stack_name = pulumi.get_stack()
-
-pulumi.export("stack-name", stack_name)
+pulumi.export("stack-name", STACK_NAME)
 
 caddy_network = docker.Network("caddy", name="caddy")
 
@@ -28,7 +28,7 @@ pulumi.export("caddy-config-volume", caddy_config_volume.name)
 
 caddy_image = docker_build.Image(
     f"{CADDY_SERVICE_NAME}-image",
-    tags=[f"{DOCKER_REPOSITORY}/{CADDY_SERVICE_NAME}:{stack_name}"],
+    tags=[f"{DOCKER_REPOSITORY}/{CADDY_SERVICE_NAME}:{STACK_NAME}"],
     push=False,
     context=docker_build.ContextArgs(location=CADDY_PATH),
     dockerfile=docker_build.DockerfileArgs(location=f"{CADDY_PATH}/Dockerfile"),
@@ -67,7 +67,7 @@ pulumi.export("caddy-container-name", caddy_container.name)
 
 backend_image = docker_build.Image(
     f"{BACKEND_SERVICE_NAME}-image",
-    tags=[f"{DOCKER_REPOSITORY}/{BACKEND_SERVICE_NAME}:{stack_name}"],
+    tags=[f"{DOCKER_REPOSITORY}/{BACKEND_SERVICE_NAME}:{STACK_NAME}"],
     push=False,
     context=docker_build.ContextArgs(location=BACKEND_PATH),
     dockerfile=docker_build.DockerfileArgs(location=f"{BACKEND_PATH}/Dockerfile"),
