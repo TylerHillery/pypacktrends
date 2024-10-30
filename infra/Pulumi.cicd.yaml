@@ -1,0 +1,3 @@
+config:
+  pypacktrends:container-registry-token:
+    secure: AAABALfUT8xLyKIWjHPbGbBCy327UtXli51Y3F+t4vYiQbnGujZf56gUVNyPm7vBnWtCXlNDpF6xlAgULlAFBK77X+3KKc7M
