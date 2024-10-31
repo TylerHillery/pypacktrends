@@ -1,6 +1,5 @@
 import pulumi
 import pulumi_docker as docker
-
 from components import DockerImageComponent
 from utils import create_docker_resource
 
@@ -17,16 +16,24 @@ STACK_NAME = pulumi.get_stack()
 pulumi.export("stack-name", STACK_NAME)
 
 caddy_image = DockerImageComponent(
-    STACK_NAME, CADDY_SERVICE_NAME, CADDY_PATH, f"{CADDY_PATH}/Dockerfile"
+    stack_name=STACK_NAME,
+    service_name=CADDY_SERVICE_NAME,
+    context=CADDY_PATH,
 )
 
 pulumi.export(f"{CADDY_SERVICE_NAME}-image-tag", caddy_image.image_tag)
+pulumi.export(f"{CADDY_SERVICE_NAME}-image-identifier", caddy_image.image_identifier)
 
 backend_image = DockerImageComponent(
-    STACK_NAME, BACKEND_SERVICE_NAME, BACKEND_PATH, f"{BACKEND_PATH}/Dockerfile"
+    stack_name=STACK_NAME,
+    service_name=BACKEND_SERVICE_NAME,
+    context=BACKEND_PATH,
 )
 
 pulumi.export(f"{BACKEND_SERVICE_NAME}-image-tag", backend_image.image_tag)
+pulumi.export(
+    f"{BACKEND_SERVICE_NAME}-image-identifier", backend_image.image_identifier
+)
 
 
 if STACK_NAME in ["dev", "prod"]:
@@ -41,7 +48,7 @@ if STACK_NAME in ["dev", "prod"]:
     caddy_container = create_docker_resource(
         docker.Container,
         CADDY_SERVICE_NAME,
-        image=caddy_image.image_tag,
+        image=caddy_image.image_identifier,
         ports=[
             docker.ContainerPortArgs(internal=80, external=80),
             docker.ContainerPortArgs(internal=443, external=443),
@@ -68,7 +75,7 @@ if STACK_NAME in ["dev", "prod"]:
     backend_container = create_docker_resource(
         docker.Container,
         BACKEND_SERVICE_NAME,
-        image=backend_image.image_tag,
+        image=backend_image.image_identifier,
         ports=[docker.ContainerPortArgs(internal=BACKEND_PORT, external=BACKEND_PORT)],
         networks_advanced=[
             docker.ContainerNetworksAdvancedArgs(name=caddy_network.name)

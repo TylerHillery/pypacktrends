@@ -1,4 +1,5 @@
 import pulumi
+import pulumi_docker as docker
 import pulumi_docker_build as docker_build
 
 config = pulumi.Config()
@@ -18,7 +19,6 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
         stack_name: str,
         service_name: str,
         context: str,
-        dockerfile: str,
         opts: pulumi.ResourceOptions = None,
     ):
         super().__init__(
@@ -28,28 +28,18 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
             opts,
         )
         self.stack_name = stack_name
-        self.registries = [
-            docker_build.RegistryArgs(
-                address=CONTAINER_REGISTRY_ADDRESS,
-                username=CONTAINER_REGISTRY_USERNAME,
-                password=CONTAINER_REGISTRY_TOKEN,
-            )
-        ]
-        self.exports = [docker_build.ExportArgs(docker=docker_build.ExportDockerArgs())]
-
         self.image_tag = self.get_image_tag(service_name)
-
         self.docker_build_image_config = dict(
             resource_name=f"{service_name}-image",
-            tags=[self.image_tag],
             context=docker_build.ContextArgs(location=context),
-            dockerfile=docker_build.DockerfileArgs(location=dockerfile),
+            dockerfile=docker_build.DockerfileArgs(location=f"{context}/Dockerfile"),
             platforms=[docker_build.Platform.LINUX_AMD64],
+            tags=[self.image_tag],
         )
-
         self.image = self.get_image_builder()
+        self.image_identifier = self.get_image_identifier()
 
-    def get_image_builder(self) -> docker_build.Image:
+    def get_image_builder(self) -> docker_build.Image | docker.RemoteImage:
         match self.stack_name:
             case "dev":
                 return self.build_local_image()
@@ -61,6 +51,9 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
             case _:
                 raise ValueError("Unknown stack name")
 
+    def get_image_identifier(self) -> str:
+        return self.image.image_id if self.stack_name == "prod" else self.image.ref  # type: ignore
+
     def get_image_tag(self, service_name: str) -> str:
         tag = "latest"
         prefix = f"{CONTAINER_REGISTRY_ADDRESS}/"
@@ -71,19 +64,31 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
 
     def build_local_image(self) -> docker_build.Image:
         return docker_build.Image(
-            **self.docker_build_image_config, push=False, exports=self.exports
+            **self.docker_build_image_config,
+            push=False,
+            exports=[docker_build.ExportArgs(docker=docker_build.ExportDockerArgs())],
         )
 
     def build_and_publish_image(self) -> docker_build.Image:
-        return docker_build.Image(
-            **self.docker_build_image_config, push=True, registries=self.registries
-        )
-
-    def use_remote_image(self) -> docker_build.image:
+        # TODO: see if I can make package public
         return docker_build.Image(
             **self.docker_build_image_config,
-            push=False,
-            pull=True,
-            exports=self.exports,
-            registries=self.registries,
+            push=True,
+            registries=[
+                docker_build.RegistryArgs(
+                    address=CONTAINER_REGISTRY_ADDRESS,
+                    username=CONTAINER_REGISTRY_USERNAME,
+                    password=CONTAINER_REGISTRY_TOKEN,
+                )
+            ],
+        )
+
+    def use_remote_image(self) -> docker.RemoteImage:
+        # TODO: figure out out to pull from pivate container registry
+        registry_image = docker.get_registry_image(name=self.image_tag)
+        return docker.RemoteImage(
+            self.docker_build_image_config.get("resource_name"),
+            name=registry_image.name,
+            keep_locally=True,
+            pull_triggers=[registry_image.sha256_digest],
         )
