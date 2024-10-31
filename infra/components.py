@@ -52,7 +52,11 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
                 raise ValueError("Unknown stack name")
 
     def get_image_identifier(self) -> str:
-        return self.image.image_id if self.stack_name == "prod" else self.image.ref  # type: ignore
+        return (  # type: ignore
+            self.image.image_id
+            if isinstance(self.image, docker.RemoteImage)
+            else self.image.ref
+        )
 
     def get_image_tag(self, service_name: str) -> str:
         tag = "latest"
