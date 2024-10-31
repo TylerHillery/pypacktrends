@@ -1,0 +1,30 @@
+name: CD
+on:
+  push:
+    branches:
+      - main
+jobs:
+  pulumi-up:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./infra
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+      - name: Install dependencies
+        run: |
+            export UV_PROJECT_ENVIRONMENT="${pythonLocation}"
+            uv sync --frozen
+      - uses: pulumi/actions@v6
+        with:
+          command: up
+          stack-name: cicd
+          work-dir: ./infra
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
