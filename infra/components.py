@@ -28,9 +28,11 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
             opts,
         )
         self.stack_name = stack_name
-        self.image_tag = self.get_image_tag(service_name)
+        self.service_name = service_name
+        self.image_tag = self.get_image_tag()
+        self.cache_image_tag = self.get_image_tag(for_cache=True)
         self.docker_build_image_config = dict(
-            resource_name=f"{service_name}-image",
+            resource_name=f"{self.service_name}-image",
             context=docker_build.ContextArgs(location=context),
             dockerfile=docker_build.DockerfileArgs(location=f"{context}/Dockerfile"),
             platforms=[docker_build.Platform.LINUX_AMD64],
@@ -58,13 +60,16 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
             else self.image.ref
         )
 
-    def get_image_tag(self, service_name: str) -> str:
+    def get_image_tag(self, for_cache: bool = False) -> str:
         tag = "latest"
         prefix = f"{CONTAINER_REGISTRY_ADDRESS}/"
         if self.stack_name == "dev":
             tag = self.stack_name
             prefix = ""
-        return f"{prefix}{CONTAINER_REGISTRY_USERNAME}/{CONTAINER_REGISTRY_REPOSITORY}/{service_name}:{tag}"
+        if for_cache:
+            tag = "cache"
+
+        return f"{prefix}{CONTAINER_REGISTRY_USERNAME}/{CONTAINER_REGISTRY_REPOSITORY}/{self.service_name}:{tag}"
 
     def build_local_image(self) -> docker_build.Image:
         return docker_build.Image(
@@ -78,6 +83,18 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
         return docker_build.Image(
             **self.docker_build_image_config,
             push=True,
+            cache_from=[
+                docker_build.CacheFromArgs(
+                    registry=docker_build.CacheFromRegistryArgs(
+                        ref=self.cache_image_tag
+                    )
+                )
+            ],
+            cache_to=[
+                docker_build.CacheToArgs(
+                    registry=docker_build.CacheToRegistryArgs(ref=self.cache_image_tag)
+                )
+            ],
             registries=[
                 docker_build.RegistryArgs(
                     address=CONTAINER_REGISTRY_ADDRESS,
