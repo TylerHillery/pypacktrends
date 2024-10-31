@@ -1,5 +1,4 @@
 import pulumi
-import pulumi_docker as docker
 import pulumi_docker_build as docker_build
 
 config = pulumi.Config()
@@ -29,6 +28,14 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
             opts,
         )
         self.stack_name = stack_name
+        self.registries = [
+            docker_build.RegistryArgs(
+                address=CONTAINER_REGISTRY_ADDRESS,
+                username=CONTAINER_REGISTRY_USERNAME,
+                password=CONTAINER_REGISTRY_TOKEN,
+            )
+        ]
+        self.exports = [docker_build.ExportArgs(docker=docker_build.ExportDockerArgs())]
 
         self.image_tag = self.get_image_tag(service_name)
 
@@ -41,21 +48,18 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
         )
 
         self.image = self.get_image_builder()
-        self.image_identifier = self.get_image_identifier()
 
-    def get_image_builder(self) -> docker_build.Image | docker.RemoteImage:
+    def get_image_builder(self) -> docker_build.Image:
         match self.stack_name:
             case "dev":
                 return self.build_local_image()
             case "cicd":
+                pulumi.export("container-registry-token", CONTAINER_REGISTRY_TOKEN)
                 return self.build_and_publish_image()
             case "prod":
                 return self.use_remote_image()
             case _:
                 raise ValueError("Unknown stack name")
-
-    def get_image_identifier(self) -> str:
-        return self.image.ref if self.stack_name != "prod" else self.image.repo_digest  # type: ignore
 
     def get_image_tag(self, service_name: str) -> str:
         tag = "latest"
@@ -67,26 +71,19 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
 
     def build_local_image(self) -> docker_build.Image:
         return docker_build.Image(
-            **self.docker_build_image_config,
-            push=False,
-            exports=[docker_build.ExportArgs(docker=docker_build.ExportDockerArgs())],
+            **self.docker_build_image_config, push=False, exports=self.exports
         )
 
     def build_and_publish_image(self) -> docker_build.Image:
         return docker_build.Image(
-            **self.docker_build_image_config,
-            push=True,
-            registries=[
-                docker_build.RegistryArgs(
-                    address=CONTAINER_REGISTRY_ADDRESS,
-                    username=CONTAINER_REGISTRY_USERNAME,
-                    password=CONTAINER_REGISTRY_TOKEN,
-                )
-            ],
+            **self.docker_build_image_config, push=True, registries=self.registries
         )
 
-    def use_remote_image(self) -> docker.RemoteImage:
-        return docker.RemoteImage(
-            self.docker_build_image_config.get("resource_name"),
-            name=self.image_tag,
+    def use_remote_image(self) -> docker_build.image:
+        return docker_build.Image(
+            **self.docker_build_image_config,
+            push=False,
+            pull=True,
+            exports=self.exports,
+            registries=self.registries,
         )
