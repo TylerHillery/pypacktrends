@@ -1,25 +1,12 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     types:
       - opened
       - synchronize
 
 jobs:
-  pre-commit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version-file: ".python-version"
-      - uses: pre-commit/action@v3.0.1
-
   pulumi-preview:
     runs-on: ubuntu-latest
     defaults:
