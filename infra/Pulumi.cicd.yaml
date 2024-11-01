@@ -1,5 +1,11 @@
 config:
-  pypacktrends:container-registry-token:
+  pypacktrends:ghcr-token:
     secure: AAABALfUT8xLyKIWjHPbGbBCy327UtXli51Y3F+t4vYiQbnGujZf56gUVNyPm7vBnWtCXlNDpF6xlAgULlAFBK77X+3KKc7M
-  pypacktrends:pulumi-token:
+  pypacktrends:pulumi-access-token:
     secure: AAABAC5s1ztMKsgsk0d3X9eLwQNYPrHcu+XmXZw7Ir4NojJxaciUgF4s+WVNLRly7+nMPeO2QENjeUbIWU5NnDmPKaa8cMEBTSZqCw==
+  pypacktrends:digitalocean-token:
+    secure: AAABAIdUZdUatjijNTgFa6SI+jCXGVusAXjG28FVqTnd7M5h/2JdYkKgh1IgEffUk4DKFsqXjqzeYxIskjb5Ytv0wffRxy+ii2HftJmEdcmLjyjx8zO9rasefXSu0Ic/zh7zL+za1g==
+  pypacktrends:digitalocean-ssh-key-id:
+    secure: AAABAJpwf9Jzt0Y9xW1K0nXfaE9+SPYT+luHFZPI2/b0rNJ4RQHqJw==
+  pypacktrends:tailscale-auth-key:
+    secure: AAABAPwJWNr829GSEpSjOqnkP3T2uJYr4CnUmiBGcph8E7BEc7xtQZrATf62ZDIF07qjpuMl4ZkA4K6Xj4cvgP/RnTb0DcDAoLmWPyf61/WZF48wGh5Xe1IidZe4

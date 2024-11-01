@@ -1,0 +1,39 @@
+#cloud-config
+ssh_pwauth: false
+users:
+- name: thill
+  groups: users,admin,wheel
+  sudo: all=(all) nopasswd:all
+  shell: /bin/bash
+  lock_passwd: true
+
+runcmd:
+  # disable needrestart prompts
+  - mkdir -p /etc/needrestart/conf.d
+  - echo "\$nrconf{kernelhints} = -1;" > /etc/needrestart/conf.d/99disable-prompt.conf
+
+  # system updates
+  - apt update
+  - DEBIAN_FRONTEND=noninteractive apt upgrade -y --allow-downgrades --allow-remove-essential --allow-change-held-packages
+
+  # docker configs
+  - curl -fssl https://get.docker.com | sh
+  - echo "export GHCR_TOKEN={{ ghcr_token }}" >> /etc/profile.d/github.sh
+  - echo "export GITHUB_USERNAME={{ github_username }}" >> /etc/profile.d/github.sh
+  - bash -c "source /etc/profile.d/github.sh"
+  - echo "${GHCR_TOKEN}" | docker login ghcr.io --username "${GITHUB_USERNAME}" --password-stdin
+
+  # pulumi configs
+  - curl -fssl https://get.pulumi.com | sh
+  - echo "export PATH=$PATH:/.pulumi/bin" > /etc/profile.d/pulumi.sh
+  - echo "export PULUMI_ACCESS_TOKEN={{ pulumi_access_token }}" >> /etc/profile.d/pulumi.sh
+  - bash -c "source /etc/profile.d/pulumi.sh"
+  - pulumi login
+
+  # tailscale configs
+  - curl -fsSL https://tailscale.com/install.sh | sh
+  - sh -c "echo 'net.ipv4.ip_forward = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf && echo 'net.ipv6.conf.all.forwarding = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf && sudo sysctl -p /etc/sysctl.d/99-tailscale.conf"
+  - tailscale up --ssh --accept-routes --authkey={{ tailscale_auth_key }}
+
+  # reboot
+  - reboot

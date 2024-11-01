@@ -4,13 +4,9 @@ import pulumi_docker_build as docker_build
 
 config = pulumi.Config()
 CONTAINER_REGISTRY_ADDRESS = config.get("container-registry-address") or "ghcr.io"
-CONTAINER_REGISTRY_USERNAME = (
-    config.get("container-registry-username") or "tylerhillery"
-)
 CONTAINER_REGISTRY_REPOSITORY = (
     config.get("container-registry-repository") or "pypacktrends"
 )
-CONTAINER_REGISTRY_TOKEN = config.get_secret("container-registry-token")
 
 
 class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
@@ -19,6 +15,8 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
         stack_name: str,
         service_name: str,
         context: str,
+        github_username: str,
+        ghcr_token: pulumi.Output,
         opts: pulumi.ResourceOptions = None,
     ):
         super().__init__(
@@ -29,6 +27,8 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
         )
         self.stack_name = stack_name
         self.service_name = service_name
+        self.github_username = github_username
+        self.ghcr_token = ghcr_token
         self.image_tag = self.get_image_tag()
         self.cache_image_tag = self.get_image_tag(for_cache=True)
         self.docker_build_image_config = dict(
@@ -46,7 +46,6 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
             case "dev":
                 return self.build_local_image()
             case "cicd":
-                pulumi.export("container-registry-token", CONTAINER_REGISTRY_TOKEN)
                 return self.build_and_publish_image()
             case "prod":
                 return self.use_remote_image()
@@ -69,7 +68,7 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
         if for_cache:
             tag = "cache"
 
-        return f"{prefix}{CONTAINER_REGISTRY_USERNAME}/{CONTAINER_REGISTRY_REPOSITORY}/{self.service_name}:{tag}"
+        return f"{prefix}{self.github_username}/{CONTAINER_REGISTRY_REPOSITORY}/{self.service_name}:{tag}"
 
     def build_local_image(self) -> docker_build.Image:
         return docker_build.Image(
@@ -79,7 +78,6 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
         )
 
     def build_and_publish_image(self) -> docker_build.Image:
-        # TODO: see if I can make package public
         return docker_build.Image(
             **self.docker_build_image_config,
             push=True,
@@ -98,14 +96,13 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
             registries=[
                 docker_build.RegistryArgs(
                     address=CONTAINER_REGISTRY_ADDRESS,
-                    username=CONTAINER_REGISTRY_USERNAME,
-                    password=CONTAINER_REGISTRY_TOKEN,
+                    username=self.ghcr_token,
+                    password=self.ghcr_token,
                 )
             ],
         )
 
     def use_remote_image(self) -> docker.RemoteImage:
-        # TODO: figure out out to pull from pivate container registry
         registry_image = docker.get_registry_image(name=self.image_tag)
         return docker.RemoteImage(
             self.docker_build_image_config.get("resource_name"),
