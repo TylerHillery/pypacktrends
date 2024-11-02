@@ -30,6 +30,10 @@ jobs:
           command: preview
           stack-name: cicd
           work-dir: ./infra
+          comment-on-pr: true
+          comment-on-summary: true
+          refresh: true
+          diff: true
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           DIGITALOCEAN_TOKEN:  ${{ secrets.DIGITALOCEAN_TOKEN }}
@@ -39,6 +43,10 @@ jobs:
           command: preview
           stack-name: prod
           work-dir: ./infra
+          comment-on-pr: true
+          comment-on-summary: true
+          refresh: true
+          diff: true
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           DIGITALOCEAN_TOKEN:  ${{ secrets.DIGITALOCEAN_TOKEN }}
