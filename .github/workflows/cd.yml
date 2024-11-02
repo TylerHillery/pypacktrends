@@ -6,6 +6,8 @@ on:
 jobs:
   pulumi-up:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     defaults:
       run:
         working-directory: ./infra
@@ -21,7 +23,8 @@ jobs:
         run: |
             export UV_PROJECT_ENVIRONMENT="${pythonLocation}"
             uv sync --frozen
-      - uses: pulumi/actions@v6
+      - name: Pulumi Up cicd Stack
+        uses: pulumi/actions@v6
         with:
           command: up
           stack-name: cicd
