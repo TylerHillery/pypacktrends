@@ -44,7 +44,6 @@ pulumi.export(
 if STACK_NAME in "cicd":
     user_data = get_cloud_init_script(
         ghcr_token=GHCR_TOKEN,
-        github_username=pulumi.Output.from_input(GITHUB_USERNAME),
         pulumi_access_token=PULUMI_ACCESS_TOKEN,
         tailscale_auth_key=TAILSCALE_AUTH_KEY,
     )
@@ -86,6 +85,7 @@ if STACK_NAME in ["dev", "prod"]:
                 volume_name=caddy_config_volume.name, container_path="/config"
             ),
         ],
+        network_mode="bridge",
         networks_advanced=[
             docker.ContainerNetworksAdvancedArgs(name=caddy_network.name)
         ],
@@ -102,6 +102,7 @@ if STACK_NAME in ["dev", "prod"]:
         BACKEND_SERVICE_NAME,
         image=backend_image.image_identifier,
         ports=[docker.ContainerPortArgs(internal=BACKEND_PORT, external=BACKEND_PORT)],
+        network_mode="bridge",
         networks_advanced=[
             docker.ContainerNetworksAdvancedArgs(name=caddy_network.name)
         ],

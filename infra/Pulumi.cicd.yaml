@@ -8,4 +8,8 @@ config:
   pypacktrends:digitalocean-ssh-key-id:
     secure: AAABAJpwf9Jzt0Y9xW1K0nXfaE9+SPYT+luHFZPI2/b0rNJ4RQHqJw==
   pypacktrends:tailscale-auth-key:
-    secure: AAABAPwJWNr829GSEpSjOqnkP3T2uJYr4CnUmiBGcph8E7BEc7xtQZrATf62ZDIF07qjpuMl4ZkA4K6Xj4cvgP/RnTb0DcDAoLmWPyf61/WZF48wGh5Xe1IidZe4
+    secure: AAABAGGoXP+9/e9/z3q7rFxTEfQqECEy1GvMOKOWc3V8bp+YwbkX1+gxFUOMCE3XIjD+v/ymd8o6Wa2kuPtYyQD7b2DRpF9/HV8fAK2E98p4k1YIeFA6kQtYNFBf
+  pypacktrends:tailscale-oauth-client-id:
+    secure: AAABAPKo657wlqZwo/YTlbyeLTHYf9SKGa4T+F0hkOJ7VAdFDv5oj0Qb8zh7wSLy8w==
+  pypacktrends:tailscale-oauth-client-secret:
+    secure: AAABABiPg2Fj1kMDkvymjBLHk2r7agTdVTXHLkxM8BLR3jsvj0tDDG0Ov9JYeVFcKuKonw/q6JZqJDDHuoA02geduG8z5kQzqTDumZyPLWHDD16Xmr/iFvuKzzKvf7Q=
