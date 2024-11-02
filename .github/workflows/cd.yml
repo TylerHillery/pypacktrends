@@ -28,6 +28,7 @@ jobs:
           work-dir: ./infra
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          DIGITALOCEAN_TOKEN:  ${{ secrets.DIGITALOCEAN_TOKEN }}
       - name: Connect Tailscale
         uses: tailscale/github-action@v2
         with:
@@ -38,9 +39,8 @@ jobs:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
         run: |
-          ssh -o "StrictHostKeyChecking no" cicd@pystacktrends-prod-1 "
-            cd /home/pystacktrends/infra
+          ssh -o "StrictHostKeyChecking no" cicd@pypacktrends-prod"
+            cd /opt/pypacktrends/infra
             git pull
-            cd infra
             PULUMI_ACCESS_TOKEN=${PULUMI_ACCESS_TOKEN} uv run pulumi up --stack prod --yes
           "

@@ -24,10 +24,21 @@ jobs:
         run: |
             export UV_PROJECT_ENVIRONMENT="${pythonLocation}"
             uv sync --frozen
-      - uses: pulumi/actions@v6
+      - name: Pulumi Preview cicd Stack
+        uses: pulumi/actions@v6
         with:
           command: preview
           stack-name: cicd
           work-dir: ./infra
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          DIGITALOCEAN_TOKEN:  ${{ secrets.DIGITALOCEAN_TOKEN }}
+      - name: Pulumi Preview prod Stack
+        uses: pulumi/actions@v6
+        with:
+          command: preview
+          stack-name: prod
+          work-dir: ./infra
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          DIGITALOCEAN_TOKEN:  ${{ secrets.DIGITALOCEAN_TOKEN }}
