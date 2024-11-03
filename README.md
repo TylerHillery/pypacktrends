@@ -10,3 +10,5 @@ Personal side project to learn about what it takes to build and self-host a "pro
 ## Acknowledgements
 
 This project was inspired by [npm trends](https://www.npmtrends.com/), which provides similar insights for npm packages.
+
+Adding this to test out gha
