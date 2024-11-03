@@ -1,11 +1,9 @@
 import pulumi
 import pulumi_digitalocean as digitalocean
 import pulumi_docker as docker
-import pulumi_github as github
 import pulumi_tls as tls
 from components import DockerImageComponent
 from utils import create_docker_resource, get_cloud_init_script
-
 
 STACK_NAME = pulumi.get_stack()
 PROJECT_NAME = pulumi.get_project()
@@ -61,20 +59,7 @@ pulumi.export(
     backend_image.image_identifier,
 )
 
-if STACK_NAME in "cicd":
-    github_actions_secret_do_token = github.ActionsSecret(
-        "github-actions-secret-digitalocean-token",
-        secret_name="DIGITALOCEAN_TOKEN",
-        repository=PROJECT_NAME,
-        plaintext_value=DIGITALOCEAN_TOKEN,
-    )
-    github_actions_secret_pulumi_token = github.ActionsSecret(
-        "github-actions-secret-pulumi-token",
-        secret_name="PULUMI_ACCESS_TOKEN",
-        repository=PROJECT_NAME,
-        plaintext_value=PULUMI_ACCESS_TOKEN,
-    )
-
+if STACK_NAME == "cicd":
     user_data = get_cloud_init_script(
         github_token=GITHUB_TOKEN,
         pulumi_access_token=PULUMI_ACCESS_TOKEN,

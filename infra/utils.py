@@ -1,7 +1,8 @@
-from typing import Type, Any
-from jinja2 import Environment, FileSystemLoader
+from typing import Any, Type
+
 import pulumi
 import pulumi_docker as docker
+from jinja2 import Environment, FileSystemLoader
 
 
 def create_docker_resource(
