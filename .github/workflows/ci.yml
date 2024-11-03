@@ -34,6 +34,7 @@ jobs:
           work-dir: ./infra
           comment-on-pr: true
           comment-on-summary: true
+          github-token: ${{ secrets.GH_TOKEN }}
           refresh: true
           diff: true
         env:
@@ -47,6 +48,7 @@ jobs:
           work-dir: ./infra
           comment-on-pr: true
           comment-on-summary: true
+          github-token: ${{ secrets.GH_TOKEN }}
           refresh: true
           diff: true
         env:
