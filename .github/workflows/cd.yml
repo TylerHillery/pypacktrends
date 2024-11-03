@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -48,6 +49,7 @@ jobs:
         run: |
           ssh -o "StrictHostKeyChecking no" cicd@pypacktrends-prod "
             cd /opt/pypacktrends/infra
+            # TODO FIX ME
             git pull
             PULUMI_ACCESS_TOKEN=${PULUMI_ACCESS_TOKEN} uv run pulumi up --stack prod --yes
           "
