@@ -5,7 +5,9 @@ description = ""
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "jinja2>=3.1.4",
     "pip>=24.3.1",
+    "pulumi-digitalocean>=4.34.0",
     "pulumi-docker-build>=0.0.7",
     "pulumi-docker>=4.5.7",
     "pulumi>=3.137.0",

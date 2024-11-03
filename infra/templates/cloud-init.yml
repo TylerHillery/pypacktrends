@@ -1,0 +1,50 @@
+#cloud-config
+ssh_pwauth: false
+groups:
+  - docker
+users:
+- name: cicd
+  groups: sudo, docker
+  sudo: ALL=(ALL) NOPASSWD:ALL
+  shell: /bin/bash
+  lock_passwd: true
+
+runcmd:
+  # disable needrestart prompts
+  - mkdir -p /etc/needrestart/conf.d
+  - echo "\$nrconf{kernelhints} = -1;" > /etc/needrestart/conf.d/99disable-prompt.conf
+
+  # system updates
+  - apt update
+  - DEBIAN_FRONTEND=noninteractive apt upgrade -y --allow-downgrades --allow-remove-essential --allow-change-held-packages
+
+  # docker configs
+  - curl -fssl https://get.docker.com | sh
+
+  # tailscale configs
+  - curl -fsSL https://tailscale.com/install.sh | sh
+  - sh -c "echo 'net.ipv4.ip_forward = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf && echo 'net.ipv6.conf.all.forwarding = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf && sudo sysctl -p /etc/sysctl.d/99-tailscale.conf"
+  - tailscale up --ssh --accept-routes --authkey={{ tailscale_auth_key }}
+
+  # pulumi configs
+  - curl -fsSL https://get.pulumi.com | sh
+  - cp /.pulumi/bin/* /usr/local/bin/
+  - chmod 755 /usr/local/bin/pulumi*
+  - rm -rf /.pulumi
+
+  # install uv
+  - curl -LsSf https://astral.sh/uv/install.sh -o /tmp/uv_install.sh # curl: (23) Failed writing body (1311 != 1378)
+  - HOME="/root" UV_UNMANAGED_INSTALL="/usr/local/bin" sh /tmp/uv_install.sh # https://github.com/astral-sh/uv/issues/6965
+
+  # clone the repository
+  - mkdir /opt/pypacktrends
+  - sudo chown -R cicd:cicd /opt/pypacktrends
+  - sudo -u cicd git clone https://tylerhillery:{{ github_token }}@github.com/tylerhillery/pypacktrends.git /opt/pypacktrends
+
+  # start containers
+  - sudo -u cicd bash -c "cd /opt/pypacktrends/infra && PULUMI_ACCESS_TOKEN={{ pulumi_access_token }} uv run pulumi up --stack prod --yes"
+
+  # ufw configs
+  - ufw allow OpenSSH
+  - ufw default deny incoming
+  - ufw enable
