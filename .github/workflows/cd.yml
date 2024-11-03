@@ -26,7 +26,7 @@ jobs:
         run: |
             export UV_PROJECT_ENVIRONMENT="${pythonLocation}"
             uv sync --frozen
-      - name: Pulumi Up cicd Stack
+      - name: Pulumi Up CICD Stack
         uses: pulumi/actions@v6
         with:
           command: up
@@ -46,7 +46,7 @@ jobs:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
         run: |
-          ssh -o "StrictHostKeyChecking no" cicd@pypacktrends-prod"
+          ssh -o "StrictHostKeyChecking no" cicd@pypacktrends-prod "
             cd /opt/pypacktrends/infra
             git pull
             PULUMI_ACCESS_TOKEN=${PULUMI_ACCESS_TOKEN} uv run pulumi up --stack prod --yes
