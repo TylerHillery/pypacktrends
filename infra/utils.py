@@ -17,7 +17,7 @@ def create_docker_resource(
     return resource
 
 
-def get_cloud_init_script(**kwargs: dict[str, pulumi.Output]) -> Any:
+def get_cloud_init_script(**kwargs: dict[str, pulumi.Output] | None) -> Any:
     def render_cloud_init_template(kwargs: dict[str, str]) -> Any:
         env = Environment(loader=FileSystemLoader("./templates"))
         template = env.get_template("cloud-init.yml")

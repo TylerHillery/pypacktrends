@@ -2,21 +2,14 @@ import pulumi
 import pulumi_docker as docker
 import pulumi_docker_build as docker_build
 
-config = pulumi.Config()
-CONTAINER_REGISTRY_ADDRESS = config.get("container-registry-address") or "ghcr.io"
-CONTAINER_REGISTRY_REPOSITORY = (
-    config.get("container-registry-repository") or "pypacktrends"
-)
+from config import settings
 
 
 class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
     def __init__(
         self,
-        stack_name: str,
         service_name: str,
         context: str,
-        github_username: str,
-        github_token: pulumi.Output,
         opts: pulumi.ResourceOptions = None,
     ):
         super().__init__(
@@ -25,10 +18,7 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
             None,
             opts,
         )
-        self.stack_name = stack_name
         self.service_name = service_name
-        self.github_username = github_username
-        self.github_token = github_token
         self.image_tag = self.get_image_tag()
         self.cache_image_tag = self.get_image_tag(for_cache=True)
         self.docker_build_image_config = dict(
@@ -42,7 +32,7 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
         self.image_identifier = self.get_image_identifier()
 
     def get_image_builder(self) -> docker_build.Image | docker.RemoteImage:
-        match self.stack_name:
+        match settings.STACK_NAME:
             case "dev":
                 return self.build_local_image()
             case "cicd":
@@ -52,8 +42,8 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
             case _:
                 raise ValueError("Unknown stack name")
 
-    def get_image_identifier(self) -> str:
-        return (  # type: ignore
+    def get_image_identifier(self) -> pulumi.Output[str]:
+        return (
             self.image.image_id
             if isinstance(self.image, docker.RemoteImage)
             else self.image.ref
@@ -61,14 +51,14 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
 
     def get_image_tag(self, for_cache: bool = False) -> str:
         tag = "latest"
-        prefix = f"{CONTAINER_REGISTRY_ADDRESS}/"
-        if self.stack_name == "dev":
-            tag = self.stack_name
+        prefix = f"{settings.CONTAINER_REGISTRY_ADDRESS}/"
+        if settings.STACK_NAME == "dev":
+            tag = settings.STACK_NAME
             prefix = ""
         if for_cache:
             tag = "cache"
 
-        return f"{prefix}{self.github_username}/{CONTAINER_REGISTRY_REPOSITORY}/{self.service_name}:{tag}"
+        return f"{prefix}{settings.GITHUB_USERNAME}/{settings.CONTAINER_REGISTRY_REPOSITORY}/{self.service_name}:{tag}"
 
     def build_local_image(self) -> docker_build.Image:
         return docker_build.Image(
@@ -95,9 +85,9 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
             ],
             registries=[
                 docker_build.RegistryArgs(
-                    address=CONTAINER_REGISTRY_ADDRESS,
-                    username=self.github_token,
-                    password=self.github_token,
+                    address=settings.CONTAINER_REGISTRY_ADDRESS,
+                    username=settings.GITHUB_USERNAME,
+                    password=settings.GITHUB_TOKEN,
                 )
             ],
         )
