@@ -57,6 +57,9 @@ if STACK_NAME in "cicd":
         ssh_keys=[DIGITALOCEAN_SSH_KEY_ID],
         tags=["pypacktrends", "prod"],
         user_data=user_data,
+        opts=pulumi.ResourceOptions(
+            ignore_changes=["user_data"],
+        ),
     )
     pulumi.export("pypacktrends-ipv4", droplet.ipv4_address)
 
