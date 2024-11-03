@@ -83,6 +83,7 @@ dependencies = [
     { name = "pulumi-digitalocean" },
     { name = "pulumi-docker" },
     { name = "pulumi-docker-build" },
+    { name = "pulumi-github" },
     { name = "pulumi-tls" },
 ]
 
@@ -95,6 +96,7 @@ requires-dist = [
     { name = "pulumi-digitalocean", specifier = ">=4.34.0" },
     { name = "pulumi-docker", specifier = ">=4.5.7" },
     { name = "pulumi-docker-build", specifier = ">=0.0.7" },
+    { name = "pulumi-github", specifier = ">=6.3.2" },
     { name = "pulumi-tls", specifier = ">=5.0.9" },
 ]
 
@@ -255,6 +257,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/31/76/b028b3958772b8f9c014421c9e97a5ecdcac9a1064b1b4e5b6c5395f091b/pulumi_docker_build-0.0.7.tar.gz", hash = "sha256:712afb5eec328ccb9af0827e10a5d70f829ede25a558a1a7fe8d4099c6c64cfb", size = 38899 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0b/68/f028a3123fdec371e4c09e88b0350f4f1758e4b1d756ba263aa5e5277839/pulumi_docker_build-0.0.7-py3-none-any.whl", hash = "sha256:4af7f94a586a37e04d1fc01dc1a1e424b2535a0ec962101180c87596dd5ff947", size = 43492 },
+]
+
+[[package]]
+name = "pulumi-github"
+version = "6.3.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "parver" },
+    { name = "pulumi" },
+    { name = "semver" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/88/02/c3ec21c63e38b5b7f19335ffd013325e4cc9da67b919f58f25714affe0d4/pulumi_github-6.3.2.tar.gz", hash = "sha256:9cd7563fbdd9638b93892a7a984c7f4e42dbeeb80d189346be07a5eccae39dc3", size = 191496 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e4/56/fe9cb7f484c498a444aed3cf88be8fb2971f4719769275c26d6c1017ee04/pulumi_github-6.3.2-py3-none-any.whl", hash = "sha256:dca62fa8902408f94b710c83a77d4e4c40bb3911efeac35bf0b18672d2ff59aa", size = 357022 },
 ]
 
 [[package]]

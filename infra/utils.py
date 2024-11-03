@@ -9,10 +9,10 @@ def create_docker_resource(
     service_name: str,
     **kwargs: Any,
 ) -> docker.Network | docker.Volume | docker.Container:
-    suffix = resource_type.__name__.lower()
-    resource_name = f"{service_name}-{suffix}"
+    prefix = resource_type.__name__.lower()
+    resource_name = f"{prefix}-{service_name}"
     resource = resource_type(resource_name, name=service_name, **kwargs)
-    pulumi.export(resource_name, resource.name)
+    pulumi.export(f"docker-{resource_name}:name", resource.name)
     return resource
 
 
