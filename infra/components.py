@@ -16,7 +16,7 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
         service_name: str,
         context: str,
         github_username: str,
-        ghcr_token: pulumi.Output,
+        github_token: pulumi.Output,
         opts: pulumi.ResourceOptions = None,
     ):
         super().__init__(
@@ -28,7 +28,7 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
         self.stack_name = stack_name
         self.service_name = service_name
         self.github_username = github_username
-        self.ghcr_token = ghcr_token
+        self.github_token = github_token
         self.image_tag = self.get_image_tag()
         self.cache_image_tag = self.get_image_tag(for_cache=True)
         self.docker_build_image_config = dict(
@@ -96,8 +96,8 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
             registries=[
                 docker_build.RegistryArgs(
                     address=CONTAINER_REGISTRY_ADDRESS,
-                    username=self.ghcr_token,
-                    password=self.ghcr_token,
+                    username=self.github_token,
+                    password=self.github_token,
                 )
             ],
         )

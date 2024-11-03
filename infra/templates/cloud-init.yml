@@ -39,7 +39,7 @@ runcmd:
   # clone the repository
   - mkdir /opt/pypacktrends
   - sudo chown -R cicd:cicd /opt/pypacktrends
-  - sudo -u cicd git clone https://tylerhillery:{{ ghcr_token }}@github.com/tylerhillery/pypacktrends.git /opt/pypacktrends
+  - sudo -u cicd git clone https://tylerhillery:{{ github_token }}@github.com/tylerhillery/pypacktrends.git /opt/pypacktrends
 
   # start containers
   - sudo -u cicd bash -c "cd /opt/pypacktrends/infra && PULUMI_ACCESS_TOKEN={{ pulumi_access_token }} uv run pulumi up --stack prod --yes"

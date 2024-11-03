@@ -13,7 +13,7 @@ CADDY_SERVICE_NAME = config.get("caddy-service-name") or "caddy"
 DIGITALOCEAN_SSH_KEY_ID = config.get_secret_int("digitalocean-ssh-key-id")
 DOMAIN = config.get("domain") or "localhost"
 GITHUB_USERNAME = config.get("github-username") or "tylerhillery"
-GHCR_TOKEN = config.get_secret("ghcr-token")
+GITHUB_TOKEN = config.get_secret("github-token")
 PROTOCOL = config.get("protocol") or "http"
 PULUMI_ACCESS_TOKEN = config.get_secret("pulumi-access-token")
 STACK_NAME = pulumi.get_stack()
@@ -24,7 +24,7 @@ caddy_image = DockerImageComponent(
     service_name=CADDY_SERVICE_NAME,
     context=CADDY_PATH,
     github_username=GITHUB_USERNAME,
-    ghcr_token=GHCR_TOKEN,
+    github_token=GITHUB_TOKEN,
 )
 
 pulumi.export(f"{CADDY_SERVICE_NAME}-image-identifier", caddy_image.image_identifier)
@@ -34,7 +34,7 @@ backend_image = DockerImageComponent(
     service_name=BACKEND_SERVICE_NAME,
     context=BACKEND_PATH,
     github_username=GITHUB_USERNAME,
-    ghcr_token=GHCR_TOKEN,
+    github_token=GITHUB_TOKEN,
 )
 
 pulumi.export(
@@ -43,7 +43,7 @@ pulumi.export(
 
 if STACK_NAME in "cicd":
     user_data = get_cloud_init_script(
-        ghcr_token=GHCR_TOKEN,
+        github_token=GITHUB_TOKEN,
         pulumi_access_token=PULUMI_ACCESS_TOKEN,
         tailscale_auth_key=TAILSCALE_AUTH_KEY,
     )
