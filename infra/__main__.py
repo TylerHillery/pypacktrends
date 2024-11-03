@@ -1,6 +1,7 @@
 import pulumi
 import pulumi_digitalocean as digitalocean
 import pulumi_docker as docker
+import pulumi_tls as tls
 from components import DockerImageComponent
 from utils import create_docker_resource, get_cloud_init_script
 
@@ -10,7 +11,6 @@ BACKEND_PORT = config.get_int("backend-port") or 8000
 BACKEND_SERVICE_NAME = config.get("backend-service-name") or "backend"
 CADDY_PATH = config.get("caddy-path") or "../caddy"
 CADDY_SERVICE_NAME = config.get("caddy-service-name") or "caddy"
-DIGITALOCEAN_SSH_KEY_ID = config.get_secret_int("digitalocean-ssh-key-id")
 DOMAIN = config.get("domain") or "localhost"
 GITHUB_USERNAME = config.get("github-username") or "tylerhillery"
 GITHUB_TOKEN = config.get_secret("github-token")
@@ -47,14 +47,20 @@ if STACK_NAME in "cicd":
         pulumi_access_token=PULUMI_ACCESS_TOKEN,
         tailscale_auth_key=TAILSCALE_AUTH_KEY,
     )
-
+    ssh_key = tls.PrivateKey("ssh-key", algorithm="RSA", rsa_bits=4096)
+    pulumi.export("private-key", ssh_key.private_key_pem)
+    do_ssh_key = digitalocean.SshKey(
+        "digital-ocean-ssh-key",
+        name="pulumi-pypacktrends",
+        public_key=ssh_key.public_key_openssh,
+    )
     droplet = digitalocean.Droplet(
         "pypacktrends-droplet",
         image="ubuntu-20-04-x64",
         name="pypacktrends-prod",
         region=digitalocean.Region.SFO3,
         size=digitalocean.DropletSlug.DROPLET_S1_VCPU1_GB,
-        ssh_keys=[DIGITALOCEAN_SSH_KEY_ID],
+        ssh_keys=[do_ssh_key.id],
         tags=["pypacktrends", "prod"],
         user_data=user_data,
         opts=pulumi.ResourceOptions(
