@@ -48,6 +48,7 @@ if STACK_NAME in "cicd":
         tailscale_auth_key=TAILSCALE_AUTH_KEY,
     )
     ssh_key = tls.PrivateKey("ssh-key", algorithm="RSA", rsa_bits=4096)
+    pulumi.export("private-key", ssh_key.private_key_pem)
     do_ssh_key = digitalocean.SshKey(
         "digital-ocean-ssh-key",
         name="pulumi-pypacktrends",
