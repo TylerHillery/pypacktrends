@@ -79,9 +79,11 @@ dependencies = [
     { name = "jinja2" },
     { name = "pip" },
     { name = "pulumi" },
+    { name = "pulumi-cloudinit" },
     { name = "pulumi-digitalocean" },
     { name = "pulumi-docker" },
     { name = "pulumi-docker-build" },
+    { name = "pulumi-tls" },
 ]
 
 [package.metadata]
@@ -89,9 +91,11 @@ requires-dist = [
     { name = "jinja2", specifier = ">=3.1.4" },
     { name = "pip", specifier = ">=24.3.1" },
     { name = "pulumi", specifier = ">=3.137.0" },
+    { name = "pulumi-cloudinit", specifier = ">=1.4.8" },
     { name = "pulumi-digitalocean", specifier = ">=4.34.0" },
     { name = "pulumi-docker", specifier = ">=4.5.7" },
     { name = "pulumi-docker-build", specifier = ">=0.0.7" },
+    { name = "pulumi-tls", specifier = ">=5.0.9" },
 ]
 
 [[package]]
@@ -198,6 +202,20 @@ wheels = [
 ]
 
 [[package]]
+name = "pulumi-cloudinit"
+version = "1.4.8"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "parver" },
+    { name = "pulumi" },
+    { name = "semver" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/08/e4/9e1f708d26d3d1e4ff27978c2de3d136f0270ce6202a2a5c39f0990581eb/pulumi_cloudinit-1.4.8.tar.gz", hash = "sha256:97e93d625739abfc9054f4c4e1e00216124a3e502ecb82ea3eea7b2604688966", size = 11317 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fd/23/0e88dd046b0fe595b12962f512becc19fe2a66bdaaea07e4b8230209756b/pulumi_cloudinit-1.4.8-py3-none-any.whl", hash = "sha256:7ae48f2a39fd4956e906d0644a067995d31bddb39cad4c8a5b9713c879f0ce3c", size = 15249 },
+]
+
+[[package]]
 name = "pulumi-digitalocean"
 version = "4.34.0"
 source = { registry = "https://pypi.org/simple" }
@@ -237,6 +255,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/31/76/b028b3958772b8f9c014421c9e97a5ecdcac9a1064b1b4e5b6c5395f091b/pulumi_docker_build-0.0.7.tar.gz", hash = "sha256:712afb5eec328ccb9af0827e10a5d70f829ede25a558a1a7fe8d4099c6c64cfb", size = 38899 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0b/68/f028a3123fdec371e4c09e88b0350f4f1758e4b1d756ba263aa5e5277839/pulumi_docker_build-0.0.7-py3-none-any.whl", hash = "sha256:4af7f94a586a37e04d1fc01dc1a1e424b2535a0ec962101180c87596dd5ff947", size = 43492 },
+]
+
+[[package]]
+name = "pulumi-tls"
+version = "5.0.9"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "parver" },
+    { name = "pulumi" },
+    { name = "semver" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/37/cd/a439652f2511dcb5c9a5fc6bb361f61b9cc7cdf37be5f6d6f10ac16fe5e6/pulumi_tls-5.0.9.tar.gz", hash = "sha256:ccc82969f13a35ec6b7da1735a8368891db71a291cf796ba8afa8ae7e5fa40f9", size = 25640 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5b/76/d49bafa51a9cf228fe6d98efc8d1cc281af3aafa37df1f021ac8448dbfc7/pulumi_tls-5.0.9-py3-none-any.whl", hash = "sha256:548443b40da8c478ef6404afe25fa1d37cb3b5218fc3af305a9cd8c9374f1f48", size = 34208 },
 ]
 
 [[package]]
