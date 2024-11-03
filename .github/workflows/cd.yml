@@ -36,20 +36,3 @@ jobs:
           refresh: true
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          DIGITALOCEAN_TOKEN:  ${{ secrets.DIGITALOCEAN_TOKEN }}
-      - name: Connect Tailscale
-        uses: tailscale/github-action@v2
-        with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:cicd
-      - name: Deploy
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-        run: |
-          ssh -o "StrictHostKeyChecking no" cicd@pypacktrends-prod "
-            cd /opt/pypacktrends/infra
-            # TODO FIX ME
-            git pull
-            PULUMI_ACCESS_TOKEN=${PULUMI_ACCESS_TOKEN} uv run pulumi up --stack prod --yes
-          "

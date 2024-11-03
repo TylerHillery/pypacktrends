@@ -1,8 +1,6 @@
 config:
-  pypacktrends:digitalocean-token:
+  digitalocean:token:
     secure: AAABAIdUZdUatjijNTgFa6SI+jCXGVusAXjG28FVqTnd7M5h/2JdYkKgh1IgEffUk4DKFsqXjqzeYxIskjb5Ytv0wffRxy+ii2HftJmEdcmLjyjx8zO9rasefXSu0Ic/zh7zL+za1g==
-  pypacktrends:digitalocean-ssh-key-id:
-    secure: AAABAJpwf9Jzt0Y9xW1K0nXfaE9+SPYT+luHFZPI2/b0rNJ4RQHqJw==
   pypacktrends:github-token:
     secure: AAABAMwMm3denuZS8UsdoH0UYKiE3t/aZzOlk3QeAtGpfq6244LhxHT6I5WrIefZhCNae69cLH3nFfm6+Jgr6pkxyXm2NuaX
   pypacktrends:pulumi-access-token:
