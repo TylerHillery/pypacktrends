@@ -1,7 +1,8 @@
-from typing import Type, Any
-from jinja2 import Environment, FileSystemLoader
+from typing import Any, Type
+
 import pulumi
 import pulumi_docker as docker
+from jinja2 import Environment, FileSystemLoader
 
 
 def create_docker_resource(
@@ -9,10 +10,10 @@ def create_docker_resource(
     service_name: str,
     **kwargs: Any,
 ) -> docker.Network | docker.Volume | docker.Container:
-    suffix = resource_type.__name__.lower()
-    resource_name = f"{service_name}-{suffix}"
+    prefix = resource_type.__name__.lower()
+    resource_name = f"{prefix}-{service_name}"
     resource = resource_type(resource_name, name=service_name, **kwargs)
-    pulumi.export(resource_name, resource.name)
+    pulumi.export(f"docker-{resource_name}:name", resource.name)
     return resource
 
 

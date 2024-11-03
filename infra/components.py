@@ -21,7 +21,7 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
     ):
         super().__init__(
             "pkg:index:DockerImageComponent",
-            f"{service_name}-docker-image-component",
+            f"docker-image-component-{service_name}",
             None,
             opts,
         )
@@ -32,7 +32,7 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
         self.image_tag = self.get_image_tag()
         self.cache_image_tag = self.get_image_tag(for_cache=True)
         self.docker_build_image_config = dict(
-            resource_name=f"{self.service_name}-image",
+            resource_name=f"docker-image-{self.service_name}",
             context=docker_build.ContextArgs(location=context),
             dockerfile=docker_build.DockerfileArgs(location=f"{context}/Dockerfile"),
             platforms=[docker_build.Platform.LINUX_AMD64],
