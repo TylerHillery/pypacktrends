@@ -3,11 +3,14 @@ on:
   push:
     branches:
       - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   pulumi-up:
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
     defaults:
       run:
         working-directory: ./infra
