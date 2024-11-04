@@ -27,6 +27,12 @@ jobs:
         run: |
             export UV_PROJECT_ENVIRONMENT="${pythonLocation}"
             uv sync --frozen
+      - name: Connect Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:cicd
       - name: Pulumi Up CICD Stack
         uses: pulumi/actions@v6
         with:
