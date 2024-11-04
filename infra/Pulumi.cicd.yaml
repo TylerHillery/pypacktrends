@@ -1,13 +1,2 @@
-config:
-  digitalocean:token:
-    secure: AAABAIdUZdUatjijNTgFa6SI+jCXGVusAXjG28FVqTnd7M5h/2JdYkKgh1IgEffUk4DKFsqXjqzeYxIskjb5Ytv0wffRxy+ii2HftJmEdcmLjyjx8zO9rasefXSu0Ic/zh7zL+za1g==
-  github:token:
-    secure: AAABAMwMm3denuZS8UsdoH0UYKiE3t/aZzOlk3QeAtGpfq6244LhxHT6I5WrIefZhCNae69cLH3nFfm6+Jgr6pkxyXm2NuaX
-  pulumi:token:
-    secure: AAABAC5s1ztMKsgsk0d3X9eLwQNYPrHcu+XmXZw7Ir4NojJxaciUgF4s+WVNLRly7+nMPeO2QENjeUbIWU5NnDmPKaa8cMEBTSZqCw==
-  tailscale:auth-key:
-    secure: AAABAGGoXP+9/e9/z3q7rFxTEfQqECEy1GvMOKOWc3V8bp+YwbkX1+gxFUOMCE3XIjD+v/ymd8o6Wa2kuPtYyQD7b2DRpF9/HV8fAK2E98p4k1YIeFA6kQtYNFBf
-  tailscale:oauth-client-id:
-    secure: AAABAPKo657wlqZwo/YTlbyeLTHYf9SKGa4T+F0hkOJ7VAdFDv5oj0Qb8zh7wSLy8w==
-  tailscale:oauth-client-secret:
-    secure: AAABABiPg2Fj1kMDkvymjBLHk2r7agTdVTXHLkxM8BLR3jsvj0tDDG0Ov9JYeVFcKuKonw/q6JZqJDDHuoA02geduG8z5kQzqTDumZyPLWHDD16Xmr/iFvuKzzKvf7Q=
+environment:
+  - pypacktrends/prod

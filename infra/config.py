@@ -14,6 +14,11 @@ class Settings:
     CADDY_SERVICE_PATH: str = caddy_service_config.get("path") or "../caddy"
     CADDY_SERVICE_NAME: str = caddy_service_config.get("name") or "caddy"
 
+    cloudflare_config: pulumi.Config = pulumi.Config("cloudflare")
+    CLOUDFLARE_API_TOKEN: pulumi.Output | None = cloudflare_config.get_secret(
+        "apiToken"
+    )
+
     digitalocean_config: pulumi.Config = pulumi.Config("digitalocean")
     DIGITALOCEAN_TOKEN: pulumi.Output | None = digitalocean_config.get_secret("token")
 
@@ -32,6 +37,10 @@ class Settings:
     github_config: pulumi.Config = pulumi.Config("github")
     GITHUB_USERNAME: str = github_config.get("username") or "tylerhillery"
     GITHUB_TOKEN: pulumi.Output | None = github_config.get_secret("token")
+
+    project_config: pulumi.Config = pulumi.Config()
+    CLOUDFLARE_ACCOUNT_ID: str | None = project_config.get("cloudflare-account-id")
+    CLOUDFLARE_ZONE_ID: str | None = project_config.get("cloudflare-zone-id")
 
     pulumi_config: pulumi.Config = pulumi.Config("pulumi")
     PULUMI_ACCESS_TOKEN: pulumi.Output | None = pulumi_config.get_secret("token")

@@ -79,7 +79,9 @@ dependencies = [
     { name = "jinja2" },
     { name = "pip" },
     { name = "pulumi" },
+    { name = "pulumi-cloudflare" },
     { name = "pulumi-cloudinit" },
+    { name = "pulumi-command" },
     { name = "pulumi-digitalocean" },
     { name = "pulumi-docker" },
     { name = "pulumi-docker-build" },
@@ -92,7 +94,9 @@ requires-dist = [
     { name = "jinja2", specifier = ">=3.1.4" },
     { name = "pip", specifier = ">=24.3.1" },
     { name = "pulumi", specifier = ">=3.137.0" },
+    { name = "pulumi-cloudflare", specifier = ">=5.42.0" },
     { name = "pulumi-cloudinit", specifier = ">=1.4.8" },
+    { name = "pulumi-command", specifier = ">=1.0.1" },
     { name = "pulumi-digitalocean", specifier = ">=4.34.0" },
     { name = "pulumi-docker", specifier = ">=4.5.7" },
     { name = "pulumi-docker-build", specifier = ">=0.0.7" },
@@ -204,6 +208,20 @@ wheels = [
 ]
 
 [[package]]
+name = "pulumi-cloudflare"
+version = "5.42.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "parver" },
+    { name = "pulumi" },
+    { name = "semver" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/2e/04/dd79c980d9a43a08fb259c156470dbefc49ba910b9e2fadff40853268600/pulumi_cloudflare-5.42.0.tar.gz", hash = "sha256:432103316073cc1924f1c14dd85d823683ea779a63f5e3fb78e9d41a55fb746e", size = 583851 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/68/56/f82524448b949aedd570d33cabc67c9f3486ace8c4a4317774805d33a76d/pulumi_cloudflare-5.42.0-py3-none-any.whl", hash = "sha256:e8c7bda2cb327fd1f6984b4315baa610bb3ea82e1c1aa9131e86f6f88a1b953c", size = 840914 },
+]
+
+[[package]]
 name = "pulumi-cloudinit"
 version = "1.4.8"
 source = { registry = "https://pypi.org/simple" }
@@ -215,6 +233,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/08/e4/9e1f708d26d3d1e4ff27978c2de3d136f0270ce6202a2a5c39f0990581eb/pulumi_cloudinit-1.4.8.tar.gz", hash = "sha256:97e93d625739abfc9054f4c4e1e00216124a3e502ecb82ea3eea7b2604688966", size = 11317 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/fd/23/0e88dd046b0fe595b12962f512becc19fe2a66bdaaea07e4b8230209756b/pulumi_cloudinit-1.4.8-py3-none-any.whl", hash = "sha256:7ae48f2a39fd4956e906d0644a067995d31bddb39cad4c8a5b9713c879f0ce3c", size = 15249 },
+]
+
+[[package]]
+name = "pulumi-command"
+version = "1.0.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "parver" },
+    { name = "pulumi" },
+    { name = "semver" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/dd/c0/a6304d7697a22cec1f71101613eb81fe5f98549c36040d40a5d0a9cc759e/pulumi_command-1.0.1.tar.gz", hash = "sha256:58e123707956aa7a9be2ce89c009642539cde5d9fa02e1e10501662600894843", size = 31532 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ad/f1/a7616bc13081a110d8c2d0fe26c42249735154fa2732c86fab9ef8de0844/pulumi_command-1.0.1-py3-none-any.whl", hash = "sha256:672cdea9c0ced0f79ed47e578267a2b2160dcf88626dde34ee96f5524a003574", size = 34742 },
 ]
 
 [[package]]
