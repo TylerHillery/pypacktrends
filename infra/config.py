@@ -45,6 +45,7 @@ class Settings:
     CLOUDFLARE_ZONE_ID: str | None = (
         project_config.get("cloudflare-zone-id") or "d973f173bbb9a119f2821c25bb312bef"
     )
+    VPS_USERNAME: str | None = project_config.get("vps-username") or "cicd"
 
     pulumi_config: pulumi.Config = pulumi.Config("pulumi")
     PULUMI_ACCESS_TOKEN: pulumi.Output | None = pulumi_config.get_secret("token")

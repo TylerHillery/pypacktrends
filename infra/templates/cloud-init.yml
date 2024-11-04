@@ -3,13 +3,20 @@ ssh_pwauth: false
 groups:
   - docker
 users:
-- name: cicd
+- name: "{{ vps_username }}"
   groups: sudo, docker
   sudo: ALL=(ALL) NOPASSWD:ALL
   shell: /bin/bash
   lock_passwd: true
 
 runcmd:
+  # ssh configs
+  - sed -i '/PermitRootLogin/d' /etc/ssh/sshd_config
+  - echo "PermitRootLogin without-password" >> /etc/ssh/sshd_config
+  - sed -i '/^AcceptEnv /d' /etc/ssh/sshd_config
+  - echo "AcceptEnv LANG LC_* PULUMI_ACCESS_TOKEN" >> /etc/ssh/sshd_config
+  - systemctl restart sshd
+
   # disable needrestart prompts
   - mkdir -p /etc/needrestart/conf.d
   - echo "\$nrconf{kernelhints} = -1;" > /etc/needrestart/conf.d/99disable-prompt.conf
@@ -37,12 +44,11 @@ runcmd:
   - HOME="/root" UV_UNMANAGED_INSTALL="/usr/local/bin" sh /tmp/uv_install.sh # https://github.com/astral-sh/uv/issues/6965
 
   # clone the repository
-  - mkdir /opt/pypacktrends
-  - sudo chown -R cicd:cicd /opt/pypacktrends
-  - sudo -u cicd git clone https://tylerhillery:{{ github_token }}@github.com/tylerhillery/pypacktrends.git /opt/pypacktrends
+  - mkdir /opt/{{ project_name }}
+  - git clone https://{{ github_username }}:{{ github_token }}@github.com/{{ github_username }}/{{ project_name }}.git /opt/{{ project_name }}
 
   # start containers
-  - sudo -u cicd bash -c "cd /opt/pypacktrends/infra && PULUMI_ACCESS_TOKEN={{ pulumi_access_token }} uv run pulumi up --stack prod --yes"
+  - bash -c "cd /opt/{{ project_name }}/infra && PULUMI_ACCESS_TOKEN={{ pulumi_access_token }} uv run pulumi up --stack prod --yes"
 
   # ufw configs
   - ufw allow OpenSSH
