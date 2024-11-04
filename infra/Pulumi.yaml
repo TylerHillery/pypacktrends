@@ -3,4 +3,5 @@ description: "Pulumi project for pypacktrends"
 runtime: python
 config:
   cloudflare-account-id: e57deed2a6fbc6ca1d3570353f246f7a
+  cloudflare-forward-email: tyhillery@gmail.com
   cloudflare-zone-id: d973f173bbb9a119f2821c25bb312bef

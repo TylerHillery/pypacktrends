@@ -77,6 +77,15 @@ if settings.STACK_NAME == "cicd":
         proxied=False,
     )
 
+    cloudfalre_email_routing_catch_all = cloudflare.EmailRoutingCatchAll(
+        "cloudfalre-email-routing-catch-all ",
+        zone_id=settings.CLOUDFLARE_ZONE_ID,
+        name="Catch-All",
+        enabled=True,
+        matchers=[{"type": "all"}],
+        actions=[{"type": "forward", "values": [settings.CLOUDFLARE_FORWARD_EMAIL]}],
+    )
+
 if settings.STACK_NAME in ["dev", "prod"]:
     caddy_network = create_docker_resource(docker.Network, settings.CADDY_SERVICE_NAME)
     caddy_data_volume = create_docker_resource(

@@ -40,6 +40,9 @@ class Settings:
 
     project_config: pulumi.Config = pulumi.Config()
     CLOUDFLARE_ACCOUNT_ID: str | None = project_config.get("cloudflare-account-id")
+    CLOUDFLARE_FORWARD_EMAIL: str | None = project_config.get(
+        "cloudflare-forward-email"
+    )
     CLOUDFLARE_ZONE_ID: str | None = project_config.get("cloudflare-zone-id")
 
     pulumi_config: pulumi.Config = pulumi.Config("pulumi")
