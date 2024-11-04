@@ -1,4 +1,5 @@
 import pulumi
+import pulumi_cloudflare as cloudflare
 import pulumi_digitalocean as digitalocean
 import pulumi_docker as docker
 import pulumi_tls as tls
@@ -55,6 +56,35 @@ if settings.STACK_NAME == "cicd":
         ),
     )
     pulumi.export("droplet:ipv4", droplet.ipv4_address)
+
+    cloudflare_a_record_root = cloudflare.Record(
+        "cloudflare-a-record-root",
+        zone_id=settings.CLOUDFLARE_ZONE_ID,
+        type="A",
+        name="@",
+        content=droplet.ipv4_address,
+        ttl=60,
+        proxied=False,
+    )
+
+    cloudflare_a_record_www = cloudflare.Record(
+        "cloudflare-a-record-www",
+        zone_id=settings.CLOUDFLARE_ZONE_ID,
+        type="A",
+        name="www",
+        content=droplet.ipv4_address,
+        ttl=60,
+        proxied=False,
+    )
+
+    cloudfalre_email_routing_catch_all = cloudflare.EmailRoutingCatchAll(
+        "cloudfalre-email-routing-catch-all ",
+        zone_id=settings.CLOUDFLARE_ZONE_ID,
+        name="Catch-All",
+        enabled=True,
+        matchers=[{"type": "all"}],
+        actions=[{"type": "forward", "values": [settings.CLOUDFLARE_FORWARD_EMAIL]}],
+    )
 
 if settings.STACK_NAME in ["dev", "prod"]:
     caddy_network = create_docker_resource(docker.Network, settings.CADDY_SERVICE_NAME)

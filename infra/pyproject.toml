@@ -7,7 +7,9 @@ requires-python = ">=3.12"
 dependencies = [
     "jinja2>=3.1.4",
     "pip>=24.3.1",
+    "pulumi-cloudflare>=5.42.0",
     "pulumi-cloudinit>=1.4.8",
+    "pulumi-command>=1.0.1",
     "pulumi-digitalocean>=4.34.0",
     "pulumi-docker-build>=0.0.7",
     "pulumi-docker>=4.5.7",
