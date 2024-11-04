@@ -1,4 +1,5 @@
 import pulumi
+import pulumi_command as command
 import pulumi_cloudflare as cloudflare
 import pulumi_digitalocean as digitalocean
 import pulumi_docker as docker
@@ -30,8 +31,11 @@ pulumi.export(
 if settings.STACK_NAME == "cicd":
     user_data = get_cloud_init_script(
         github_token=settings.GITHUB_TOKEN,
+        github_username=settings.GITHUB_USERNAME,
+        project_name=settings.PROJECT_NAME,
         pulumi_access_token=settings.PULUMI_ACCESS_TOKEN,
         tailscale_auth_key=settings.TAILSCALE_AUTH_KEY,
+        vps_username=settings.VPS_USERNAME,
     )
 
     ssh_key = tls.PrivateKey("tls-private-key", algorithm="RSA", rsa_bits=4096)
@@ -50,7 +54,14 @@ if settings.STACK_NAME == "cicd":
         region=digitalocean.Region.SFO3,
         size=digitalocean.DropletSlug.DROPLET_S1_VCPU1_GB,
         ssh_keys=[do_ssh_key.id],
-        user_data=user_data,
+        user_data=get_cloud_init_script(
+            github_token=settings.GITHUB_TOKEN,
+            github_username=settings.GITHUB_USERNAME,
+            project_name=settings.PROJECT_NAME,
+            pulumi_access_token=settings.PULUMI_ACCESS_TOKEN,
+            tailscale_auth_key=settings.TAILSCALE_AUTH_KEY,
+            vps_username=settings.VPS_USERNAME,
+        ),
         opts=pulumi.ResourceOptions(
             ignore_changes=["user_data"],
         ),
@@ -85,6 +96,26 @@ if settings.STACK_NAME == "cicd":
         matchers=[{"type": "all"}],
         actions=[{"type": "forward", "values": [settings.CLOUDFLARE_FORWARD_EMAIL]}],
     )
+
+    remote_command = command.remote.Command(
+        "remote-command",
+        connection=command.remote.ConnectionArgs(
+            host=droplet.ipv4_address,
+            user="root",
+            private_key=ssh_key.private_key_pem,
+        ),
+        create="""
+            cd /opt/pypacktrends/infra
+            git pull
+            uv run pulumi up --stack prod --yes
+        """,
+        environment={
+            "PULUMI_ACCESS_TOKEN": settings.PULUMI_ACCESS_TOKEN,
+        },
+    )
+    pulumi.export("remote-command:stdout", remote_command.stdout)
+    pulumi.export("remote-command:stderr", remote_command.stderr)
+
 
 if settings.STACK_NAME in ["dev", "prod"]:
     caddy_network = create_docker_resource(docker.Network, settings.CADDY_SERVICE_NAME)
