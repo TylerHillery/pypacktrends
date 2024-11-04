@@ -39,11 +39,12 @@ class Settings:
     GITHUB_TOKEN: pulumi.Output | None = github_config.get_secret("token")
 
     project_config: pulumi.Config = pulumi.Config()
-    CLOUDFLARE_ACCOUNT_ID: str | None = project_config.get("cloudflare-account-id")
-    CLOUDFLARE_FORWARD_EMAIL: str | None = project_config.get(
-        "cloudflare-forward-email"
+    CLOUDFLARE_FORWARD_EMAIL: str | None = (
+        project_config.get("cloudflare-forward-email") or "tyhillery@gmail.com"
     )
-    CLOUDFLARE_ZONE_ID: str | None = project_config.get("cloudflare-zone-id")
+    CLOUDFLARE_ZONE_ID: str | None = (
+        project_config.get("cloudflare-zone-id") or "d973f173bbb9a119f2821c25bb312bef"
+    )
 
     pulumi_config: pulumi.Config = pulumi.Config("pulumi")
     PULUMI_ACCESS_TOKEN: pulumi.Output | None = pulumi_config.get_secret("token")
