@@ -33,6 +33,9 @@ jobs:
           command: up
           stack-name: cicd
           work-dir: ./infra
+          comment-on-summary: true
+          github-token: ${{ secrets.GH_TOKEN }}
           refresh: true
+          color: always
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
