@@ -94,6 +94,10 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
 
     def use_remote_image(self) -> docker.RemoteImage:
         registry_image = docker.get_registry_image(name=self.image_tag)
+        pulumi.export(
+            f"registry-image-{self.service_name}:sha256-digest",
+            registry_image.sha256_digest,
+        )
         return docker.RemoteImage(
             self.docker_build_image_config.get("resource_name"),
             name=registry_image.name,

@@ -100,18 +100,18 @@ if settings.STACK_NAME == "cicd":
     remote_command = command.remote.Command(
         "remote-command",
         connection=command.remote.ConnectionArgs(
-            host=droplet.ipv4_address,
-            user="root",
-            private_key=ssh_key.private_key_pem,
+            host=droplet.name,
+            user=settings.VPS_USERNAME,
         ),
         create="""
             cd /opt/pypacktrends/infra
-            git pull
-            uv run pulumi up --stack prod --refresh --yes
+            sudo git pull
+            sudo uv run pulumi up --stack prod --refresh --yes
         """,
         environment={
             "PULUMI_ACCESS_TOKEN": settings.PULUMI_ACCESS_TOKEN,
         },
+        opts=pulumi.ResourceOptions(depends_on=[caddy_image, backend_image]),
     )
     pulumi.export("remote-command:stdout", remote_command.stdout)
     pulumi.export("remote-command:stderr", remote_command.stderr)
