@@ -107,7 +107,7 @@ if settings.STACK_NAME == "cicd":
         create="""
             cd /opt/pypacktrends/infra
             git pull
-            uv run pulumi up --stack prod --yes
+            uv run pulumi up --stack prod --refresh --yes
         """,
         environment={
             "PULUMI_ACCESS_TOKEN": settings.PULUMI_ACCESS_TOKEN,
