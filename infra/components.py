@@ -101,6 +101,6 @@ class DockerImageComponent(pulumi.ComponentResource):  # type: ignore
         return docker.RemoteImage(
             self.docker_build_image_config.get("resource_name"),
             name=registry_image.name,
-            keep_locally=True,
+            force_remove=True,
             pull_triggers=[registry_image.sha256_digest],
         )
