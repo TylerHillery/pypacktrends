@@ -161,7 +161,6 @@ if settings.STACK_NAME in ["dev", "prod"]:
         ports=[
             docker.ContainerPortArgs(
                 internal=settings.BACKEND_SERVICE_PORT,
-                external=settings.BACKEND_SERVICE_PORT,
             )
         ],
         network_mode="bridge",

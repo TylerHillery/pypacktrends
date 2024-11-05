@@ -2,4 +2,11 @@
 	reverse_proxy {$BACKEND_SERVICE_NAME}:{$BACKEND_PORT} {
 		header_down Strict-Transport-Security max-age=31536000;
 	}
+	handle_errors {
+		respond "{err.status_code} {err.status_text}"
+	}
+}
+
+www.{$DOMAIN} {
+	redir https://{$DOMAIN}{uri}
 }
