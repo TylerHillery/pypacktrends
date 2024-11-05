@@ -6,6 +6,7 @@ services:
 
   backend:
     restart: no
+    image: '${DOCKER_IMAGE_BACKEND-ghcr.io/tylerhillery/pypacktrends/backend}:${TAG-dev}'
     ports:
       - 8000:8000
     build:

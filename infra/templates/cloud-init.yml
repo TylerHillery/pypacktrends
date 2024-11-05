@@ -27,6 +27,7 @@ runcmd:
 
   # docker configs
   - curl -fssl https://get.docker.com | sh
+  - sudo apt-get install docker-compose-plugin
 
   # tailscale configs
   - curl -fsSL https://tailscale.com/install.sh | sh
@@ -44,11 +45,10 @@ runcmd:
   - HOME="/root" UV_UNMANAGED_INSTALL="/usr/local/bin" sh /tmp/uv_install.sh # https://github.com/astral-sh/uv/issues/6965
 
   # clone the repository
-  - mkdir /opt/{{ project_name }}
-  - git clone https://{{ github_username }}:{{ github_token }}@github.com/{{ github_username }}/{{ project_name }}.git /opt/{{ project_name }}
+  - sudo -u {{ vps_username }} git clone https://{{ github_username }}:{{ github_token }}@github.com/{{ github_username }}/{{ project_name }}.git /home/{{ vps_username }}/{{ project_name }}
 
   # start containers
-  - bash -c "cd /opt/{{ project_name }}/infra && PULUMI_ACCESS_TOKEN={{ pulumi_access_token }} uv run pulumi up --stack prod --yes"
+  - bash -c "cd /home/{{ vps_username }}/{{ project_name }} && docker-compose up -d"
 
   # ufw configs
   - ufw allow OpenSSH
