@@ -1,5 +1,5 @@
 {$DOMAIN} {
-	reverse_proxy {$BACKEND_SERVICE_NAME}:{$BACKEND_SERVICE_PORT}
+	reverse_proxy {$BACKEND_CONTAINER_NAME}:{$BACKEND_CONTAINER_PORT}
 
 	handle_errors {
 		respond "{err.status_code} {err.status_text}"
