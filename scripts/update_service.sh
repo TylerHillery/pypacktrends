@@ -3,7 +3,7 @@
 # Check if required arguments are provided
 if [ "$#" -ne 2 ]; then
     echo "Usage: $0 <CONTAINER_REGISTRY_PREFIX> <SERVICE_NAME>"
-    echo "Example: $0 ghcr.io/tylerhillery/pypacktrends backend"
+    echo "Example: $0 ghcr.io/tylerhillery/pypacktrends/ backend"
     exit 1
 fi
 
@@ -21,15 +21,11 @@ log() {
 
 log "Starting update for service $SERVICE_NAME..."
 
-# Step 1: Pull the latest Docker images and configuration files if necessary
-log "Pulling latest Docker images and configuration files..."
-git pull
-
-# Step 2: Pull the latest image for the specified service
+# Pull the latest image for the specified service
 log "Pulling the latest image: ${FULL_IMAGE_NAME}"
 docker pull "$FULL_IMAGE_NAME"
 
-# Step 3: Get the list of dangling images for the specified service
+# Get the list of dangling images for the specified service
 dangling_image=$(docker images --filter "dangling=true" --filter "reference=${CONTAINER_REGISTRY_PREFIX}${SERVICE_NAME}" --format "{{.ID}}")
 
 if [ -n "$dangling_image" ]; then
@@ -39,7 +35,7 @@ else
     exit 1
 fi
 
-# Step 4: Get the container name attached to the dangling image
+# Get the container name attached to the dangling image
 old_container=$(docker ps --filter "ancestor=$dangling_image" --format "{{.Names}}")
 
 if [ -n "$old_container" ]; then
@@ -49,11 +45,11 @@ else
     exit 1
 fi
 
-# Step 5: Scale up the specified service to two containers
+# Scale up the specified service to two containers
 log "Scaling up service $SERVICE_NAME to two containers..."
 docker compose -f docker-compose.yml up -d --no-deps --scale "$SERVICE_NAME"=2 --no-recreate "$SERVICE_NAME"
 
-# Step 6: Get the name of the new container for the specified service
+# Get the name of the new container for the specified service
 new_container=$(docker ps --filter "ancestor=${FULL_IMAGE_NAME}" --format "{{.Names}}" | grep "$SERVICE_NAME" | tail -n 1)
 
 if [ -n "$new_container" ]; then
@@ -63,7 +59,7 @@ else
     exit 1
 fi
 
-# Step 7: Retrieve the Caddy container name (static name as specified in Docker Compose)
+# Retrieve the Caddy container name (static name as specified in Docker Compose)
 caddy_container="caddy"
 
 # Check if the Caddy container is running
@@ -74,16 +70,16 @@ else
     exit 1
 fi
 
-# Step 8: Update Caddy with the new container name
+# Update Caddy with the new container name
 log "Updating Caddy with the new container name for service $SERVICE_NAME..."
 CONTAINER_NAME=$(echo "${SERVICE_NAME}" | tr '[:lower:]' '[:upper:]')_CONTAINER_NAME
 docker exec -it "$caddy_container" /bin/sh -c "export ${CONTAINER_NAME}=$new_container && caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile"
 
-# Step 9: Remove the old container using the dangling image
+# Remove the old container using the dangling image
 log "Removing old container: $old_container..."
 docker container rm -f "$old_container"
 
-# Step 10: Remove the dangling image
+# 10: Remove the dangling image
 log "Removing dangling image: $dangling_image..."
 docker rmi "$dangling_image"
 
