@@ -12,7 +12,7 @@ def root() -> HTMLResponse:
             <title>PyPack Trends</title>
         </head>
         <body>
-            <h3>PyPack Trends 🐍 coming soon!</h3>
+            <h3>PyPack Trends 🐍 coming soon!!!</h3>
         </body>
     </html>
     """

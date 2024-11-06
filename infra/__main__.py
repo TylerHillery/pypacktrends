@@ -1,4 +1,5 @@
 import pulumi
+import pulumi_command as command
 import pulumi_cloudflare as cloudflare
 import pulumi_digitalocean as digitalocean
 import pulumi_docker_build as docker_build
@@ -13,12 +14,7 @@ backend_image = docker_build.Image(
         location=f"{settings.BACKEND_SERVICE_PATH}/Dockerfile"
     ),
     platforms=[docker_build.Platform.LINUX_AMD64],
-    tags=[
-        f"{settings.CONTAINER_REGISTRY_ADDRESS}/"
-        f"{settings.GITHUB_USERNAME}/"
-        f"{settings.CONTAINER_REGISTRY_REPOSITORY}/"
-        f"{settings.BACKEND_SERVICE_NAME}:latest"
-    ],
+    tags=[f"{settings.BACKEND_DOCKER_IMAGE_URL}:latest"],
     registries=[
         docker_build.RegistryArgs(
             address=settings.CONTAINER_REGISTRY_ADDRESS,
@@ -35,12 +31,14 @@ pulumi.export(
 )
 
 user_data = get_cloud_init_script(
+    container_registry_address=settings.CONTAINER_REGISTRY_ADDRESS,
     github_token=settings.GITHUB_TOKEN,
     github_username=settings.GITHUB_USERNAME,
     project_name=settings.PROJECT_NAME,
     pulumi_access_token=settings.PULUMI_ACCESS_TOKEN,
     tailscale_auth_key=settings.TAILSCALE_AUTH_KEY,
     vps_username=settings.VPS_USERNAME,
+    vps_project_path=settings.VPS_PROJECT_PATH,
 )
 
 ssh_key = tls.PrivateKey("tls-private-key", algorithm="RSA", rsa_bits=4096)
@@ -102,21 +100,17 @@ cloudfalre_email_routing_catch_all = cloudflare.EmailRoutingCatchAll(
     actions=[{"type": "forward", "values": [settings.CLOUDFLARE_FORWARD_EMAIL]}],
 )
 
-# remote_command = command.remote.Command(
-#     "remote-command",
-#     connection=command.remote.ConnectionArgs(
-#         host=droplet.name,
-#         user=settings.VPS_USERNAME,
-#     ),
-#     create="""
-#         cd /opt/pypacktrends/infra
-#         sudo git pull
-#         sudo uv run pulumi up --stack prod --refresh --yes
-#     """,
-#     environment={
-#         "PULUMI_ACCESS_TOKEN": settings.PULUMI_ACCESS_TOKEN,
-#     },
-#     opts=pulumi.ResourceOptions(depends_on=[backend_image]),
-# )
-# pulumi.export("remote-command:stdout", remote_command.stdout)
-# pulumi.export("remote-command:stderr", remote_command.stderr)
+remote_command = command.remote.Command(
+    "remote-command",
+    connection=command.remote.ConnectionArgs(
+        host=droplet.name,
+        user=settings.VPS_USERNAME,
+    ),
+    create=f"""
+        cd {settings.VPS_PROJECT_PATH}
+        ./update_service.sh {settings.CONTAINER_REGISTRY_PREFIX} {settings.BACKEND_SERVICE_NAME}
+    """,
+    triggers=[backend_image.ref],
+)
+pulumi.export("remote-command:stdout", remote_command.stdout)
+pulumi.export("remote-command:stderr", remote_command.stderr)

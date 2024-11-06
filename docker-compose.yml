@@ -1,7 +1,6 @@
 services:
   backend:
-    container_name: backend
-    image: '${DOCKER_IMAGE_BACKEND-ghcr.io/tylerhillery/pypacktrends/backend}:${TAG-latest}'
+    image: '${BACKEND_DOCKER_IMAGE_URL-ghcr.io/tylerhillery/pypacktrends/backend}:${TAG-latest}'
     restart: always
     networks:
       - caddy
@@ -26,12 +25,15 @@ services:
       - caddy_config:/config
     environment:
       DOMAIN: ${DOMAIN-pypacktrends.com}
-      BACKEND_SERVICE_NAME: ${BACKEND_SERVICE_NAME-backend}
-      BACKEND_SERVICE_PORT: ${BACKEND_SERVICE_PORT-8000}
+      BACKEND_CONTAINER_NAME: ${BACKEND_CONTAINER_NAME-pypacktrends-backend-1}
+      BACKEND_CONTAINER_PORT: ${BACKEND_CONTAINER_PORT-8000}
 
 networks:
   caddy:
+    name: caddy
 
 volumes:
   caddy_data:
+    name: caddy-data
   caddy_config:
+    name: caddy-config
