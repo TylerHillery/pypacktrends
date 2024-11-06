@@ -1,0 +1,38 @@
+services:
+  backend:
+    image: '${BACKEND_DOCKER_IMAGE_URL-ghcr.io/tylerhillery/pypacktrends/backend}:${TAG-latest}'
+    restart: always
+    networks:
+      - caddy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health-check/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  caddy:
+    container_name: caddy
+    image: caddy/caddy:2.8.4-alpine
+    restart: always
+    networks:
+      - caddy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      DOMAIN: ${DOMAIN-pypacktrends.com}
+      BACKEND_CONTAINER_NAME: ${BACKEND_CONTAINER_NAME-pypacktrends-backend-1}
+      BACKEND_CONTAINER_PORT: ${BACKEND_CONTAINER_PORT-8000}
+
+networks:
+  caddy:
+    name: caddy
+
+volumes:
+  caddy_data:
+    name: caddy-data
+  caddy_config:
+    name: caddy-config

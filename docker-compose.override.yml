@@ -1,0 +1,28 @@
+services:
+  caddy:
+    restart: no
+    environment:
+      DOMAIN: localhost
+
+  backend:
+    restart: no
+    image: '${DOCKER_IMAGE_BACKEND-ghcr.io/tylerhillery/pypacktrends/backend}:${TAG-dev}'
+    ports:
+      - 8000:8000
+    build:
+      context: ./backend
+    command:
+      - fastapi
+      - run
+      - --reload
+      - ./app/main.py
+    develop:
+      watch:
+        - path: ./backend
+          action: sync
+          target: /app
+          ignore:
+            - ./backend/.venv
+            - .venv
+        - path: ./backend/pyproject.toml
+          action: rebuild

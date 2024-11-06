@@ -39,19 +39,34 @@ class Settings:
     GITHUB_TOKEN: pulumi.Output | None = github_config.get_secret("token")
 
     project_config: pulumi.Config = pulumi.Config()
-    CLOUDFLARE_FORWARD_EMAIL: str | None = (
+    CLOUDFLARE_FORWARD_EMAIL: str = (
         project_config.get("cloudflare-forward-email") or "tyhillery@gmail.com"
     )
-    CLOUDFLARE_ZONE_ID: str | None = (
+    CLOUDFLARE_ZONE_ID: str = (
         project_config.get("cloudflare-zone-id") or "d973f173bbb9a119f2821c25bb312bef"
     )
-    VPS_USERNAME: str | None = project_config.get("vps-username") or "cicd"
 
     pulumi_config: pulumi.Config = pulumi.Config("pulumi")
     PULUMI_ACCESS_TOKEN: pulumi.Output | None = pulumi_config.get_secret("token")
 
     tailscale_config: pulumi.Config = pulumi.Config("tailscale")
     TAILSCALE_AUTH_KEY: pulumi.Output | None = tailscale_config.get_secret("auth-key")
+
+    vps_config: pulumi.Config = pulumi.Config("vps")
+    VPS_USERNAME: str = vps_config.get("username") or "github"
+    VPS_PROJECT_PATH: str = f"/home/{VPS_USERNAME}/{PROJECT_NAME}"
+
+    @property
+    def CONTAINER_REGISTRY_PREFIX(self) -> str:
+        return (
+            f"{self.CONTAINER_REGISTRY_ADDRESS}/"
+            f"{self.GITHUB_USERNAME}/"
+            f"{self.CONTAINER_REGISTRY_REPOSITORY}/"
+        )
+
+    @property
+    def BACKEND_DOCKER_IMAGE_URL(self) -> str:
+        return f"{self.CONTAINER_REGISTRY_PREFIX}{self.BACKEND_SERVICE_NAME}"
 
 
 settings = Settings()

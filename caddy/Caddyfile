@@ -1,7 +1,6 @@
 {$DOMAIN} {
-	reverse_proxy {$BACKEND_SERVICE_NAME}:{$BACKEND_PORT} {
-		header_down Strict-Transport-Security max-age=31536000;
-	}
+	reverse_proxy {$BACKEND_CONTAINER_NAME}:{$BACKEND_CONTAINER_PORT}
+
 	handle_errors {
 		respond "{err.status_code} {err.status_text}"
 	}
