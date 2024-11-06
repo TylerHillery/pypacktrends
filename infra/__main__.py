@@ -108,7 +108,7 @@ remote_command = command.remote.Command(
     ),
     create=f"""
         cd {settings.VPS_PROJECT_PATH}
-        ./update_service.sh {settings.CONTAINER_REGISTRY_PREFIX} {settings.BACKEND_SERVICE_NAME}
+        sudo ./update_service.sh {settings.CONTAINER_REGISTRY_PREFIX} {settings.BACKEND_SERVICE_NAME}
     """,
     triggers=[backend_image.ref],
 )

@@ -56,15 +56,17 @@ class Settings:
     VPS_USERNAME: str = vps_config.get("username") or "github"
     VPS_PROJECT_PATH: str = f"/home/{VPS_USERNAME}/{PROJECT_NAME}"
 
-    CONTAINER_REGISTRY_PREFIX: str = (
-        f"{CONTAINER_REGISTRY_ADDRESS}/"
-        f"{GITHUB_USERNAME}/"
-        f"{CONTAINER_REGISTRY_REPOSITORY}/"
-    )
+    @property
+    def CONTAINER_REGISTRY_PREFIX(self) -> str:
+        return (
+            f"{self.CONTAINER_REGISTRY_ADDRESS}/"
+            f"{self.GITHUB_USERNAME}/"
+            f"{self.CONTAINER_REGISTRY_REPOSITORY}/"
+        )
 
-    BACKEND_DOCKER_IMAGE_URL: str = (
-        f"{CONTAINER_REGISTRY_PREFIX}/{BACKEND_SERVICE_NAME}"
-    )
+    @property
+    def BACKEND_DOCKER_IMAGE_URL(self) -> str:
+        return f"{self.CONTAINER_REGISTRY_PREFIX}{self.BACKEND_SERVICE_NAME}"
 
 
 settings = Settings()

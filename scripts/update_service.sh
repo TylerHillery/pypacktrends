@@ -23,7 +23,7 @@ log "Starting update for service $SERVICE_NAME..."
 
 # Step 1: Pull the latest Docker images and configuration files if necessary
 log "Pulling latest Docker images and configuration files..."
-git pull origin main
+git pull
 
 # Step 2: Pull the latest image for the specified service
 log "Pulling the latest image: ${FULL_IMAGE_NAME}"

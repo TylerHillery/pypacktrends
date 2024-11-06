@@ -42,7 +42,7 @@ runcmd:
   - sudo -u {{ vps_username }} git clone https://{{ github_username }}:{{ github_token }}@github.com/{{ github_username }}/{{ project_name }}.git {{ vps_project_path }}
 
   # Make the update script executable
-  - sudo -u {{ vps_username }} chmod +x {{ vps_project_path }}/scripts/update_service.sh
+  - chmod +x {{ vps_project_path }}/scripts/update_service.sh
 
   # start containers using full path to docker-compose.yml
   - sudo -u {{ vps_username }} docker compose -f {{ vps_project_path }}/docker-compose.yml up -d
