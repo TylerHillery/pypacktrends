@@ -4,7 +4,7 @@ groups:
   - docker
 users:
 - name: "{{ vps_username }}"
-  groups: sudo, docker
+  groups: sudo, docker, admin
   sudo: ALL=(ALL) NOPASSWD:ALL
   shell: /bin/bash
   lock_passwd: true
@@ -27,7 +27,7 @@ runcmd:
 
   # docker configs
   - curl -fssl https://get.docker.com | sh
-  - echo {{ github_token }} | docker login {{ container_registry_address }} -u {{ github_username }} --password-stdin
+  - echo {{ github_token }} | sudo -u {{ vps_username }} docker login {{ container_registry_address }} -u {{ github_username }} --password-stdin
 
   # tailscale configs
   - curl -fsSL https://tailscale.com/install.sh | sh
@@ -42,7 +42,7 @@ runcmd:
   - sudo -u {{ vps_username }} git clone https://{{ github_username }}:{{ github_token }}@github.com/{{ github_username }}/{{ project_name }}.git {{ vps_project_path }}
 
   # Make the update script executable
-  - chmod +x {{ vps_project_path }}/scripts/update_service.sh
+  - sudo chmod a+x {{ vps_project_path }}/scripts/update_service.sh
 
   # start containers using full path to docker-compose.yml
   - sudo -u {{ vps_username }} docker compose -f {{ vps_project_path }}/docker-compose.yml up -d
