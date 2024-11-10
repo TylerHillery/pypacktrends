@@ -35,11 +35,11 @@ runcmd:
   - curl -LsSf https://astral.sh/uv/install.sh -o /tmp/uv_install.sh # curl: (23) Failed writing body (1311 != 1378)
   - HOME="/root" UV_UNMANAGED_INSTALL="/usr/local/bin" sh /tmp/uv_install.sh # https://github.com/astral-sh/uv/issues/6965
 
+  # make logs dir
+  - sudo -u {{ vps_username }} mkdir /home/{{ vps_username }}/logs
+
   # clone the repository
   - su - {{ vps_username }} -c "git clone https://github.com/{{ github_username }}/{{ project_name }}.git {{ vps_project_path }}"
-
-  # Make the update script executable
-  - chmod +x {{ vps_project_path }}/scripts/update_service.sh
 
   # start containers using full path to docker-compose.yml
   - docker compose -f {{ vps_project_path }}/docker-compose.yml up -d
