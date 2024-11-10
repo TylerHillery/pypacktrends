@@ -73,7 +73,7 @@ fi
 # Update Caddy with the new container name
 log "Updating Caddy with the new container name for service $SERVICE_NAME..."
 CONTAINER_NAME=$(echo "${SERVICE_NAME}" | tr '[:lower:]' '[:upper:]')_CONTAINER_NAME
-docker exec -it "$caddy_container" /bin/sh -c "export ${CONTAINER_NAME}=$new_container && caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile"
+docker exec "$caddy_container" /bin/sh -c "export ${CONTAINER_NAME}=$new_container && caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile"
 
 # Remove the old container using the dangling image
 log "Removing old container: $old_container..."
