@@ -54,19 +54,22 @@ class Settings:
 
     vps_config: pulumi.Config = pulumi.Config("vps")
     VPS_USERNAME: str = vps_config.get("username") or "github"
-    VPS_PROJECT_PATH: str = f"/home/{VPS_USERNAME}/{PROJECT_NAME}"
 
     @property
     def CONTAINER_REGISTRY_PREFIX(self) -> str:
         return (
             f"{self.CONTAINER_REGISTRY_ADDRESS}/"
             f"{self.GITHUB_USERNAME}/"
-            f"{self.CONTAINER_REGISTRY_REPOSITORY}/"
+            f"{self.CONTAINER_REGISTRY_REPOSITORY}"
         )
 
     @property
     def BACKEND_DOCKER_IMAGE_URL(self) -> str:
-        return f"{self.CONTAINER_REGISTRY_PREFIX}{self.BACKEND_SERVICE_NAME}"
+        return f"{self.CONTAINER_REGISTRY_PREFIX}/{self.BACKEND_SERVICE_NAME}"
+
+    @property
+    def VPS_PROJECT_PATH(self) -> str:
+        return f"/home/" f"{self.VPS_USERNAME}/" f"{self.PROJECT_NAME}"
 
 
 settings = Settings()
