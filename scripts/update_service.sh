@@ -11,7 +11,7 @@ fi
 CONTAINER_REGISTRY_PREFIX=$1
 SERVICE_NAME=$2
 FULL_IMAGE_NAME="${CONTAINER_REGISTRY_PREFIX}/${SERVICE_NAME}:latest"
-LOG_FILE="/var/log/update_service_${SERVICE_NAME}.log"
+LOG_FILE="/home/github/logs/update_service_${SERVICE_NAME}.log"
 
 # Logging function
 log() {
