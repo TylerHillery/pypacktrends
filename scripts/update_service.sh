@@ -3,14 +3,14 @@
 # Check if required arguments are provided
 if [ "$#" -ne 2 ]; then
     echo "Usage: $0 <CONTAINER_REGISTRY_PREFIX> <SERVICE_NAME>"
-    echo "Example: $0 ghcr.io/tylerhillery/pypacktrends/ backend"
+    echo "Example: $0 ghcr.io/tylerhillery/pypacktrends backend"
     exit 1
 fi
 
 # Arguments
 CONTAINER_REGISTRY_PREFIX=$1
 SERVICE_NAME=$2
-FULL_IMAGE_NAME="${CONTAINER_REGISTRY_PREFIX}${SERVICE_NAME}:latest"
+FULL_IMAGE_NAME="${CONTAINER_REGISTRY_PREFIX}/${SERVICE_NAME}:latest"
 LOG_FILE="/var/log/update_service_${SERVICE_NAME}.log"
 
 # Logging function
@@ -26,7 +26,7 @@ log "Pulling the latest image: ${FULL_IMAGE_NAME}"
 docker pull "$FULL_IMAGE_NAME"
 
 # Get the list of dangling images for the specified service
-dangling_image=$(docker images --filter "dangling=true" --filter "reference=${CONTAINER_REGISTRY_PREFIX}${SERVICE_NAME}" --format "{{.ID}}")
+dangling_image=$(docker images --filter "dangling=true" --filter "reference=${CONTAINER_REGISTRY_PREFIX}/${SERVICE_NAME}" --format "{{.ID}}")
 
 if [ -n "$dangling_image" ]; then
     log "Dangling image ID found: $dangling_image"

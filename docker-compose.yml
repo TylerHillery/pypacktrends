@@ -20,7 +20,7 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - $PWD/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
     environment:
