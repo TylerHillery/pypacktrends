@@ -40,3 +40,5 @@ There is also a command override that runs `fastapi run --reload` instead of the
 ```console
 $ docker compose watch
 ```
+
+test test test
