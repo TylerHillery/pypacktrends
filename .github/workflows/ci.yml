@@ -36,7 +36,7 @@ jobs:
         uses: pulumi/actions@v6
         with:
           command: preview
-          stack-name: cicd
+          stack-name: prod
           work-dir: ./infra
           comment-on-pr: true
           comment-on-summary: true

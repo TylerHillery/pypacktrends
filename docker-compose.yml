@@ -1,6 +1,6 @@
 services:
   backend:
-    image: '${BACKEND_DOCKER_IMAGE_URL-ghcr.io/tylerhillery/pypacktrends/backend}:${TAG-latest}'
+    image: '${BACKEND_DOCKER_IMAGE_URL-ghcr.io/tylerhillery/pypacktrends/backend}:${BACKEND_TAG-latest}'
     restart: always
     networks:
       - caddy
