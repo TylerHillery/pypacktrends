@@ -66,7 +66,7 @@ pulumi env set pypacktrends/prod --secret  pulumiConfig.tailscale:oauth-client-s
 ```
 
 ## Configs
-All other configs are stored in `./infra/configs.py` it will first check for any env vars that are set in whatever pulumi stack you are currently using. If nothing it set it will the default set after the `or`
+All other configs are stored in `./infra/configs.py` it will first check for any env vars that are set in whatever pulumi stack you are currently using. If nothing it set it will default to the value after the `or`
 
 The docker-compose.yml also relies on a couple of env vars as well. If you don't provide any it will use the defaults provided. So if you change any of these configs make sure to also update them in the docker-compose yml or pass in the env var when you run docker compose
 - `BACKEND_DOCKER_IMAGE_URL`
@@ -75,20 +75,10 @@ The docker-compose.yml also relies on a couple of env vars as well. If you don't
 - `BACKEND_CONTAINER_PORT`
 
 ## CI GitHub Action
-pulumi preview is ran to see what changes will occur if this PR is merged. A summary of the of changes gets added a comment on PR
+pulumi preview is ran to see what changes will occur if this PR is merged. A summary of the changes gets added a comment on PR
 
 ## CD GitHub Action
-pulumi up is ran to deploy any changes that are detected. The most common one will be when the digest of the backer docker image is change it will trigger the remote command to ssh into the VPS and run the following commands.
-
-Make sure to add this to your tailscale ACL so it can access prod nodes:
-```
-{
-    "action": "accept",
-    "src":    ["tag:cicd"],
-    "dst":    ["tag:prod"],
-    "users":  ["github"],
-}
-```
+pulumi up is ran to deploy any changes that are detected. The most common one will be when the digest of the backend docker image is changed, which will trigger the remote command to ssh into the VPS and run the following commands.
 
 ```
 cd {settings.VPS_PROJECT_PATH}
@@ -102,6 +92,16 @@ Update service script does the following:
 - Gets the container name attached to the dangling image
 - Scales up the service to two containers, keeping the current one and adding a new one which will use the new image
 - Gets the name of the new container
-- Updates the Caddy container variable specific for the service and reloads the caddy file
+- Updates the Caddy container name variable to the new container that just spun up and reloads the caddy file
 - Removes the old container
 - Removes the old image
+
+Make sure to add this to your tailscale ACL so it can access prod nodes:
+```
+{
+    "action": "accept",
+    "src":    ["tag:cicd"],
+    "dst":    ["tag:prod"],
+    "users":  ["github"],
+}
+```

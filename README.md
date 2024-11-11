@@ -13,7 +13,7 @@ This project was inspired by [npm trends](https://www.npmtrends.com/), which pro
 
 ## Resources
 
-- [full-stack-fastapi-template](https://github.com/fastapi/full-stack-fastapi-template): I didn't use this template but I refer to it often on how certain things are down such as repository structure, github actions, development.md, handling configs etc.
+- [full-stack-fastapi-template](https://github.com/fastapi/full-stack-fastapi-template): I didn't use this template but I refer to it often on how certain things are setup such as repository structure, github actions, development.md, handling configs etc.
 - [Syntax Self Host 101 Playlist](https://www.youtube.com/playlist?list=PLLnpHn493BHHAxTeLNUZEDLYc8uUwqGXa): Helpful information on how to setup a VPS
 - [Tailscale Infrastructure as Code Playlist](https://www.youtube.com/playlist?list=PLbKN2w7aG8EIbpIcZ2iGGsFTIZ-zMqLOn): Helpful information on how to setup VPS with IaC and Tailscale
 - [Tailscale GitHub Action](https://tailscale.com/kb/1276/tailscale-github-action): How to use Tailscale GitHub Action & setup oauth client
