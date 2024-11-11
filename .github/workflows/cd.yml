@@ -37,7 +37,7 @@ jobs:
         uses: pulumi/actions@v6
         with:
           command: up
-          stack-name: cicd
+          stack-name: prod
           work-dir: ./infra
           comment-on-summary: true
           github-token: ${{ secrets.GH_TOKEN }}

@@ -6,3 +6,7 @@ app.egg-info
 .coverage
 htmlcov
 .venv
+README.md
+.gitignore
+.python-version
+.ruff_cache
