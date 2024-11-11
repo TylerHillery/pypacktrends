@@ -54,19 +54,42 @@ pulumi env set pypacktrends/prod --secret  pulumiConfig.pulumi:token TOKEN
 pulumi env set pypacktrends/prod --secret  pulumiConfig.tailscale:auth-key TOKEN
 
 # tailscale:oauth-client-id
+# Access
+#   all ( wasn't sure what scopes to give, not ideal )
 # NOTE: needs to added as a github action secret as well called TS_OAUTH_CLIENT_ID
 pulumi env set pypacktrends/prod --secret  pulumiConfig.tailscale:oauth-client-id TOKEN
 
 # tailscale:oauth-client-secret
+#   all ( wasn't sure what scopes to give, not ideal )
 # NOTE: needs to added as a github action secret as well called TS_OAUTH_CLIENT_SECRET
 pulumi env set pypacktrends/prod --secret  pulumiConfig.tailscale:oauth-client-secret TOKEN
 ```
+
+## Configs
+All other configs are stored in `./infra/configs.py` it will first check for any env vars that are set in whatever pulumi stack you are currently using. If nothing it set it will the default set after the `or`
+
+The docker-compose.yml also relies on a couple of env vars as well. If you don't provide any it will use the defaults provided. So if you change any of these configs make sure to also update them in the docker-compose yml or pass in the env var when you run docker compose
+- `BACKEND_DOCKER_IMAGE_URL`
+- `BACKEND_TAG`
+- `DOMAIN`
+- `BACKEND_CONTAINER_PORT`
 
 ## CI GitHub Action
 pulumi preview is ran to see what changes will occur if this PR is merged. A summary of the of changes gets added a comment on PR
 
 ## CD GitHub Action
-pulumi up is ran to deploy any changes that are detected. The most common one will be when the digest of the backer docker image is change it will trigger the remote command to ssh into the VPS and run the following commands
+pulumi up is ran to deploy any changes that are detected. The most common one will be when the digest of the backer docker image is change it will trigger the remote command to ssh into the VPS and run the following commands.
+
+Make sure to add this to your tailscale ACL so it can access prod nodes:
+```
+{
+    "action": "accept",
+    "src":    ["tag:cicd"],
+    "dst":    ["tag:prod"],
+    "users":  ["github"],
+}
+```
+
 ```
 cd {settings.VPS_PROJECT_PATH}
 git pull
@@ -82,12 +105,3 @@ Update service script does the following:
 - Updates the Caddy container variable specific for the service and reloads the caddy file
 - Removes the old container
 - Removes the old image
-
-## Configs
-All other configs are stored in `./infra/configs.py` it will first check for any env vars that are set in whatever pulumi stack you are currently using. If nothing it set it will the default set after the `or`
-
-The docker-compose.yml also relies on a couple of env vars as well. If you don't provide any it will use the defaults provided. So if you change any of these configs make sure to also update them in the docker-compose yml or pass in the env var when you run docker compose
-- `BACKEND_DOCKER_IMAGE_URL`
-- `BACKEND_TAG`
-- `DOMAIN`
-- `BACKEND_CONTAINER_PORT`
