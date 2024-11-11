@@ -8,7 +8,7 @@
 
 ## General Workflow
 
-There shouldn't be too many pulumi commands that will need be ran locally with the CI/CD pipeline that is place but here are a few that could be helpful
+There shouldn't be too many pulumi commands that will need to be ran locally with the CI/CD pipeline that is in place but here are a few that could still be helpful:
 
 `pulumi preview` to see what impacts you might have on resources
 `pulumi stack output droplet:ipv4` to get pulumi stack outputs
