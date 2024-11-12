@@ -4,10 +4,10 @@ import pulumi
 from jinja2 import Environment, FileSystemLoader
 
 
-def get_cloud_init_script(**kwargs: str | pulumi.Output | None) -> Any:
-    def render_cloud_init_template(kwargs: dict[str, str]) -> Any:
+def render_template(template_name: str, **kwargs: str | pulumi.Output | None) -> Any:
+    def _render_template(kwargs: dict[str, str]) -> Any:
         env = Environment(loader=FileSystemLoader("./templates"))
-        template = env.get_template("cloud-init.yml")
+        template = env.get_template(template_name)
         return template.render(**kwargs)
 
-    return pulumi.Output.all(**kwargs).apply(render_cloud_init_template)
+    return pulumi.Output.all(**kwargs).apply(_render_template)

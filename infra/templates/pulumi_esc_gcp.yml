@@ -1,0 +1,12 @@
+values:
+  gcp:
+    login:
+      fn::open::gcp-login:
+        project: "{{ gcp_project }}"
+        oidc:
+          workloadPoolId: "{{ workload_pool_id }}"
+          providerId: "{{ provider_id }}"
+          serviceAccount: "{{ service_account_email }}"
+  environmentVariables:
+    GOOGLE_OAUTH_ACCESS_TOKEN: ${gcp.login.accessToken}
+    GOOGLE_PROJECT: ${gcp.login.project}

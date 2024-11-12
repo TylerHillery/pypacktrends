@@ -4,6 +4,7 @@ import pulumi
 class Settings:
     STACK_NAME: str = pulumi.get_stack()
     PROJECT_NAME: str = pulumi.get_project()
+    ORG_NAME: str = pulumi.get_organization()
 
     backend_service_config: pulumi.Config = pulumi.Config("backend-service")
     BACKEND_SERVICE_PATH: str = backend_service_config.get("path") or "../backend"
@@ -48,6 +49,9 @@ class Settings:
 
     pulumi_config: pulumi.Config = pulumi.Config("pulumi")
     PULUMI_ACCESS_TOKEN: pulumi.Output | None = pulumi_config.get_secret("token")
+    PULUMI_OIDC_ISSUER: str = (
+        pulumi_config.get("oidc-issuer") or "https://api.pulumi.com/oidc"
+    )
 
     tailscale_config: pulumi.Config = pulumi.Config("tailscale")
     TAILSCALE_AUTH_KEY: pulumi.Output | None = tailscale_config.get_secret("auth-key")
@@ -56,16 +60,16 @@ class Settings:
     VPS_USERNAME: str = vps_config.get("username") or "github"
 
     @property
+    def BACKEND_DOCKER_IMAGE_URL(self) -> str:
+        return f"{self.CONTAINER_REGISTRY_PREFIX}/{self.BACKEND_SERVICE_NAME}"
+
+    @property
     def CONTAINER_REGISTRY_PREFIX(self) -> str:
         return (
             f"{self.CONTAINER_REGISTRY_ADDRESS}/"
             f"{self.GITHUB_USERNAME}/"
             f"{self.CONTAINER_REGISTRY_REPOSITORY}"
         )
-
-    @property
-    def BACKEND_DOCKER_IMAGE_URL(self) -> str:
-        return f"{self.CONTAINER_REGISTRY_PREFIX}/{self.BACKEND_SERVICE_NAME}"
 
     @property
     def VPS_PROJECT_PATH(self) -> str:
