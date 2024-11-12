@@ -13,6 +13,7 @@ dependencies = [
     "pulumi-digitalocean>=4.34.0",
     "pulumi-docker-build>=0.0.7",
     "pulumi-docker>=4.5.7",
+    "pulumi-gcp>=8.8.1",
     "pulumi-github>=6.3.2",
     "pulumi-tls>=5.0.9",
     "pulumi>=3.137.0",
