@@ -111,13 +111,6 @@ remote_command = command.remote.Command(
     triggers=[backend_image.ref],
 )
 
-github_actions_secret_github_token = github.ActionsSecret(
-    "github-actions-secret-github-token",
-    secret_name="GH_TOKEN",
-    repository=settings.PROJECT_NAME,
-    plaintext_value=settings.GITHUB_TOKEN,
-)
-
 github_actions_secret_pulumi_token = github.ActionsSecret(
     "github-actions-secret-pulumi-token",
     secret_name="PULUMI_ACCESS_TOKEN",
