@@ -55,6 +55,12 @@ class Settings:
 
     tailscale_config: pulumi.Config = pulumi.Config("tailscale")
     TAILSCALE_AUTH_KEY: pulumi.Output | None = tailscale_config.get_secret("auth-key")
+    TAILSCALE_OAUTH_CLIENT_ID: pulumi.Output | None = tailscale_config.get_secret(
+        "oauth-client-id"
+    )
+    TAILSCALE_OAUTH_CLIENT_SECRET: pulumi.Output | None = tailscale_config.get_secret(
+        "oauth-client-secret"
+    )
 
     vps_config: pulumi.Config = pulumi.Config("vps")
     VPS_USERNAME: str = vps_config.get("username") or "github"
@@ -70,6 +76,10 @@ class Settings:
             f"{self.GITHUB_USERNAME}/"
             f"{self.CONTAINER_REGISTRY_REPOSITORY}"
         )
+
+    @property
+    def GITHUB_REPOSITORY(self) -> str:
+        return f"https://github.com/{settings.GITHUB_USERNAME}/{self.PROJECT_NAME}"
 
     @property
     def VPS_PROJECT_PATH(self) -> str:

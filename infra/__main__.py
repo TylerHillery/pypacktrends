@@ -3,6 +3,7 @@ import pulumi_command as command
 import pulumi_cloudflare as cloudflare
 import pulumi_digitalocean as digitalocean
 import pulumi_docker_build as docker_build
+import pulumi_github as github
 import pulumi_gcp as gcp
 import pulumi_tls as tls
 from config import settings
@@ -108,6 +109,34 @@ remote_command = command.remote.Command(
         ./scripts/update_service.sh {settings.CONTAINER_REGISTRY_PREFIX} {settings.BACKEND_SERVICE_NAME}
     """,
     triggers=[backend_image.ref],
+)
+
+github_actions_secret_pulumi_token = github.ActionsSecret(
+    "github-actions-secret-github-token",
+    secret_name="GH_TOKEN",
+    repository=settings.GITHUB_REPOSITORY,
+    plaintext_value=settings.GITHUB_TOKEN,
+)
+
+github_actions_secret_pulumi_token = github.ActionsSecret(
+    "github-actions-secret-pulumi-token",
+    secret_name="PULUMI_ACCESS_TOKEN",
+    repository=settings.GITHUB_REPOSITORY,
+    plaintext_value=settings.PULUMI_ACCESS_TOKEN,
+)
+
+github_actions_secret_tailscale_oauth_client_id = github.ActionsSecret(
+    "github-actions-secret-tailscale-oauth-client-id",
+    secret_name="TS_OAUTH_CLIENT_ID",
+    repository=settings.GITHUB_REPOSITORY,
+    plaintext_value=settings.TAILSCALE_OAUTH_CLIENT_ID,
+)
+
+github_actions_secret_tailscale_oauth_client_secret = github.ActionsSecret(
+    "github-actions-secret-tailscale-oauth-client-secret",
+    secret_name="TS_OAUTH_SECRET",
+    repository=settings.GITHUB_REPOSITORY,
+    plaintext_value=settings.TAILSCALE_OAUTH_CLIENT_SECRET,
 )
 
 gcp_project_config = gcp.organizations.get_project()
