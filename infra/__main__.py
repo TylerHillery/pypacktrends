@@ -43,11 +43,8 @@ do_ssh_key = digitalocean.SshKey(
 
 user_data = render_template(
     template_name="cloud-init.yml",
-    container_registry_address=settings.CONTAINER_REGISTRY_ADDRESS,
-    github_token=settings.GITHUB_TOKEN,
     github_username=settings.GITHUB_USERNAME,
     project_name=settings.PROJECT_NAME,
-    pulumi_access_token=settings.PULUMI_ACCESS_TOKEN,
     tailscale_auth_key=settings.TAILSCALE_AUTH_KEY,
     vps_username=settings.VPS_USERNAME,
     vps_project_path=settings.VPS_PROJECT_PATH,
