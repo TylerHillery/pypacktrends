@@ -1,4 +1,4 @@
-name: CI
+name: Pulumi Preview Prod
 
 on:
   pull_request:
