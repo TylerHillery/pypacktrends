@@ -37,7 +37,6 @@ class Settings:
 
     github_config: pulumi.Config = pulumi.Config("github")
     GITHUB_USERNAME: str = github_config.get("username") or "tylerhillery"
-    GITHUB_TOKEN: pulumi.Output | None = github_config.get_secret("token")
 
     project_config: pulumi.Config = pulumi.Config()
     CLOUDFLARE_FORWARD_EMAIL: str = (
