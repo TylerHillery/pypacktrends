@@ -39,7 +39,7 @@ jobs:
             export UV_PROJECT_ENVIRONMENT="${pythonLocation}"
             uv sync --group dev
       - name: Runs tests
-        run: uv run bash scripts/tests-start.sh "Coverage for ${{ github.sha }}"
+        run: uv run bash scripts/test.sh "Coverage for ${{ github.sha }}"
       - name: Store coverage files
         uses: actions/upload-artifact@v4
         with:
