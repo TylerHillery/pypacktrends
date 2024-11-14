@@ -22,8 +22,7 @@ build-backend = "hatchling.build"
 
 [tool.mypy]
 strict = true
-exclude = ["venv", ".venv", "alembic"]
+exclude = ["venv", ".venv"]
 
 [tool.ruff]
 target-version = "py312"
-exclude = ["alembic"]

@@ -1,16 +1,21 @@
-name: Pulumi Up Prod
+name: Pulumi Preview Prod
+
 on:
-  push:
-    branches:
-      - main
+  pull_request:
+    types:
+      - opened
+      - synchronize
   workflow_dispatch:
 
+permissions:
+  pull-requests: write
+
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  pulumi-up:
+  pulumi-preview:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -23,24 +28,21 @@ jobs:
           python-version-file: ".python-version"
       - name: Install uv
         uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
       - name: Install dependencies
         run: |
             export UV_PROJECT_ENVIRONMENT="${pythonLocation}"
             uv sync --frozen
-      - name: Connect Tailscale
-        uses: tailscale/github-action@v2
-        with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:cicd
-      - name: Pulumi Up Stack
+      - name: Pulumi Preview Stack
         uses: pulumi/actions@v6
         with:
-          command: up
+          command: preview
           stack-name: prod
           work-dir: ./infra
+          comment-on-pr: true
           comment-on-summary: true
-          github-token: ${{ secrets.GH_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           color: always
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
