@@ -1,4 +1,4 @@
-name: CD
+name: Pulumi Up Prod
 on:
   push:
     branches:

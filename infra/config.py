@@ -79,7 +79,7 @@ class Settings:
 
     @property
     def GITHUB_REPOSITORY(self) -> str:
-        return f"https://github.com/{settings.GITHUB_USERNAME}/{self.PROJECT_NAME}"
+        return f"{settings.GITHUB_USERNAME}/{self.PROJECT_NAME}"
 
     @property
     def VPS_PROJECT_PATH(self) -> str:
