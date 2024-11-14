@@ -111,7 +111,7 @@ remote_command = command.remote.Command(
     triggers=[backend_image.ref],
 )
 
-github_actions_secret_pulumi_token = github.ActionsSecret(
+github_actions_secret_github_token = github.ActionsSecret(
     "github-actions-secret-github-token",
     secret_name="GH_TOKEN",
     repository=settings.PROJECT_NAME,
@@ -137,6 +137,13 @@ github_actions_secret_tailscale_oauth_client_secret = github.ActionsSecret(
     secret_name="TS_OAUTH_SECRET",
     repository=settings.PROJECT_NAME,
     plaintext_value=settings.TAILSCALE_OAUTH_CLIENT_SECRET,
+)
+
+github_actions_secret_smokeshow_auth_key = github.ActionsSecret(
+    "github-actions-secret-smokeshow-auth-key",
+    secret_name="SMOKESHOW_AUTH_KEY",
+    repository=settings.PROJECT_NAME,
+    plaintext_value=settings.SMOKESHOW_AUTH_KEY,
 )
 
 gcp_project_config = gcp.organizations.get_project()
@@ -183,7 +190,7 @@ gcp_service_account_iam_binding_pulumi = gcp.serviceaccount.IAMBinding(
     ),
 )
 gcp_pulumi_esc_yml = render_template(
-    template_name="pulumi_esc_gcp.yml",
+    template_name="pulumi-esc-gcp.yml",
     gcp_project=int(gcp_project_id),
     workload_pool_id=gcp_iam_workload_identity_pool_provider_pulumi.workload_identity_pool_id,
     provider_id=gcp_iam_workload_identity_pool_provider_pulumi.workload_identity_pool_provider_id,
