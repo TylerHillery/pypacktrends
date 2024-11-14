@@ -46,6 +46,9 @@ class Settings:
     CLOUDFLARE_ZONE_ID: str = (
         project_config.get("cloudflare-zone-id") or "d973f173bbb9a119f2821c25bb312bef"
     )
+    SMOKESHOW_AUTH_KEY: pulumi.Output | None = project_config.get_secret(
+        "smokeshow-auth-key"
+    )
 
     pulumi_config: pulumi.Config = pulumi.Config("pulumi")
     PULUMI_ACCESS_TOKEN: pulumi.Output | None = pulumi_config.get_secret("token")
