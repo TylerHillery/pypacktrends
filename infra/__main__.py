@@ -190,7 +190,7 @@ gcp_service_account_iam_binding_pulumi = gcp.serviceaccount.IAMBinding(
     ),
 )
 gcp_pulumi_esc_yml = render_template(
-    template_name="pulumi_esc_gcp.yml",
+    template_name="pulumi-esc-gcp.yml",
     gcp_project=int(gcp_project_id),
     workload_pool_id=gcp_iam_workload_identity_pool_provider_pulumi.workload_identity_pool_id,
     provider_id=gcp_iam_workload_identity_pool_provider_pulumi.workload_identity_pool_provider_id,
