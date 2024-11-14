@@ -114,28 +114,28 @@ remote_command = command.remote.Command(
 github_actions_secret_pulumi_token = github.ActionsSecret(
     "github-actions-secret-github-token",
     secret_name="GH_TOKEN",
-    repository=settings.GITHUB_REPOSITORY,
+    repository=settings.PROJECT_NAME,
     plaintext_value=settings.GITHUB_TOKEN,
 )
 
 github_actions_secret_pulumi_token = github.ActionsSecret(
     "github-actions-secret-pulumi-token",
     secret_name="PULUMI_ACCESS_TOKEN",
-    repository=settings.GITHUB_REPOSITORY,
+    repository=settings.PROJECT_NAME,
     plaintext_value=settings.PULUMI_ACCESS_TOKEN,
 )
 
 github_actions_secret_tailscale_oauth_client_id = github.ActionsSecret(
     "github-actions-secret-tailscale-oauth-client-id",
     secret_name="TS_OAUTH_CLIENT_ID",
-    repository=settings.GITHUB_REPOSITORY,
+    repository=settings.PROJECT_NAME,
     plaintext_value=settings.TAILSCALE_OAUTH_CLIENT_ID,
 )
 
 github_actions_secret_tailscale_oauth_client_secret = github.ActionsSecret(
     "github-actions-secret-tailscale-oauth-client-secret",
     secret_name="TS_OAUTH_SECRET",
-    repository=settings.GITHUB_REPOSITORY,
+    repository=settings.PROJECT_NAME,
     plaintext_value=settings.TAILSCALE_OAUTH_CLIENT_SECRET,
 )
 
