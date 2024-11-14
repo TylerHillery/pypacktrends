@@ -1,4 +1,6 @@
 # PyPack Trends
+[![Test](https://github.com/tylerhillery/pypacktrends/workflows/Test/badge.svg)](https://github.com/tylerhillery/pypacktrends/actions?query=workflow%3ATest)
+[![Coverage](https://coverage-badge.samuelcolvin.workers.dev/tylerhillery/pypacktrends.svg)](https://coverage-badge.samuelcolvin.workers.dev/redirect/tylerhillery/pypacktrends)
 [![license](https://img.shields.io/github/license/tylerhillery/pypacktrends.svg)](https://github.com/tylerhillery/pypacktrends/blob/main/LICENSE)
 
 Compare Python package downloads

@@ -5,14 +5,14 @@ app = FastAPI()
 
 
 @app.get("/", response_class=HTMLResponse)
-def root() -> HTMLResponse:
+def index() -> HTMLResponse:
     html_content = """
     <html>
         <head>
             <title>PyPack Trends</title>
         </head>
         <body>
-            <h3>PyPack Trends 🐍 coming soon!!!</h3>
+            <h3>PyPack Trends 🐍 coming soon...</h3>
         </body>
     </html>
     """

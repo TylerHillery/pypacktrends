@@ -42,7 +42,6 @@ jobs:
           stack-name: prod
           work-dir: ./infra
           comment-on-summary: true
-          github-token: ${{ secrets.GH_TOKEN }}
           color: always
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
