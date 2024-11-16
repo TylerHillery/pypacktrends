@@ -9,3 +9,12 @@
 www.{$DOMAIN} {
 	redir https://{$DOMAIN}{uri}
 }
+
+dbtdocs.{$DOMAIN} {
+	root * /srv/www/dbtdocs
+	file_server
+}
+
+www.dbtdocs.{$DOMAIN} {
+	redir https://dbtdocs.{$DOMAIN}{uri}
+}

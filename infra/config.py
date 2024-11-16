@@ -37,6 +37,10 @@ class Settings:
 
     github_config: pulumi.Config = pulumi.Config("github")
     GITHUB_USERNAME: str = github_config.get("username") or "tylerhillery"
+    GITHUB_OIDC_ISSUER: str = (
+        github_config.get("oidc-issuer")
+        or "https://token.actions.githubusercontent.com"
+    )
     GITHUB_TOKEN: pulumi.Output | None = github_config.get_secret("token")
 
     project_config: pulumi.Config = pulumi.Config()

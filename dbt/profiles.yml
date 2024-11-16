@@ -1,0 +1,30 @@
+pypacktrends:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: oauth
+      project: pypacktrends-prod
+      dataset: "dbt_{{ env_var('BIGQUERY_USER') }}"
+      priority: batch
+      threads: 4
+      timeout_seconds: 300
+      maximum_bytes_billed: 100000000000
+    ci:
+      type: bigquery
+      method: oauth
+      project: pypacktrends-prod
+      dataset: "dbt_pr_{{ env_var('PR_NUMBER') }}"
+      priority: batch
+      threads: 4
+      timeout_seconds: 300
+      maximum_bytes_billed: 100000000000
+    prod:
+      type: bigquery
+      method: oauth
+      project: pypacktrends-prod
+      dataset: "dbt"
+      priority: interactive
+      threads: 4
+      timeout_seconds: 600
+      maximum_bytes_billed: 100000000000

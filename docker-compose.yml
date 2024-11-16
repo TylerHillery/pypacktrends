@@ -21,6 +21,7 @@ services:
       - 443:443
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - /srv/www/dbtdocs:/srv/www/dbtdocs
       - caddy_data:/data
       - caddy_config:/config
     environment:
