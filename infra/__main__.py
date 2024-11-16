@@ -205,8 +205,7 @@ gcp_iam_workload_identity_pool_provider_github_actions = gcp.iam.WorkloadIdentit
     "gcp-iam-workload-identity-pool-provider-github-acitons",
     workload_identity_pool_id=gcp_iam_workload_identity_pool_github_actions.workload_identity_pool_id,
     workload_identity_pool_provider_id="github-actions-oidc",
-    # attribute_condition=f'attribute.repository == "{settings.GITHUB_USERNAME}/{settings.PROJECT_NAME}"',
-    attribute_condition='attribute.repository == "*"',
+    attribute_condition=f'attribute.repository == "{settings.GITHUB_USERNAME}/{settings.PROJECT_NAME}"',
     attribute_mapping={
         "google.subject": "assertion.sub",
         "attribute.actor": "assertion.actor",
@@ -244,7 +243,9 @@ gcp_service_account_iam_binding_github_actions = gcp.serviceaccount.IAMBinding(
     service_account_id=gcp_service_account_dbt.name,
     role="roles/iam.workloadIdentityUser",
     members=gcp_iam_workload_identity_pool_github_actions.name.apply(
-        lambda name: [f"principalSet://iam.googleapis.com/{name}/*"]
+        lambda name: [
+            f"principalSet://iam.googleapis.com/{name}/attribute.repository/{settings.GITHUB_USERNAME}/{settings.PROJECT_NAME}"
+        ]
     ),
 )
 
