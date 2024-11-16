@@ -41,18 +41,9 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT }}
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.DBT_SERVICE_ACCOUNT_EMAIL }}
-          create_credentials_file: true
-      - name: Debug GCP Auth
-        run: |
-          echo "Checking GOOGLE_APPLICATION_CREDENTIALS..."
-          cat $GOOGLE_APPLICATION_CREDENTIALS
+      - name: Activate service account
+        run: gcloud auth activate-service-account --key-file=${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
       - name: Install dbt dependencies
         run: dbt deps
       - name: dbt Build
-        run: |
-          echo "Using credentials file from: ${{ steps.auth.outputs.credentials_file_path }}"
-          export GOOGLE_APPLICATION_CREDENTIALS=${{ steps.auth.outputs.credentials_file_path }}
-          dbt build --target ci --fail-fast
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: dbt build --target ci --fail-fast
