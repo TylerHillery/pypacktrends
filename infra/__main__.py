@@ -166,9 +166,9 @@ gcp_service_account_pulumi_roles = [
     "roles/iam.serviceAccountAdmin",
 ]
 
-gcp_project_iam_members = [
+gcp_project_iam_members_pulumi = [
     gcp.projects.IAMMember(
-        f"gcp-projects-iammember-{role.split('/')[-1]}-role",
+        f"gcp-projects-iammember-{role.split('/')[-1]}-role-pulumi",
         member=gcp_service_account_pulumi.email.apply(
             lambda email: f"serviceAccount:{email}"
         ),
@@ -202,7 +202,7 @@ gcp_iam_workload_identity_pool_github_actions = gcp.iam.WorkloadIdentityPool(
 )
 
 gcp_iam_workload_identity_pool_provider_github_actions = gcp.iam.WorkloadIdentityPoolProvider(
-    "gcp-iam-workload-identity-pool-provider-github-acitons",
+    "gcp-iam-workload-identity-pool-provider-github-actions",
     workload_identity_pool_id=gcp_iam_workload_identity_pool_github_actions.workload_identity_pool_id,
     workload_identity_pool_provider_id="github-actions-oidc",
     attribute_condition=f'attribute.repository == "{settings.GITHUB_USERNAME}/{settings.PROJECT_NAME}"',
@@ -224,11 +224,12 @@ gcp_service_account_dbt = gcp.serviceaccount.Account(
 gcp_service_account_dbt_roles = [
     "roles/bigquery.dataEditor",
     "roles/bigquery.jobUser",
+    "roles/iam.serviceAccountTokenCreator",
 ]
 
-gcp_project_iam_members = [
+gcp_project_iam_members_dbt = [
     gcp.projects.IAMMember(
-        f"gcp-projects-iammember-{role.split('/')[-1]}-role",
+        f"gcp-projects-iammember-{role.split('/')[-1]}-role-dbt",
         member=gcp_service_account_dbt.email.apply(
             lambda email: f"serviceAccount:{email}"
         ),
@@ -254,7 +255,9 @@ gcp_service_account_iam_binding_github_actions = gcp.serviceaccount.IAMBinding(
 )
 
 workload_identity_provider = workload_identity_base_path.apply(
-    lambda base_path: f"{base_path}/providers/{gcp_iam_workload_identity_pool_provider_github_actions.workload_identity_pool_provider_id}"
+    lambda base_path: gcp_iam_workload_identity_pool_provider_github_actions.workload_identity_pool_provider_id.apply(
+        lambda provider_id: f"{base_path}/providers/{provider_id}"
+    )
 )
 
 # GitHub Action Secrets Configs
