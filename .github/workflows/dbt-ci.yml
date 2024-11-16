@@ -45,3 +45,5 @@ jobs:
         run: dbt deps
       - name: dbt Build
         run: dbt build --target ci --fail-fast
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
