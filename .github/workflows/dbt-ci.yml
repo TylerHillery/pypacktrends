@@ -43,8 +43,8 @@ jobs:
           service_account: ${{ secrets.DBT_SERVICE_ACCOUNT_EMAIL }}
       - name: Set up GCP SDK
         uses: 'google-github-actions/setup-gcloud@v2'
-      - name: GCP Auth Login
-        run: gcloud auth login --cred-file=${{steps.auth.outputs.credentials_file_path}}
+      # - name: GCP Auth Login
+      #   run: gcloud auth login --cred-file=${{steps.auth.outputs.credentials_file_path}}
       - name: Install dbt dependencies
         run: dbt deps
       - name: dbt Build
