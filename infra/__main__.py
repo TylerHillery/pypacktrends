@@ -21,7 +21,7 @@ backend_image = docker_build.Image(
     registries=[
         docker_build.RegistryArgs(
             address=settings.CONTAINER_REGISTRY_ADDRESS,
-            username=settings.GITHUB_USERNAME,
+            username=settings.GITHUB_USERNAME.lower(),
             password=settings.GITHUB_TOKEN,
         )
     ],
@@ -45,7 +45,7 @@ do_ssh_key = digitalocean.SshKey(
 
 user_data = render_template(
     template_name="cloud-init.yml",
-    github_username=settings.GITHUB_USERNAME,
+    github_username=settings.GITHUB_USERNAME.lower(),
     project_name=settings.PROJECT_NAME,
     tailscale_auth_key=settings.TAILSCALE_AUTH_KEY,
     vps_username=settings.VPS_USERNAME,
@@ -238,21 +238,23 @@ gcp_project_iam_members = [
     for role in gcp_service_account_dbt_roles
 ]
 
+workload_identity_base_path = gcp_iam_workload_identity_pool_github_actions.workload_identity_pool_id.apply(
+    lambda pool_id: f"projects/{gcp_project_id}/locations/global/workloadIdentityPools/{pool_id}"
+)
+
 gcp_service_account_iam_binding_github_actions = gcp.serviceaccount.IAMBinding(
     "gcp-service-account-iam-policy-binding-github-actions",
     service_account_id=gcp_service_account_dbt.name,
     role="roles/iam.workloadIdentityUser",
-    members=gcp_iam_workload_identity_pool_github_actions.name.apply(
-        lambda name: [
-            f"principalSet://iam.googleapis.com/{name}/attribute.repository/{settings.GITHUB_USERNAME}/{settings.PROJECT_NAME}"
+    members=workload_identity_base_path.apply(
+        lambda base_path: [
+            f"principalSet://iam.googleapis.com/{base_path}/attribute.repository/{settings.GITHUB_USERNAME}/{settings.PROJECT_NAME}"
         ]
     ),
 )
 
-workload_identity_provider = gcp_iam_workload_identity_pool_provider_github_actions.workload_identity_pool_id.apply(
-    lambda pool_id: gcp_iam_workload_identity_pool_provider_github_actions.workload_identity_pool_provider_id.apply(
-        lambda provider_id: f"projects/{gcp_project_id}/locations/global/workloadIdentityPools/{pool_id}/providers/{provider_id}"
-    )
+workload_identity_provider = workload_identity_base_path.apply(
+    lambda base_path: f"{base_path}/providers/{gcp_iam_workload_identity_pool_provider_github_actions.workload_identity_pool_provider_id}"
 )
 
 # GitHub Action Secrets Configs
