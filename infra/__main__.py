@@ -205,7 +205,8 @@ gcp_iam_workload_identity_pool_provider_github_actions = gcp.iam.WorkloadIdentit
     "gcp-iam-workload-identity-pool-provider-github-acitons",
     workload_identity_pool_id=gcp_iam_workload_identity_pool_github_actions.workload_identity_pool_id,
     workload_identity_pool_provider_id="github-actions-oidc",
-    attribute_condition=f'attribute.repository == "{settings.GITHUB_USERNAME}/{settings.PROJECT_NAME}"',
+    # attribute_condition=f'attribute.repository == "{settings.GITHUB_USERNAME}/{settings.PROJECT_NAME}"',
+    attribute_condition='attribute.repository == "*"',
     attribute_mapping={
         "google.subject": "assertion.sub",
         "attribute.actor": "assertion.actor",
