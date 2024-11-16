@@ -41,11 +41,10 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT }}
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.DBT_SERVICE_ACCOUNT_EMAIL }}
-      - name: GCP Auth Login
-        run: gcloud auth application-default login --client-id-file=${{ steps.auth.outputs.credentials_file_path }} --quiet
       - name: Install dbt dependencies
         run: dbt deps
       - name: dbt Build
         run: dbt build --target ci --fail-fast
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
