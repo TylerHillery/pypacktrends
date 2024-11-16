@@ -41,12 +41,6 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT }}
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.DBT_SERVICE_ACCOUNT_EMAIL }}
-      - name: Debug GCP Auth
-        run: |
-          echo "Checking GOOGLE_APPLICATION_CREDENTIALS..."
-          cat $GOOGLE_APPLICATION_CREDENTIALS
-      - name: Activate GCP Auth
-        run: gcloud auth application-default login --brief
       - name: Install dbt dependencies
         run: dbt deps
       - name: dbt Build
