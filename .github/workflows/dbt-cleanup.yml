@@ -1,0 +1,38 @@
+name: dbt Cleanup
+
+on:
+  pull_request:
+    types:
+      - closed
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  dbt-cleanup:
+    if: github.event.pull_request.merged == true || github.event.pull_request.merged == false
+    runs-on: ubuntu-latest
+    env:
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+    steps:
+      - name: Authenticate with Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.DBT_SERVICE_ACCOUNT_EMAIL }}
+      - name: Set up Google Cloud SDK
+        uses: 'google-github-actions/setup-gcloud@v2'
+      - name: Delete BigQuery Dataset
+        run: |
+          DATASET="dbt_pr_${PR_NUMBER}"
+          echo "Checking if dataset exists: $DATASET"
+          if bq show --format=none ${GCP_PROJECT}:${DATASET} 2>/dev/null; then
+            echo "Dataset exists. Deleting dataset: $DATASET"
+            bq rm -r -f -d ${GCP_PROJECT}:${DATASET}
+          else
+            echo "Dataset does not exist. Skipping deletion."
+          fi
