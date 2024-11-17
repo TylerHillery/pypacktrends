@@ -34,21 +34,30 @@ jobs:
         run: |
             export UV_PROJECT_ENVIRONMENT="${pythonLocation}"
             uv sync --frozen
-      - name: Authenticate with GCP
+      - name: Connect Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:cicd
+      - name: Sync dbt docs from VPS
+        run: |
+          mkdir -p prod-run-artifacts
+          rsync -avz --delete github@pypacktrends-prod:/srv/www/dbtdocs/ prod-run-artifacts/
+      - name: Authenticate with Google Cloud
         id: auth
         uses: google-github-actions/auth@v2
         with:
           project_id: ${{ secrets.GCP_PROJECT }}
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.DBT_SERVICE_ACCOUNT_EMAIL }}
-      - name: Set up GCP SDK
+      - name: Set up Google Cloud SDK
         uses: 'google-github-actions/setup-gcloud@v2'
-      # - name: GCP Auth Login
-      #   run: gcloud auth login --cred-file=${{steps.auth.outputs.credentials_file_path}}
       - name: Install dbt dependencies
         run: dbt deps
+      - name: Clone dbt incremental models
+        run: dbt clone --target ci --select state:modified+,config.materialized:incremental,state:old --state ./prod-run-artifacts
       - name: dbt Build
-        run: dbt build --target ci --fail-fast
+        run: dbt build --target ci --fail-fast --select state:modified+ --defer --state ./prod-run-artifacts
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          DBT_SERVICE_ACCOUNT_EMAIL: ${{ secrets.DBT_SERVICE_ACCOUNT_EMAIL }}
