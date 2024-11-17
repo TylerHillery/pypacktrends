@@ -43,7 +43,7 @@ jobs:
       - name: Sync dbt docs from VPS
         run: |
           mkdir -p prod-run-artifacts
-          rsync -avz --delete github@pypacktrends-prod:/srv/www/dbtdocs/ prod-run-artifacts/
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" github@pypacktrends-prod:/srv/www/dbtdocs/ prod-run-artifacts/
       - name: Authenticate with Google Cloud
         id: auth
         uses: google-github-actions/auth@v2
@@ -60,4 +60,4 @@ jobs:
       - name: dbt Doc Generate
         run: dbt docs generate --target prod
       - name: Sync dbt docs to VPS
-        run: rsync -avz --delete target/ github@pypacktrends-prod:/srv/www/dbtdocs
+        run: rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" target/ github@pypacktrends-prod:/srv/www/dbtdocs

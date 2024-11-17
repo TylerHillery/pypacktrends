@@ -40,10 +40,14 @@ jobs:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:cicd
+      - name: Add VPS to Known Hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H pypacktrends-prod >> ~/.ssh/known_hosts
       - name: Sync dbt docs from VPS
         run: |
           mkdir -p prod-run-artifacts
-          rsync -avz --delete github@pypacktrends-prod:/srv/www/dbtdocs/ prod-run-artifacts/
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" github@pypacktrends-prod:/srv/www/dbtdocs/ prod-run-artifacts/
       - name: Authenticate with Google Cloud
         id: auth
         uses: google-github-actions/auth@v2
