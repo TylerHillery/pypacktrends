@@ -20,6 +20,8 @@ jobs:
     defaults:
       run:
         working-directory: ./dbt
+    env:
+      PR_NUMBER: ${{ github.event.pull_request.number }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -59,5 +61,3 @@ jobs:
         run: dbt clone --target ci --select state:modified+,config.materialized:incremental,state:old --state ./prod-run-artifacts
       - name: dbt Build
         run: dbt build --target ci --fail-fast --select state:modified+ --defer --state ./prod-run-artifacts
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
