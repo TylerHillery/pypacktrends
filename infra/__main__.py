@@ -45,7 +45,7 @@ do_ssh_key = digitalocean.SshKey(
 
 user_data = render_template(
     template_name="cloud-init.yml",
-    github_username=settings.GITHUB_USERNAME.lower(),
+    github_username=settings.GITHUB_USERNAME,
     project_name=settings.PROJECT_NAME,
     tailscale_auth_key=settings.TAILSCALE_AUTH_KEY,
     vps_username=settings.VPS_USERNAME,
