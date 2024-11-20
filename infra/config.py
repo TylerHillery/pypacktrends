@@ -36,7 +36,11 @@ class Settings:
     DOMAIN_PROTOCOL: str = domain_config.get("protocol") or "https"
 
     github_config: pulumi.Config = pulumi.Config("github")
-    GITHUB_USERNAME: str = github_config.get("username") or "tylerhillery"
+    GITHUB_USERNAME: str = github_config.get("username") or "TylerHillery"
+    GITHUB_OIDC_ISSUER: str = (
+        github_config.get("oidc-issuer")
+        or "https://token.actions.githubusercontent.com"
+    )
     GITHUB_TOKEN: pulumi.Output | None = github_config.get_secret("token")
 
     project_config: pulumi.Config = pulumi.Config()
@@ -76,7 +80,7 @@ class Settings:
     def CONTAINER_REGISTRY_PREFIX(self) -> str:
         return (
             f"{self.CONTAINER_REGISTRY_ADDRESS}/"
-            f"{self.GITHUB_USERNAME}/"
+            f"{self.GITHUB_USERNAME.lower()}/"
             f"{self.CONTAINER_REGISTRY_REPOSITORY}"
         )
 

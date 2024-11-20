@@ -38,6 +38,10 @@ runcmd:
   # make logs dir
   - sudo -u {{ vps_username }} mkdir /home/{{ vps_username }}/logs
 
+  # create dbtdocs directory and set ownership
+  - mkdir -p /srv/www/dbtdocs
+  - chown {{ vps_username }}:{{ vps_username }} /srv/www/dbtdocs
+
   # clone the repository
   - sudo -u {{ vps_username }} git clone https://github.com/{{ github_username }}/{{ project_name }}.git {{ vps_project_path }}
 

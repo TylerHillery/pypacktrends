@@ -19,7 +19,7 @@ jobs:
         with:
           python-version-file: ".python-version"
       - uses: pre-commit/action@v3.0.1
-  test:
+  test-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
