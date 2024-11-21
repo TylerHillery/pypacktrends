@@ -1,0 +1,171 @@
+version: 2
+
+models:
+  - name: stg_bq_public_data_pypi__distribution_metadata
+    description: '{{ doc("pypi_package_distribution_metadata") }}'
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - package_name
+            - package_version
+          where: package_uploaded_date >= date_sub(current_date(), interval 2 day)
+    columns:
+      - name: package_metadata_version
+        data_type: string
+        description: '{{ doc("package_metadata_version") }}'
+
+      - name: package_name
+        data_type: string
+        description: '{{ doc("package_name") }}'
+
+      - name: package_version
+        data_type: string
+        description: '{{ doc("package_version") }}'
+
+      - name: package_summary
+        data_type: string
+        description: '{{ doc("package_summary") }}'
+
+      - name: package_description
+        data_type: string
+        description: '{{ doc("package_description") }}'
+
+      - name: package_description_content_type
+        data_type: string
+        description: '{{ doc("package_description_content_type") }}'
+
+      - name: package_author
+        data_type: string
+        description: '{{ doc("package_author") }}'
+
+      - name: package_author_email
+        data_type: string
+        description: '{{ doc("package_author_email") }}'
+
+      - name: package_maintainer
+        data_type: string
+        description: '{{ doc("package_maintainer") }}'
+
+      - name: package_maintainer_email
+        data_type: string
+        description: '{{ doc("package_maintainer_email") }}'
+
+      - name: package_license
+        data_type: string
+        description: '{{ doc("package_license") }}'
+
+      - name: package_keywords
+        data_type: string
+        description: '{{ doc("package_keywords") }}'
+
+      - name: package_classifiers
+        data_type: string
+        description: '{{ doc("package_classifiers") }}'
+
+      - name: package_platform
+        data_type: string
+        description: '{{ doc("package_platform") }}'
+
+      - name: package_home_page
+        data_type: string
+        description: '{{ doc("package_home_page") }}'
+
+      - name: package_download_url
+        data_type: string
+        description: '{{ doc("package_download_url") }}'
+
+      - name: package_requires_python
+        data_type: string
+        description: '{{ doc("package_requires_python") }}'
+
+      - name: package_requires
+        data_type: string
+        description: '{{ doc("package_requires") }}'
+
+      - name: package_provides
+        data_type: string
+        description: '{{ doc("package_provides") }}'
+
+      - name: package_obsoletes
+        data_type: string
+        description: '{{ doc("package_obsoletes") }}'
+
+      - name: package_requires_dist
+        data_type: string
+        description: '{{ doc("package_requires_dist") }}'
+
+      - name: package_provides_dist
+        data_type: string
+        description: '{{ doc("package_provides_dist") }}'
+
+      - name: package_obsoletes_dist
+        data_type: string
+        description: '{{ doc("package_obsoletes_dist") }}'
+
+      - name: package_requires_external
+        data_type: string
+        description: '{{ doc("package_requires_external") }}'
+
+      - name: package_project_urls
+        data_type: string
+        description: '{{ doc("package_project_urls") }}'
+
+      - name: package_uploaded_via
+        data_type: string
+        description: '{{ doc("package_uploaded_via") }}'
+
+      - name: package_uploaded_at
+        data_type: timestamp
+        description: '{{ doc("package_uploaded_at") }}'
+
+      - name: package_filename
+        data_type: string
+        description: '{{ doc("package_filename") }}'
+
+      - name: package_size_bytes
+        data_type: int64
+        description: '{{ doc("package_size_bytes") }}'
+
+      - name: package_path
+        data_type: string
+        description: '{{ doc("package_path") }}'
+
+      - name: package_python_version
+        data_type: string
+        description: '{{ doc("package_python_version") }}'
+
+      - name: package_package_type
+        data_type: string
+        description: '{{ doc("package_package_type") }}'
+
+      - name: package_comment_text
+        data_type: string
+        description: '{{ doc("package_comment_text") }}'
+
+      - name: package_has_signature
+        data_type: boolean
+        description: '{{ doc("package_has_signature") }}'
+
+      - name: package_md5_digest
+        data_type: string
+        description: '{{ doc("package_md5_digest") }}'
+
+      - name: package_sha256_digest
+        data_type: string
+        description: '{{ doc("package_sha256_digest") }}'
+
+      - name: package_blake2_256_digest
+        data_type: string
+        description: '{{ doc("package_blake2_256_digest") }}'
+
+      - name: package_license_expression
+        data_type: string
+        description: '{{ doc("package_license_expression") }}'
+
+      - name: package_license_files
+        data_type: string
+        description: '{{ doc("package_license_files") }}'
+
+      - name: package_uploaded_date
+        data_type: date
+        description: '{{ doc("package_uploaded_date") }}'

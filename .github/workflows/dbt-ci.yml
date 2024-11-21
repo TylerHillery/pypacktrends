@@ -21,6 +21,7 @@ jobs:
       run:
         working-directory: ./dbt
     env:
+      BIGQUERY_USER: github_actions
       PR_NUMBER: ${{ github.event.pull_request.number }}
     steps:
       - uses: actions/checkout@v4
@@ -35,7 +36,7 @@ jobs:
       - name: Install python dependencies
         run: |
             export UV_PROJECT_ENVIRONMENT="${pythonLocation}"
-            uv sync --frozen
+            uv sync --group dev --frozen
       - name: Connect Tailscale
         uses: tailscale/github-action@v2
         with:
@@ -57,7 +58,11 @@ jobs:
         uses: 'google-github-actions/setup-gcloud@v2'
       - name: Install dbt dependencies
         run: dbt deps
+      - name: SQLFluff
+        run: ./scripts/sqlfluff.sh
       - name: Clone dbt incremental models
         run: dbt clone --target ci --select state:modified+,config.materialized:incremental,state:old --state ./prod-run-artifacts
       - name: dbt Build
-        run: dbt build --target ci --fail-fast --select state:modified+ --defer --state ./prod-run-artifacts
+        run: dbt build --target ci --fail-fast --select state:modified+ --defer --state ./prod-run-artifacts --exclude dbt_artifacts
+      - name: dbt Doc Generate
+        run: dbt docs generate --target ci --exclude dbt_artifacts

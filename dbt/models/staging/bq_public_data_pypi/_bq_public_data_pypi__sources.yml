@@ -1,0 +1,208 @@
+version: 2
+
+sources:
+  - name: pypi
+    database: bigquery-public-data
+    description: Public dataset containing metadata and download statistics for Python packages published to the Python Package Index (PyPI).
+    freshness:
+      error_after: {count: 3, period: hour}
+    tables:
+      - name: distribution_metadata
+        description: '{{ doc("pypi_package_distribution_metadata") }}'
+        loaded_at_field: upload_time
+        freshness:
+          filter: date(upload_time) >= date_sub(current_date(), interval 1 day)
+        columns:
+          - name: metadata_version
+            data_type: string
+            description: '{{ doc("package_metadata_version") }}'
+
+          - name: name
+            data_type: string
+            description: '{{ doc("package_name") }}'
+
+          - name: version
+            data_type: string
+            description: '{{ doc("package_version") }}'
+
+          - name: summary
+            data_type: string
+            description: '{{ doc("package_summary") }}'
+
+          - name: description
+            data_type: string
+            description: '{{ doc("package_description") }}'
+
+          - name: description_content_type
+            data_type: string
+            description: '{{ doc("package_description_content_type") }}'
+
+          - name: author
+            data_type: string
+            description: '{{ doc("package_author") }}'
+
+          - name: author_email
+            data_type: string
+            description: '{{ doc("package_author_email") }}'
+
+          - name: maintainer
+            data_type: string
+            description: '{{ doc("package_maintainer") }}'
+
+          - name: maintainer_email
+            data_type: string
+            description: '{{ doc("package_maintainer_email") }}'
+
+          - name: license
+            data_type: string
+            description: '{{ doc("package_license") }}'
+
+          - name: keywords
+            data_type: string
+            description: '{{ doc("package_keywords") }}'
+
+          - name: classifiers
+            data_type: string
+            description: '{{ doc("package_classifiers") }}'
+
+          - name: platform
+            data_type: string
+            description: '{{ doc("package_platform") }}'
+
+          - name: home_page
+            data_type: string
+            description: '{{ doc("package_home_page") }}'
+
+          - name: download_url
+            data_type: string
+            description: '{{ doc("package_download_url") }}'
+
+          - name: requires_python
+            data_type: string
+            description: '{{ doc("package_requires_python") }}'
+
+          - name: requires
+            data_type: string
+            description: '{{ doc("package_requires") }}'
+
+          - name: provides
+            data_type: string
+            description: '{{ doc("package_provides") }}'
+
+          - name: obsoletes
+            data_type: string
+            description: '{{ doc("package_obsoletes") }}'
+
+          - name: requires_dist
+            data_type: string
+            description: '{{ doc("package_requires_dist") }}'
+
+          - name: provides_dist
+            data_type: string
+            description: '{{ doc("package_provides_dist") }}'
+
+          - name: obsoletes_dist
+            data_type: string
+            description: '{{ doc("package_obsoletes_dist") }}'
+
+          - name: requires_external
+            data_type: string
+            description: '{{ doc("package_requires_external") }}'
+
+          - name: project_urls
+            data_type: string
+            description: '{{ doc("package_project_urls") }}'
+
+          - name: uploaded_via
+            data_type: string
+            description: '{{ doc("package_uploaded_via") }}'
+
+          - name: upload_time
+            data_type: timestamp
+            description: '{{ doc("package_uploaded_at") }}'
+
+          - name: filename
+            data_type: string
+            description: '{{ doc("package_filename") }}'
+
+          - name: size
+            data_type: int64
+            description: '{{ doc("package_size_bytes") }}'
+
+          - name: path
+            data_type: string
+            description: '{{ doc("package_path") }}'
+
+          - name: python_version
+            data_type: string
+            description: '{{ doc("package_python_version") }}'
+
+          - name: packagetype
+            data_type: string
+            description: '{{ doc("package_package_type") }}'
+
+          - name: comment_text
+            data_type: string
+            description: '{{ doc("package_comment_text") }}'
+
+          - name: has_signature
+            data_type: boolean
+            description: '{{ doc("package_has_signature") }}'
+
+          - name: md5_digest
+            data_type: string
+            description: '{{ doc("package_md5_digest") }}'
+
+          - name: sha256_digest
+            data_type: string
+            description: '{{ doc("package_sha256_digest") }}'
+
+          - name: blake2_256_digest
+            data_type: string
+            description: '{{ doc("package_blake2_256_digest") }}'
+
+          - name: license_expression
+            data_type: string
+            description: '{{ doc("package_license_expression") }}'
+
+          - name: license_files
+            data_type: string
+            description: '{{ doc("package_license_files") }}'
+
+      - name: file_downloads
+        description: Download statistics for package files, including details about the environment and file information.
+        loaded_at_field: timestamp
+        freshness:
+          filter: date(timestamp) >= date_sub(current_date(), interval 1 day)
+        columns:
+          - name: timestamp
+            data_type: timestamp
+            description: '{{ doc("package_downloaded_at") }}'
+
+          - name: country_code
+            data_type: string
+            description: '{{ doc("package_download_country_code") }}'
+
+          - name: url
+            data_type: string
+            description: '{{ doc("package_download_url_path") }}'
+
+          - name: project
+            data_type: string
+            description: '{{ doc("package_name") }}'
+
+          - name: file
+            data_type: record
+            description: Details about the downloaded file.
+
+          - name: details
+            data_type: record
+            description: Additional details about the download environment, such as user agent.
+
+          - name: tls_protocol
+            data_type: string
+            description: The TLS protocol used for the download connection.
+
+          - name: tls_cipher
+            data_type: string
+            description: The TLS cipher suite used for the download connection.

@@ -1,0 +1,34 @@
+models:
+  - name: pypi_packages
+    description: A table containing information about PyPI packages.
+    columns:
+      - name: package_name
+        data_type: string
+        description: '{{ doc("package_name") }}'
+        data_tests:
+          - not_null
+          - unique
+
+      - name: latest_package_version
+        data_type: string
+        description: The version of the package from the most recently published distribution.
+
+      - name: package_summary
+        data_type: string
+        description: '{{ doc("package_summary") }}'
+
+      - name: package_home_page
+        data_type: string
+        description: '{{ doc("package_home_page") }}'
+
+      - name: package_download_url
+        data_type: string
+        description: '{{ doc("package_download_url") }}'
+
+      - name: package_uploaded_at
+        data_type: timestamp
+        description: '{{ doc("package_uploaded_at") }}'
+
+      - name: package_uploaded_date
+        data_type: date
+        description: '{{ doc("package_uploaded_date") }}'
