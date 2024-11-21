@@ -2,7 +2,11 @@
   config(
     materialized = "table",
     cluster_by = "package_name",
-    labels = {'dbt_model': 'pypi_packages'}
+    partition_by={
+      "field": "package_uploaded_at",
+      "data_type": "timestamp",
+      "granularity": "day"
+    }
   )
 }}
 

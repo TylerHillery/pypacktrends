@@ -170,7 +170,7 @@ sources:
             description: '{{ doc("package_license_files") }}'
 
       - name: file_downloads
-        description: Download statistics for package files, including details about the environment and file information.
+        description: '{{ doc("package_file_downloads") }}'
         loaded_at_field: timestamp
         freshness:
           filter: date(timestamp) >= date_sub(current_date(), interval 1 day)
@@ -193,16 +193,16 @@ sources:
 
           - name: file
             data_type: record
-            description: Details about the downloaded file.
+            description: '{{ doc("package_download_file_details") }}'
 
           - name: details
             data_type: record
-            description: Additional details about the download environment, such as user agent.
+            description: '{{ doc("package_download_details") }}'
 
           - name: tls_protocol
             data_type: string
-            description: The TLS protocol used for the download connection.
+            description: '{{ doc("package_download_tls_protocol") }}'
 
           - name: tls_cipher
             data_type: string
-            description: The TLS cipher suite used for the download connection.
+            description: '{{ doc("package_download_tls_cipher") }}'
