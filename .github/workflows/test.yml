@@ -12,8 +12,6 @@ on:
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
-    env:
-      BIGQUERY_USER: github_actions
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python

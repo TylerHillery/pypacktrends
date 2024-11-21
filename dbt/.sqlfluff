@@ -42,5 +42,5 @@ capitalisation_policy = lower
 group_by_and_order_by_style = implicit
 
 [sqlfluff:templater:dbt]
-project_dir = ./dbt
-profiles_dir = ./dbt
+project_dir = .
+profiles_dir = .

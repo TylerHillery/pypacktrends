@@ -1,0 +1,6 @@
+reports
+target
+dbt_packages
+macros
+prod-run-artifacts
+.venv

@@ -21,6 +21,7 @@ jobs:
       run:
         working-directory: ./dbt
     env:
+      BIGQUERY_USER: github_actions
       PR_NUMBER: ${{ github.event.pull_request.number }}
     steps:
       - uses: actions/checkout@v4
@@ -57,6 +58,8 @@ jobs:
         uses: 'google-github-actions/setup-gcloud@v2'
       - name: Install dbt dependencies
         run: dbt deps
+      - name: SQLFluff
+        run: ./scripts/sqlfluff.sh
       - name: Clone dbt incremental models
         run: dbt clone --target ci --select state:modified+,config.materialized:incremental,state:old --state ./prod-run-artifacts
       - name: dbt Build
