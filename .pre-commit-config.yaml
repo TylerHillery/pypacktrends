@@ -26,3 +26,10 @@ repos:
           - --strict
         additional_dependencies:
           - pydantic~=2.0
+  - repo: https://github.com/sqlfluff/sqlfluff
+    rev: 3.2.5
+    hooks:
+      - id: sqlfluff-lint
+        additional_dependencies : ['dbt-bigquery==1.8.3', 'sqlfluff-templater-dbt']
+      - id: sqlfluff-fix
+        additional_dependencies : ['dbt-bigquery==1.8.3', 'sqlfluff-templater-dbt']

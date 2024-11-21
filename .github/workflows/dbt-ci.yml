@@ -61,3 +61,5 @@ jobs:
         run: dbt clone --target ci --select state:modified+,config.materialized:incremental,state:old --state ./prod-run-artifacts
       - name: dbt Build
         run: dbt build --target ci --fail-fast --select state:modified+ --defer --state ./prod-run-artifacts
+      - name: dbt Doc Generate
+        run: dbt docs generate --target ci
