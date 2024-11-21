@@ -62,4 +62,4 @@ jobs:
       - name: dbt Build
         run: dbt build --target ci --fail-fast --select state:modified+ --defer --state ./prod-run-artifacts --exclude dbt_artifacts
       - name: dbt Doc Generate
-        run: dbt docs generate --target ci
+        run: dbt docs generate --target ci --exclude dbt_artifacts
