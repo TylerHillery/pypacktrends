@@ -56,7 +56,7 @@ jobs:
       - name: Install dbt dependencies
         run: dbt deps
       - name: dbt Build
-        run: dbt build --target prod --fail-fast --select +state:modified+ --defer --state ./prod-run-artifacts
+        run: dbt build --target prod --fail-fast --select +state:modified+ --defer --state ./prod-run-artifacts --exclude dbt_artifacts
       - name: dbt Doc Generate
         run: dbt docs generate --target prod
       - name: Sync dbt docs to VPS
