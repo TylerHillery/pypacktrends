@@ -2,11 +2,6 @@
   config(
     materialized = "table",
     cluster_by = "package_name",
-    partition_by={
-      "field": "package_uploaded_at",
-      "data_type": "timestamp",
-      "granularity": "day"
-    }
   )
 }}
 
