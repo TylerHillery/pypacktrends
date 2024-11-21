@@ -26,6 +26,15 @@ dbt run-operation generate_base_model --args '{"source_name": "pypi", "table_nam
 dbt run-operation generate_model_yaml --args '{"model_names": ["stg_bq_public_data__pypi_distribution_metadata"]}'
 ```
 
+### Backfill Incremental Models
+Any incremental models should use the [insert overwrite method with static partitions](https://docs.getdbt.com/reference/resource-configs/bigquery-configs#static-partitions). This is the most cost effective way to run incremental dbt models in BigQuery.
+
+There is a handy `get_partitions_to_replace` function that will return a list of dates to replace. By default, it uses the prior day but it can be overridden by passing in `--vars`
+```
+dbt compile -s pypi_package_downloads_per_day --vars '{"start_date": 2024-11-01, "end_date": 2024-11-08}'
+```
+This project never allows full refreshes, and instead if there is any backfilling that needs to be done, this can be performed manually by passing in the time period that needs backfilling and using the prod dbt target.
+
 ## Resources:
 - Learn more about dbt [in the docs](https://docs.getdbt.com/docs/introduction)
 - Check out [Discourse](https://discourse.getdbt.com/) for commonly asked questions and answers

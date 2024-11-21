@@ -1,9 +1,3 @@
-{{
-  config(
-    labels = {'dbt_model': 'stg_bq_public_data_pypi__distribution_metadata'}
-  )
-}}
-
 with
 source as (
     select * from {{ source('pypi', 'distribution_metadata') }}

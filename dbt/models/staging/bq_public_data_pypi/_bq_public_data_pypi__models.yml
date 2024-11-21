@@ -169,3 +169,38 @@ models:
       - name: package_uploaded_date
         data_type: date
         description: '{{ doc("package_uploaded_date") }}'
+
+  - name: stg_bq_public_data_pypi__file_downloads
+    description: '{{ doc("package_file_downloads") }}'
+    columns:
+      - name: package_downloaded_at
+        data_type: timestamp
+        description: '{{ doc("package_downloaded_at") }}'
+
+      - name: package_download_country_code
+        data_type: string
+        description: '{{ doc("package_download_country_code") }}'
+
+      - name: package_download_url_path
+        data_type: string
+        description: '{{ doc("package_download_url_path") }}'
+
+      - name: package_name
+        data_type: string
+        description: '{{ doc("package_name") }}'
+
+      - name: package_download_file_details
+        data_type: record
+        description: '{{ doc("package_download_file_details") }}'
+
+      - name: package_download_details
+        data_type: record
+        description: '{{ doc("package_download_details") }}'
+
+      - name: package_download_tls_protocol
+        data_type: string
+        description: '{{ doc("package_download_tls_protocol") }}'
+
+      - name: package_download_tls_cipher
+        data_type: string
+        description: '{{ doc("package_download_tls_cipher") }}'

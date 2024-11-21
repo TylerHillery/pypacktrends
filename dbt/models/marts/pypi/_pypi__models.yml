@@ -32,3 +32,20 @@ models:
       - name: package_uploaded_date
         data_type: date
         description: '{{ doc("package_uploaded_date") }}'
+
+  - name: pypi_package_downloads_per_day
+    description: Aggregates daily download counts of Python packages from PyPI
+    columns:
+      - name: package_name
+        data_type: string
+        description: '{{ doc("package_name") }}'
+        data_tests:
+          - not_null
+
+      - name: package_downloaded_date
+        data_type: date
+        description: The calendar date when the package downloads were recorded, in UTC yyyy-mm-dd
+
+      - name: downloads
+        data_type: int64
+        description: The total number of downloads for the package on the recorded date,

@@ -2,7 +2,6 @@
   config(
     materialized = "table",
     cluster_by = "package_name",
-    labels = {'dbt_model': 'pypi_packages'}
   )
 }}
 

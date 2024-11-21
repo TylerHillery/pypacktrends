@@ -44,12 +44,28 @@ The timestamp of the download event.
 The ISO 3166-1 alpha-2 country code of the downloader's location.
 {% enddocs %}
 
+{% docs package_download_file_details %}
+Details about the downloaded file, including file metadata and attributes associated with the download event.
+{% enddocs %}
+
+{% docs package_download_details %}
+Details about the package download, such as file, installer, implementation, python, distro, system,
+{% enddocs %}
+
 {% docs package_download_url %}
 The URL provided in the metadata for the package, typically pointing to the package’s homepage, repository, or direct download location.
 {% enddocs %}
 
 {% docs package_download_url_path %}
 The file path or endpoint from which the package file was downloaded, typically a relative path on the server.
+{% enddocs %}
+
+{% docs package_download_tls_protocol %}
+The specific TLS protocol version used during the download connection. Common examples include TLS 1.2 or TLS 1.3.
+{% enddocs %}
+
+{% docs package_download_tls_cipher %}
+The cryptographic cipher suite used during the TLS connection for the download, ensuring secure communication.
 {% enddocs %}
 
 {% docs package_filename %}
