@@ -36,7 +36,7 @@ jobs:
       - name: Install python dependencies
         run: |
             export UV_PROJECT_ENVIRONMENT="${pythonLocation}"
-            uv sync --frozen
+            uv sync --group dev --frozen
       - name: Connect Tailscale
         uses: tailscale/github-action@v2
         with:
