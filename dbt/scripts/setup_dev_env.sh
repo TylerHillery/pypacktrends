@@ -1,6 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Script to setup dbt for local development
+set -x
+set -e
 
 echo "Checking for BIGQUERY_USER environment variable..."
 echo
@@ -63,7 +64,7 @@ if [[ "$download_confirm" == "y" ]]; then
         echo "Created directory $artifacts_dir"
     fi
 
-    rsync -az --delete github@pypacktrends-prod:/srv/www/dbtdocs/ $artifacts_dir
+    rsync -az --delete github@pypacktrends-prod:/home/github/pypacktrends/dbt/target/ $artifacts_dir
 
     if [ $? -eq 0 ]; then
         echo "Download successful: $manifest_file"

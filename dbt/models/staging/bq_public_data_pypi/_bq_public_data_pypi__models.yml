@@ -8,7 +8,7 @@ models:
           combination_of_columns:
             - package_name
             - package_version
-          where: package_uploaded_date >= date_sub(current_date(), interval 2 day)
+          where: date(package_uploaded_at) >= date_sub(current_date(), interval 2 day)
     columns:
       - name: package_metadata_version
         data_type: string
@@ -165,10 +165,6 @@ models:
       - name: package_license_files
         data_type: string
         description: '{{ doc("package_license_files") }}'
-
-      - name: package_uploaded_date
-        data_type: date
-        description: '{{ doc("package_uploaded_date") }}'
 
   - name: stg_bq_public_data_pypi__file_downloads
     description: '{{ doc("package_file_downloads") }}'

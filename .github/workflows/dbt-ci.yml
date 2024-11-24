@@ -46,7 +46,7 @@ jobs:
       - name: Sync dbt docs from VPS
         run: |
           mkdir -p prod-run-artifacts
-          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" github@pypacktrends-prod:/srv/www/dbtdocs/ prod-run-artifacts/
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" github@pypacktrends-prod:/home/github/pypacktrends/dbt/target/ prod-run-artifacts/
       - name: Authenticate with Google Cloud
         id: auth
         uses: google-github-actions/auth@v2

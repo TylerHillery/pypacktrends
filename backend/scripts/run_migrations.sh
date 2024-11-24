@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -e
+set -x
+
+# Get the directory where the script is located
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+
+# Change to the parent directory of the script
+cd "$SCRIPT_DIR/.."
+
+uv run alembic upgrade head

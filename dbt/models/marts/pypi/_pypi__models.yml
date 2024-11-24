@@ -29,10 +29,6 @@ models:
         data_type: timestamp
         description: '{{ doc("package_uploaded_at") }}'
 
-      - name: package_uploaded_date
-        data_type: date
-        description: '{{ doc("package_uploaded_date") }}'
-
   - name: pypi_package_downloads_per_day
     description: Aggregates daily download counts of Python packages from PyPI
     columns:

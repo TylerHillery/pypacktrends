@@ -197,10 +197,6 @@ The method or tool used to upload the package.
 The timestamp of when the package was uploaded.
 {% enddocs %}
 
-{% docs package_uploaded_date %}
-package_uploaded_at truncated to date
-{% enddocs %}
-
 {% docs package_version %}
 The version of the package
 {% enddocs %}
