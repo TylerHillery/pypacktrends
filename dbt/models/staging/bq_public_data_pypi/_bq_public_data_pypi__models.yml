@@ -8,7 +8,7 @@ models:
           combination_of_columns:
             - package_name
             - package_version
-          where: package_uploaded_date >= date_sub(current_date(), interval 2 day)
+          where: date(package_uploaded_at) >= date_sub(current_date(), interval 2 day)
     columns:
       - name: package_metadata_version
         data_type: string
