@@ -1,4 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -e
+set -x
 
 # Check if required arguments are provided
 if [ "$#" -ne 2 ]; then

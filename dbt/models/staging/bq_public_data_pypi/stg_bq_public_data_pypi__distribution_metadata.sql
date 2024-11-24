@@ -44,7 +44,6 @@ renamed as (
         blake2_256_digest        as package_blake2_256_digest,
         license_expression       as package_license_expression,
         license_files            as package_license_files,
-        date(upload_time)        as package_uploaded_date
     from
         source
 )

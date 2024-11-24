@@ -2,6 +2,11 @@
   config(
     materialized = "table",
     cluster_by = "package_name",
+    partition_by = {
+      "field": "package_uploaded_at",
+      "data_type": "date",
+      "granularity": "month"
+    }
   )
 }}
 
@@ -14,8 +19,7 @@ latest_package_distributions as (
         package_summary,
         package_home_page,
         package_download_url,
-        package_uploaded_at,
-        package_uploaded_date
+        timestamp_trunc(package_uploaded_at, second) as package_uploaded_at
     from
         {{ ref('stg_bq_public_data_pypi__distribution_metadata') }}
     qualify

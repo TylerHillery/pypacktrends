@@ -38,6 +38,8 @@ jobs:
         run: |
             export UV_PROJECT_ENVIRONMENT="${pythonLocation}"
             uv sync --group dev
+      - name: SQLFluff
+        run: ./scripts/sqlfluff.sh
       - name: Runs tests
         run: uv run bash scripts/test.sh "Coverage for ${{ github.sha }}"
       - name: Store coverage files

@@ -11,11 +11,8 @@ services:
       - 8000:8000
     build:
       context: ./backend
-    command:
-      - fastapi
-      - run
-      - --reload
-      - ./app/main.py
+    environment:
+      ENVIRONMENT: dev
     develop:
       watch:
         - path: ./backend

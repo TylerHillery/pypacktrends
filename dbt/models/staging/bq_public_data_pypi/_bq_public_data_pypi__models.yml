@@ -166,10 +166,6 @@ models:
         data_type: string
         description: '{{ doc("package_license_files") }}'
 
-      - name: package_uploaded_date
-        data_type: date
-        description: '{{ doc("package_uploaded_date") }}'
-
   - name: stg_bq_public_data_pypi__file_downloads
     description: '{{ doc("package_file_downloads") }}'
     columns:

@@ -1,0 +1,10 @@
+# PyPack Trends - Alembic
+
+To start a new migration:
+```
+ uv run alembic revision -m "init database"
+```
+
+Copy the file name and create a sql file with suffix `_upgrade.sql` and `_downgrade.sql`.
+
+Import `from app.alembic.utils import run_sql_statements` and call this function in both thee `upgrade()` and `downgrade()`
