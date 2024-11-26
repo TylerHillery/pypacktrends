@@ -5,5 +5,5 @@ set -e
 
 script_dir=$(dirname "$0")
 
-uv run sqlfluff fix $script_dir/..
-uv run sqlfluff lint $script_dir/..
+sqlfluff fix $script_dir/..
+sqlfluff lint $script_dir/..

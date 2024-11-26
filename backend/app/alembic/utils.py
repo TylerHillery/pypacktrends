@@ -1,44 +1,67 @@
 import logging
 import inspect
 from pathlib import Path
+from typing import Any
 
-from sqlalchemy import text
-
-from app.core.db import db_manager
-
-logger = logging.getLogger("alembic.runtime.migration")
+from sqlalchemy import Engine, text
 
 
-def run_sql_statements() -> None:
-    engine = db_manager.get_engine(readonly=False)
-    version_file = Path(inspect.stack()[1].filename)
-    caller_name = inspect.stack()[1].function
-    sql_file = version_file.parent / f"{version_file.stem}_{caller_name}.sql"
-
+def read_sql_file(sql_file: Path) -> tuple[str, ...]:
     if not sql_file.exists():
-        err_msg = (
-            f"{sql_file} is missing. Cannot proceed with the {caller_name} migration."
-        )
-        logger.error(err_msg)
-        raise FileNotFoundError(err_msg)
+        raise FileNotFoundError(f"{sql_file} is missing.")
 
     with open(sql_file, "r") as f:
         contents = f.read().strip()
 
-    sql_statements = [
+    sql_statements = tuple(
         statement.strip() for statement in contents.split(";") if statement.strip()
-    ]
+    )
 
     if not sql_statements:
-        err_msg = f"The file '{sql_file}' exists but contains no SQL statements."
-        logger.error(err_msg)
-        raise ValueError(err_msg)
+        raise ValueError(
+            f"The file '{sql_file}' exists but contains no SQL statements."
+        )
 
-    with engine.begin() as conn:
-        for sql in sql_statements:
+    return sql_statements
+
+
+def get_sql_migration_file() -> Path:
+    caller_frame = inspect.stack()[1]
+    caller_function_name = caller_frame.function
+    version_file = Path(caller_frame.filename)
+
+    if caller_function_name not in ("upgrade", "downgrade"):
+        raise ValueError(
+            f"Function '{caller_function_name}' is not a valid Alembic migration function. "
+            "Expected 'upgrade' or 'downgrade'."
+        )
+
+    return version_file.parent / f"{version_file.stem}_{caller_function_name}.sql"
+
+
+class NullLogger(logging.Logger):
+    def __init__(self) -> None:
+        super().__init__(name="null_logger")
+
+    def info(self, *args: Any, **kwargs: Any) -> None:
+        pass
+
+    def error(self, *args: Any, **kwargs: Any) -> None:
+        pass
+
+
+def run_sql_statements(
+    write_engine: Engine, sql_file: Path, logger: logging.Logger | None = None
+) -> tuple[str, ...]:
+    logger = logger or NullLogger()
+    executed_statements = []
+    with write_engine.begin() as conn:
+        for sql in read_sql_file(sql_file):
             try:
                 logger.info(f"Executing SQL: {sql}")
                 conn.execute(text(sql))
+                executed_statements.append(sql)
             except Exception as e:
                 logger.error(f"Failed to execute SQL: {sql}. Error: {e}")
                 raise e
+    return tuple(executed_statements)

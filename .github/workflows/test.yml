@@ -41,7 +41,7 @@ jobs:
       - name: SQLFluff
         run: ./scripts/sqlfluff.sh
       - name: Runs tests
-        run: uv run bash scripts/test.sh "Coverage for ${{ github.sha }}"
+        run: ./scripts/test.sh "Coverage for ${{ github.sha }}"
       - name: Store coverage files
         uses: actions/upload-artifact@v4
         with:

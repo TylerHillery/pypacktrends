@@ -13,7 +13,7 @@ cd "$PROJECT_ROOT"
 
 # Check the ENVIRONMENT variable
 if [ "${ENVIRONMENT}" = "dev" ]; then
-    exec uv run fastapi run --reload app/main.py
+    exec fastapi run --reload app/main.py
 else
     exec fastapi run --workers 4 app/main.py
 fi

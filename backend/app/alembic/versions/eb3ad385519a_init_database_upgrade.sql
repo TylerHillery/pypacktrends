@@ -1,5 +1,4 @@
 pragma journal_mode = wal;
-pragma synchronous = normal;
 
 create table pypi_package_downloads_per_day (
     package_name            text    not null,
