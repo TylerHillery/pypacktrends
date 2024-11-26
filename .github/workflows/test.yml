@@ -40,6 +40,15 @@ jobs:
             uv sync --group dev
       - name: SQLFluff
         run: ./scripts/sqlfluff.sh
+      - name: Authenticate with Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.DBT_SERVICE_ACCOUNT_EMAIL }}
+      - name: Set up Google Cloud SDK
+        uses: 'google-github-actions/setup-gcloud@v2'
       - name: Runs tests
         run: ./scripts/test.sh "Coverage for ${{ github.sha }}"
       - name: Store coverage files
