@@ -9,6 +9,10 @@ on:
       - opened
       - synchronize
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
