@@ -3,10 +3,10 @@ import logging
 import time
 
 from google.cloud import bigquery
-from sqlalchemy import text
+from sqlalchemy import Engine, text
 
 
-from app.core.db import db_manager
+from app.core.db import read_engine, write_engine
 import sys
 from datetime import datetime
 
@@ -14,12 +14,12 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 logger = logging.getLogger()
 
 
-def sync_pypi_packages() -> None:
+def sync_pypi_packages(
+    read_engine: Engine, write_engine: Engine, limit: int | None = None
+) -> None:
     logger.info("Syncing PyPI packages to SQLite...")
 
-    readonly_engine = db_manager.get_engine(readonly=True)
-
-    with readonly_engine.connect() as conn:
+    with read_engine.connect() as conn:
         result = conn.execute(
             text("select max(package_uploaded_at) from pypi_packages")
         )
@@ -43,6 +43,9 @@ def sync_pypi_packages() -> None:
         package_name
     """
 
+    if limit is not None:
+        select_query += f"limit {limit}"
+
     logger.info(f"Query most recent distributions: {select_query}")
 
     BATCH_SIZE = 50_000
@@ -60,16 +63,17 @@ def sync_pypi_packages() -> None:
 
     start_time = time.time()
 
-    engine = db_manager.get_engine(readonly=False)
-    with engine.begin() as conn:
+    with write_engine.begin() as conn:
+        row_count = 0
         batch_count = 0
         while batch := list(islice(rows, BATCH_SIZE)):
             batch_count += 1
             start_batch_time = time.time()
 
             packages = [dict(row.items()) for row in batch]
+            row_count += len(packages)
 
-            logger.info(f"Inserting batch {batch_count} of {total_rows} rows...")
+            logger.info(f"Inserting {row_count} of {total_rows} rows...")
 
             conn.execute(upsert_sql, packages)
 
@@ -80,7 +84,9 @@ def sync_pypi_packages() -> None:
     logger.info(f"Sync completed in {total_time:.2f} seconds.")
 
 
-def sync_pypi_downloads(start_date: str, end_date: str) -> None:
+def sync_pypi_downloads(
+    write_engine: Engine, start_date: str, end_date: str, limit: int | None = None
+) -> None:
     logger.info("Syncing PyPI downloads to SQLite...")
 
     client = bigquery.Client()
@@ -95,6 +101,9 @@ def sync_pypi_downloads(start_date: str, end_date: str) -> None:
     where
         package_downloaded_date between '{start_date}' and '{end_date}'
     """
+
+    if limit is not None:
+        select_query += f"limit {limit}"
 
     logger.info(f"Query downloads: {select_query}")
 
@@ -118,8 +127,7 @@ def sync_pypi_downloads(start_date: str, end_date: str) -> None:
 
     start_time = time.time()
 
-    engine = db_manager.get_engine(readonly=False)
-    with engine.begin() as conn:
+    with write_engine.begin() as conn:
         conn.execute(delete_sql)
         batch_count = 0
         while batch := list(islice(rows, BATCH_SIZE)):
@@ -158,6 +166,10 @@ def parse_dates(args: list[str]) -> tuple[str, str]:
         logger.error("Start date and end date must be in YYYY-MM-DD format")
         sys.exit(1)
 
+    if end_date < start_date:
+        logger.error("End date must be greater than or equal to the start date")
+        sys.exit(1)
+
     return start_date, end_date
 
 
@@ -170,11 +182,12 @@ def main() -> None:
 
     match entity:
         case "packages":
-            sync_pypi_packages()
+            sync_pypi_packages(read_engine, write_engine)
         case "downloads":
-            sync_pypi_downloads(*parse_dates(sys.argv))
+            sync_pypi_downloads(write_engine, *parse_dates(sys.argv))
         case _:
             logger.error("Unknown entity. Please use 'packages' or 'downloads'")
+            sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -3,12 +3,14 @@ from pathlib import Path
 
 
 class Settings:
-    SQLITE_DB_PATH: Path = Path(
-        os.getenv(
-            "SQLITE_DB_PATH",
-            Path(__file__).parent.resolve() / "../../../data/pypacktrends.db",
-        )
-    ).resolve()
+    @property
+    def SQLITE_DB_PATH(self) -> Path:
+        return Path(
+            os.getenv(
+                "SQLITE_DB_PATH",
+                Path(__file__).parent.resolve() / "../../../data/pypacktrends.db",
+            )
+        ).resolve()
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
