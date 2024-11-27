@@ -132,7 +132,7 @@ def test_run_sql_statements(
     assert executed_statements[0].startswith("CREATE TABLE test_table")
     assert executed_statements[1].startswith("INSERT INTO test_table")
 
-    with read_engine.begin() as conn:
+    with read_engine.connect() as conn:
         result = conn.execute(text("SELECT id, name FROM test_table")).fetchall()
 
     assert result == [(1, "test_name")]

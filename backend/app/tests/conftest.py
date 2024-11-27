@@ -17,7 +17,7 @@ SQLITE_TEST_DB = (
 
 
 @pytest.fixture(scope="session")
-def run_db_migrations() -> None:
+def run_db_migrations() -> Generator[None, None, None]:
     with mock.patch.dict(os.environ, {"SQLITE_DB_PATH": str(SQLITE_TEST_DB)}):
         if not ALEMBIC_CONFIG_PATH.exists():
             raise FileNotFoundError(
@@ -30,6 +30,8 @@ def run_db_migrations() -> None:
         subprocess.run(
             ["alembic", "-c", str(ALEMBIC_CONFIG_PATH), "upgrade", "head"], check=True
         )
+
+        yield
 
 
 @pytest.fixture(scope="session")

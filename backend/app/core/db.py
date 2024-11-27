@@ -1,6 +1,8 @@
 from typing import Optional
 
+from datetime import datetime, date
 from sqlalchemy import Connection, Engine, create_engine, event
+import sqlite3
 
 from app.core.config import settings
 
@@ -25,6 +27,8 @@ class DBConnectionManager:
             def apply_conn_settings(
                 dbapi_connection: Connection, connection_record: Optional[object]
             ) -> None:
+                sqlite3.register_adapter(date, date.isoformat)
+                sqlite3.register_adapter(datetime, datetime.isoformat)
                 cursor = dbapi_connection.cursor()
                 cursor.execute("PRAGMA foreign_keys = ON")
                 cursor.execute("PRAGMA busy_timeout = 5000")
