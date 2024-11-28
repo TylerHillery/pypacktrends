@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="initial-scale=1, width=device-width" />
+  <meta name="color-scheme" content="light" />
+  <script src="https://unpkg.com/htmx.org@2.0.3"></script>
+  <script>
+    function clearSearchResults() {
+      document.getElementById('search-results').innerHTML = '';
+      document.getElementById('search-results').className = '';
+    }
+  </script>
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+
+  <style>
+    /* --pico-form-element-focus-color */
+    /* --pico-form-element-active-border-color */
+    /* --pico-form-element-focus-color) */
+    /* --pico-form-element-border-color */
+    /* var(--pico-border-width) solid var(--pico-border-color) */
+
+    .search-wrapper {
+      position: relative;
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+
+
+    input[type="search"] {
+      --pico-border-radius: 0rem;
+      margin-bottom: 0;
+      width: 100%;
+    }
+
+    .search-results {
+      position: absolute;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      background: var(--pico-form-element-active-background-color);
+      border: calc(var(--pico-border-width) * 2) solid var(--pico-form-element-active-border-color);
+      box-shadow: var(--pico-box-shadow);
+      max-height: 300px;
+      overflow-y: auto;
+      z-index: 100;
+      list-style: none;
+    }
+
+    .search-item {
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      padding: 0.5rem 1rem;
+    }
+
+    .search-item:hover,
+    .search-item:focus {
+      background: var(--primary-hover);
+      background-color: var(--pico-form-element-background-color)
+    }
+
+    .package-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0;
+    }
+
+    .package-item {
+      min-width: fit-content;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 2rem 0.5rem 0.75rem;
+      border-radius: 8px;
+      border-width: 3px;
+      border-style: solid;
+      position: relative;
+    }
+
+    .delete-x {
+      position: absolute;
+      right: 8px;
+      top: 7px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .delete-x:hover {
+      color: red;
+    }
+  </style>
+  <title>PyPack Trends</title>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h3>🐍 PyPack Trends</h3>
+    </header>
+    <div>
+      <p>Compare package download counts over time</p>
+    </div>
+    <div class="search-wrapper">
+      <form hx-post="/packages" hx-target="#packages" hx-trigger="submit"
+        hx-on::after-request="if (event.detail.pathInfo.requestPath === '/packages') { this.reset(); clearSearchResults(); }">
+        <input type="search" name="package_name" placeholder="Type to search..." aria-label="Search python packages"
+          hx-post="/search" hx-trigger="input[this.value.trim() !== ''] changed delay:500ms, focus[this.value.trim() !== '']"
+          hx-target="#search-results" hx-swap="outerHTML" hx-on:blur="clearSearchResults();" />
+      </form>
+      <ul id="search-results"></ul>
+    </div>
+    <ul id="packages" class="package-list" hx-get="/packages" hx-swap="innerHTML" hx-trigger="load"></ul>
+    <hr />
+    <footer>
+      <h4>About</h4>
+      <p>
+        This site was created by
+        <a href="https://github.com/tylerhillery">Tyler Hillery</a>
+      </p>
+    </footer>
+</body>
+<div>
+
+</html>

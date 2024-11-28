@@ -1,0 +1,28 @@
+{% if package_name.strip() == "" %}
+
+<ul id="search-results"></ul>
+
+{% elif packages %}
+
+<ul id="search-results" class="search-results">
+
+  {% for package in packages %}
+
+  <li class="search-item" hx-post="/packages" hx-trigger="click, keyup[key=='Enter']" hx-target="#packages"
+    hx-swap="innerHTML" hx-vals='{"package_name": "{{ package.package_name }}"}'>
+    <small><strong>{{ package.package_name }}</strong></small>
+    <small>{{ package.package_summary }}</small>
+  </li>
+
+  {% endfor %}
+
+  {% else %}
+
+  <ul id="search-results">
+    <small><em>No results found for "{{ package_name }}"</em></small>
+  </ul>
+
+</ul>
+
+<!-- hx-on::after-request="document.querySelector('input[type=search]').value = ''; clearSearchResults();" -->
+{% endif %}
