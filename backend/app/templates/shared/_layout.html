@@ -1,3 +1,5 @@
+{% from "macros/search.html" import search_input %}
+
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 
@@ -24,38 +26,25 @@
     /* --pico-form-element-border-color */
     /* var(--pico-border-width) solid var(--pico-border-color) */
 
-    .search-wrapper {
-      position: relative;
-      width: 100%;
-      margin-bottom: 0.5rem;
-    }
-
-
     input[type="search"] {
       --pico-border-radius: 0rem;
       margin-bottom: 0;
-      width: 100%;
+      box-shadow: none;
     }
 
     .search-results {
-      position: absolute;
-      width: 100%;
-      margin: 0;
-      padding: 0;
+      padding: 0.5rem;
       background: var(--pico-form-element-active-background-color);
-      border: calc(var(--pico-border-width) * 2) solid var(--pico-form-element-active-border-color);
+      border: var(--pico-border-width) solid var(--pico-form-element-active-border-color);
       box-shadow: var(--pico-box-shadow);
       max-height: 300px;
       overflow-y: auto;
-      z-index: 100;
-      list-style: none;
     }
 
     .search-item {
       cursor: pointer;
       display: flex;
       flex-direction: column;
-      padding: 0.5rem 1rem;
     }
 
     .search-item:hover,
@@ -109,16 +98,26 @@
     <div>
       <p>Compare package download counts over time</p>
     </div>
-    <div class="search-wrapper">
-      <form hx-post="/packages" hx-target="#packages" hx-trigger="submit"
-        hx-on::after-request="if (event.detail.pathInfo.requestPath === '/packages') { this.reset(); clearSearchResults(); }">
-        <input type="search" name="package_name" placeholder="Type to search..." aria-label="Search python packages"
-          hx-post="/search" hx-trigger="input[this.value.trim() !== ''] changed delay:500ms, focus[this.value.trim() !== '']"
-          hx-target="#search-results" hx-swap="outerHTML" hx-on:blur="clearSearchResults();" />
+
+    <div id="search-wrapper" class="search-wrapper">
+      <form 
+        id="package-form"
+        hx-get="/search-input" 
+        hx-target="#search-input"
+        hx-swap="innerHTML"
+        hx-trigger="submit, blur">
+        <div id="search-input">
+          {{ search_input() }}
+        </div>
       </form>
-      <ul id="search-results"></ul>
     </div>
-    <ul id="packages" class="package-list" hx-get="/packages" hx-swap="innerHTML" hx-trigger="load"></ul>
+
+
+    <div 
+      hx-get="/packages"
+      hx-trigger="load">
+    </div>
+
     <hr />
     <footer>
       <h4>About</h4>

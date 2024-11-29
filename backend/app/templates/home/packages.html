@@ -1,16 +1,11 @@
-<ul class="package-list">
-    {% for package in packages %}
-    <li class="package-item">
-        <span>{{ package }}</span>
-        <span class="delete-x" hx-delete="/packages?package_name={{ package }}" hx-trigger="click"
-            hx-target="#packages">
-            &times;
-        </span>
-    </li>
-    {% endfor %}
-</ul>
-
-<!-- hx-post="/packages" hx-target="#packages" hx-swap="innerHTML"
-hx-vals='{"package_name": "{{ package }}"}'
-hx-on:click="document.querySelector('input[type=search]').value = ''; document.getElementById('search-results').innerHTML = ''">
-hx-delete="/packages/{index}" hx-target="closest div" -->
+<li class="package-item">
+    <span>{{ package }}</span>
+    <span 
+        class="delete-x" 
+        hx-delete="/packages?package_name={{ package }}" 
+        hx-trigger="click" 
+        hx-target="closest li"
+        hx-swap="outerHTML">
+        &times;
+    </span>
+</li>

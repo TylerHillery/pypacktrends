@@ -1,6 +1,7 @@
 from typing import Annotated
+from urllib.parse import urlparse, parse_qs 
 
-from fastapi import APIRouter, Request, Form
+from fastapi import APIRouter, Request, Header
 from fastapi.responses import HTMLResponse
 
 from sqlalchemy import text
@@ -11,8 +12,19 @@ from app.core.db import read_engine
 router = APIRouter()
 
 
-@router.post("/search", response_class=HTMLResponse)
-def search(request: Request, package_name: Annotated[str, Form()]):
+@router.get("/search-input", response_class=HTMLResponse)
+def get_search_form(
+    request: Request,
+    package_name: str
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="home/search_input.html",
+        context={"package_name": package_name},
+    )
+
+@router.get("/search-results", response_class=HTMLResponse)
+def get_search_results(request: Request, package_name: str):
     with read_engine.connect() as conn:
         result = conn.execute(
             text("""
@@ -31,6 +43,6 @@ def search(request: Request, package_name: Annotated[str, Form()]):
         packages = result.fetchall()
 
     return templates.TemplateResponse(
-        "home/search.html",
+        "home/search_results.html",
         {"request": request, "packages": packages, "package_name": package_name},
     )
