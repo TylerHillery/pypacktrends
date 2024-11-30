@@ -105,7 +105,8 @@
         hx-get="/search-input" 
         hx-target="#search-input"
         hx-swap="innerHTML"
-        hx-trigger="submit, blur">
+        hx-trigger="submit, blur"
+        hx-vals='js:{trigger: event ? event.type : "unknown"}'>
         <div id="search-input">
           {{ search_input() }}
         </div>

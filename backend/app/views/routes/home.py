@@ -10,7 +10,7 @@ router = APIRouter()
 @router.get("/", response_class=HTMLResponse)
 async def home_view(request: Request):
     return templates.TemplateResponse(
-        "shared/_layout.html",
+        "pages/home.html",
         {"request": request},
     )
 

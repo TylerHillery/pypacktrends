@@ -15,11 +15,13 @@ router = APIRouter()
 @router.get("/search-input", response_class=HTMLResponse)
 def get_search_form(
     request: Request,
-    package_name: str
+    package_name: str,
+    trigger: str
 ):
+    package_name = "" if trigger == "submit" else package_name 
     return templates.TemplateResponse(
         request=request,
-        name="home/search_input.html",
+        name="fragments/search_input.html",
         context={"package_name": package_name},
     )
 
@@ -43,6 +45,6 @@ def get_search_results(request: Request, package_name: str):
         packages = result.fetchall()
 
     return templates.TemplateResponse(
-        "home/search_results.html",
+        "pages/search_results.html",
         {"request": request, "packages": packages, "package_name": package_name},
     )
