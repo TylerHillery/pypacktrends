@@ -1,6 +1,4 @@
 from typing import Annotated
-from urllib.parse import urlparse, parse_qs
-
 from fastapi import APIRouter, Request, Header
 from fastapi.responses import HTMLResponse
 
@@ -8,11 +6,40 @@ from sqlalchemy import text
 
 from app.core.config import templates
 from app.core.db import read_engine
+from app.utils import parse_packages,validate_package
 
 router = APIRouter()
 
 
-@router.get("/search-results", response_class=HTMLResponse)
+@router.get("/package-search-input", response_class=HTMLResponse)
+def get_search_input(
+    request: Request,
+    package_name: str,
+    hx_current_url: Annotated[str, Header(alias="HX-Current-URL")] = None,
+):
+    package_name = package_name.strip()
+    is_valid_submission = True
+    error_message = ""
+
+    if package_name in parse_packages(hx_current_url):
+        is_valid_submission = False
+        error_message = f"'{package_name}' already selected"
+    elif not validate_package(package_name):
+        is_valid_submission = False
+        error_message = f"'{package_name}' not found on PyPI"
+
+    return templates.TemplateResponse(
+        request=request,
+        name="fragments/package_search_input.html",
+        context={
+            "package_name": package_name,
+            "is_valid_submission": is_valid_submission,
+            "error_message": error_message
+        },
+    )
+
+
+@router.get("/package-search-results", response_class=HTMLResponse)
 def get_search_results(
     request: Request,
     package_name: str,
@@ -35,6 +62,6 @@ def get_search_results(
         packages = result.fetchall()
 
     return templates.TemplateResponse(
-        "pages/search_results.html",
+        "pages/package_search_results.html",
         {"request": request, "packages": packages, "package_name": package_name},
     )

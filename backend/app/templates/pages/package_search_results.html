@@ -1,0 +1,34 @@
+{% if package_name.strip() == "" %}
+
+{% elif packages %}
+
+  <ul class="package-search-results">
+
+  {% for package in packages %}
+
+    <li 
+      class="search-item" 
+      tabindex="0"
+      onblur="setTimeout(() => {
+      if (!document.querySelector('.search-item:focus') && !document.getElementById('package-search-input').matches(':focus')) {
+        document.getElementById('package-search-results').innerHTML = '';
+        }
+      }, 300)"
+      hx-on:click="submitPackageSearchForm('{{ package.package_name }}')"
+      hx-on:keyup="if (event.key === 'Enter') submitPackageSearchForm('{{ package.package_name }}')"
+    >
+      <small><strong>{{ package.package_name }}</strong></small>
+      <small>{{ package.package_summary }}</small>
+    </li>
+
+  {% endfor %}
+
+  </ul>
+
+  {% else %}
+
+  <ul class="package-search-results">
+  <small class="search-item"><em>No results found for "{{ package_name }}"</em></small>
+  </ul>
+
+  {% endif %}

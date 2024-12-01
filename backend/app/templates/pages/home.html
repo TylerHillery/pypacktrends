@@ -1,4 +1,4 @@
-{% from "fragments/search_input.html" import search_input %}
+{% from "fragments/package_search_input.html" import package_search_input %}
 
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
@@ -13,9 +13,9 @@
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
   <script>
-    function clearSearchResults() {
-      document.getElementById('search-results').innerHTML = '';
-      document.getElementById('search-results').className = '';
+    function submitPackageSearchForm(packageName) {
+      document.getElementById('package-search-input').value = packageName;
+      htmx.trigger('#package-search-form', 'submit');
     }
   </script>
   <link rel="icon"
@@ -31,6 +31,7 @@
 
     #package-search-form {
       position: relative;
+      margin-bottom: 1rem;
     }
 
     #package-search-input {
@@ -41,7 +42,7 @@
       padding-left: 2.5rem;
     }
 
-    .search-results {
+    .package-search-results {
       position: absolute;
       width: 100%;
       padding: 0;
@@ -58,7 +59,7 @@
       cursor: pointer;
       display: flex;
       flex-direction: column;
-      padding: 0.5rem;
+      padding: 0 0.5rem;
       font-size: 0.9rem;
     }
 
@@ -67,7 +68,11 @@
       background-color: var(--pico-muted-border-color);
     }
 
-    .package-list {
+    .search-item:focus {
+      outline: none;
+    }
+
+    #package-list {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
@@ -81,7 +86,7 @@
       display: flex;
       align-items: center;
       padding: 0.5rem 2rem 0.5rem 0.75rem;
-      border: var(--pico-border-width) solid var(--pico-form-element-active-border-color);
+      border: 0.17rem solid var(--pico-form-element-active-border-color);
       border-radius: var(--pico-border-radius);
       position: relative;
     }
@@ -90,7 +95,6 @@
       position: absolute;
       right: 8px;
       top: 3px;
-      font-size: 18px;
       font-weight: bold;
       cursor: pointer;
       line-height: 1;
@@ -104,12 +108,13 @@
       width: 100%;
     }
 
+
   </style>
   <title>PyPack Trends</title>
 </head>
 
-<body>
-  <div class="container pico">
+<body class="container">
+  <div class="pico">
     <header>
       <h3>🐍 PyPack Trends</h3>
     </header>
@@ -117,56 +122,39 @@
       <p>Compare package download counts over time</p>
     </div>
 
-    <form 
-      id="package-search-form"
-      hx-trigger="submit" 
-      hx-post="/packages-list"
-      hx-target="#package-list"
-      hx-swap="beforeend"
-      hx-on:submit="document.getElementById('package-search-results').innerHTML = ''; document.getElementById('package-search-input').value = '';"
-    >
-      <input  
-        id="package-search-input"
-        type="search" 
-        name="package_name" 
-        placeholder="Search for python packages..." 
-        aria-label="Search"
-        onblur="setTimeout(function() { document.getElementById('package-search-results').innerHTML = ''; }, 100);"
-        hx-trigger="input changed delay:200ms, focus[this.value.trim() !== ''], search"
-        hx-get="/search-results" 
-        hx-include="this"
-        hx-target="#package-search-results" 
-        hx-swap="innerHTML"
-        hx-sync="closest form:abort"
-      >
-      <ul id="package-search-results" class="search-results" >
-      </ul>
-
+    <form id="package-search-form" hx-trigger="submit" hx-post="/package-list" hx-target="#package-list"
+      hx-swap="beforeend" hx-on::after-request="
+          console.log('Triggering Event:', event.detail.requestConfig);
+          if (event.detail.requestConfig.triggeringEvent.type === 'submit' && 
+              event.detail.requestConfig.elt.id === 'package-search-form') {
+            htmx.trigger('#packages-graph', 'dataRefresh')
+          }">
+      <div id="package-search-container" hx-trigger="submit from:#package-search-form" hx-target="this"
+        hx-get="/package-search-input" hx-include="#package-search-form" hx-swap="innerHTML">
+        {{ package_search_input() }}
+      </div>
     </form>
-
-    <div hx-trigger="load" hx-get="/packages-list" hx-target="#package-list" hx-swap="innerHTML">
-      <ul 
-        id="package-list" 
-        class="package-list"
-      >
+    <div hx-trigger="load" hx-get="/package-list" hx-target="#package-list" hx-swap="innerHTML">
+      <ul id="package-list" class="package-list">
       </ul>
     </div>
-
   </div>
 
-  <div id="packages-graph" class="container" hx-trigger="load" hx-get="/packages-graph">
+
+  <div id="packages-graph" hx-trigger="load, dataRefresh from:body" hx-get="/packages-graph" hx-swap="innerHTML">
   </div>
 
-  <div class="container pico">
-      <hr />
-        <footer>
-          <h4>About</h4>
-          <p>
-            This site was created by
-            <a href="https://github.com/tylerhillery">Tyler Hillery</a>
-          </p>
-        </footer>
+  <div class="pico">
+    <hr />
+    <footer>
+      <h4>About</h4>
+      <p>
+        This site was created by
+        <a href="https://github.com/tylerhillery">Tyler Hillery</a>
+      </p>
+    </footer>
   </div>
 
 </body>
+
 </html>

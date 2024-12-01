@@ -1,0 +1,34 @@
+{% macro package_search_input(package_name="", is_valid_submission=True, error_message="") %}
+
+
+<input 
+  id="package-search-input" 
+  type="search" 
+  name="package_name" 
+  placeholder="Search for python packages..."
+  aria-label="Search"
+  tabindex="0"
+  onblur="setTimeout(() => {
+    if (!document.querySelector('.search-item:focus')) {
+      document.getElementById('package-search-results').innerHTML = '';
+    }
+  }, 300)"
+  {% if not is_valid_submission %}aria-invalid="true"{% endif %}
+  value="{% if not is_valid_submission %}{{ package_name }}{% endif %}"
+  hx-trigger="input changed delay:200ms, focus[this.value.trim() !== ''], search" 
+  hx-get="/package-search-results"
+  hx-include="this" 
+  hx-target="#package-search-results" 
+  hx-swap="innerHTML" 
+  hx-sync="closest form:abort" 
+>
+
+<div id="package-search-results"></div>
+
+<div>
+{% if not is_valid_submission %} <small><i>{{ error_message }}</i></small> {% endif %}
+</div>
+
+{% endmacro %}
+
+{{ package_search_input(package_name, is_valid_submission, error_message) }}

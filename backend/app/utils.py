@@ -15,12 +15,28 @@ def get_date_n_days_ago(date: date, n_days: int) -> str:
     return (date - timedelta(days=n_days)).strftime(DATE_FORMAT)
 
 
-def parse_packages(hx_current_url: str) -> set[str]:
-    return set(parse_qs(urlparse(hx_current_url).query).get("packages", []))
+def parse_packages(hx_current_url: str) -> list[str]:
+    return parse_qs(urlparse(hx_current_url).query).get("packages", [])
 
 
-def generate_push_url(packages: set[str]) -> str:
+def generate_push_url(packages: list[str]) -> str:
     return f"?{urlencode({'packages': packages}, doseq=True)}" if packages else "/"
+
+
+def validate_package(package_name: str) -> bool:
+    with read_engine.connect() as conn:
+        result = conn.execute(
+            text("""
+            select
+                package_name
+            from
+                pypi_packages
+            where
+                package_name = :package_name
+            """),
+            {"package_name": package_name},
+        )
+    return result.scalar() is not None
 
 
 def generate_altair_colors(n: int, seed: int = 42) -> list[str]:
@@ -28,9 +44,20 @@ def generate_altair_colors(n: int, seed: int = 42) -> list[str]:
         raise ValueError("n must be at least 1")
 
     random.seed(seed)
-    colors = ["#346f9e", "#ffde56", "#2e7d32"]  # Python blue, yellow, green
+    colors = []
 
     while len(colors) < n:
+        # Python blue, yellow, green
+        if len(colors) == 0:
+            colors.append("#346f9e")
+            continue
+        elif len(colors) == 1:
+            colors.append("#ffde56")
+            continue
+        elif len(colors) == 2:
+            colors.append("#2e7d32")
+            continue
+
         h = random.uniform(0, 1)
         s = random.uniform(0.5, 0.9)
         v = random.uniform(0.6, 0.9)
@@ -44,7 +71,7 @@ def generate_altair_colors(n: int, seed: int = 42) -> list[str]:
     return colors
 
 
-def generate_chart(packages: set[str]) -> alt.Chart:
+def generate_chart(packages: list[str]) -> alt.Chart:
     packages = {str(i): package for i, package in enumerate(packages)}
     placeholders = ", ".join(f":{i}" for i in range(len(packages)))
 
@@ -74,7 +101,7 @@ def generate_chart(packages: set[str]) -> alt.Chart:
 
     base = alt.Chart(df).encode(
         x=alt.X("week:T", title=None, axis=alt.Axis(tickCount=2)),
-        y=alt.Y("downloads:Q", title=None, axis=alt.Axis(tickCount=2)),
+        y=alt.Y("downloads:Q", title=None, axis=alt.Axis(tickCount=4)),
         color="package:N",
         tooltip=[
             alt.Tooltip("package:N"),
@@ -92,7 +119,7 @@ def generate_chart(packages: set[str]) -> alt.Chart:
         color=alt.Color(
             "package:N",
             scale=alt.Scale(
-                domain=sorted(packages.values()),
+                domain=packages.values(),
                 range=generate_altair_colors(len(packages)),
             ),
         ).legend(orient="top"),
@@ -101,7 +128,7 @@ def generate_chart(packages: set[str]) -> alt.Chart:
     return (points + lines).properties(
         width="container",
         height=400,
-        usermeta={"embedOptions": {"tooltip": {"theme": "dark"}}},
+        usermeta={"embedOptions": {"tooltip": {"theme": "dark"}, "actions": False}},
     )
 
 

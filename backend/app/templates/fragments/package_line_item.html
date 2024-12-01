@@ -1,8 +1,9 @@
-{% macro package_line_item(package) %}
+{% macro package_line_item(package, color) %}
 
-<li class="package-item">
+<li class="package-item" style="border-color: {{ color }}"">
     <span>{{ package }}</span>
-    <span class="delete-x" hx-delete="/packages-list" hx-trigger="click" hx-target="closest li" hx-swap="outerHTML"
+    <span class="delete-x" hx-delete="/package-list" hx-trigger="click" hx-target="closest li" hx-swap="outerHTML"
+        hx-on::after-request="console.log('Delete complete'); htmx.trigger('#packages-graph', 'dataRefresh')"
         hx-vals='{"package_name": "{{ package }}"}'>
         &times;
     </span>
@@ -10,4 +11,4 @@
 
 {% endmacro %}
 
-{{ package_line_item(package_name) }}
+{{ package_line_item(package_name, color) }}
