@@ -1,5 +1,5 @@
 from typing import Annotated
-from urllib.parse import urlparse, parse_qs 
+from urllib.parse import urlparse, parse_qs
 
 from fastapi import APIRouter, Request, Header
 from fastapi.responses import HTMLResponse
@@ -12,21 +12,11 @@ from app.core.db import read_engine
 router = APIRouter()
 
 
-@router.get("/search-input", response_class=HTMLResponse)
-def get_search_form(
+@router.get("/search-results", response_class=HTMLResponse)
+def get_search_results(
     request: Request,
     package_name: str,
-    trigger: str
 ):
-    package_name = "" if trigger == "submit" else package_name 
-    return templates.TemplateResponse(
-        request=request,
-        name="fragments/search_input.html",
-        context={"package_name": package_name},
-    )
-
-@router.get("/search-results", response_class=HTMLResponse)
-def get_search_results(request: Request, package_name: str):
     with read_engine.connect() as conn:
         result = conn.execute(
             text("""

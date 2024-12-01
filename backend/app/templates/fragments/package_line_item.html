@@ -1,3 +1,13 @@
-{% from "macros/packages.html" import package_line_item %}
+{% macro package_line_item(package) %}
+
+<li class="package-item">
+    <span>{{ package }}</span>
+    <span class="delete-x" hx-delete="/packages-list" hx-trigger="click" hx-target="closest li" hx-swap="outerHTML"
+        hx-vals='{"package_name": "{{ package }}"}'>
+        &times;
+    </span>
+</li>
+
+{% endmacro %}
 
 {{ package_line_item(package_name) }}

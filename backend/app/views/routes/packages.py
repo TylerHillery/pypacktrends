@@ -1,17 +1,18 @@
 from typing import Annotated
-from urllib.parse import urlencode, urlparse, parse_qs
 
 from fastapi import APIRouter, Request, Response, Form, Header
 from fastapi.responses import HTMLResponse
+from sqlalchemy import text
 
 from app.core.config import templates
-from app.utils import generate_push_url, parse_packages
+from app.core.db import read_engine
+from app.utils import generate_push_url, parse_packages, generate_chart
 
 router = APIRouter()
 
 
-@router.get("/packages", response_class=HTMLResponse)
-async def list_packages(
+@router.get("/packages-list", response_class=HTMLResponse)
+async def get_packages_list(
     request: Request,
     hx_current_url: Annotated[str, Header(alias="HX-Current-URL")] = None,
 ):
@@ -24,7 +25,7 @@ async def list_packages(
     )
 
 
-@router.post("/packages", response_class=HTMLResponse)
+@router.post("/packages-list", response_class=HTMLResponse)
 async def create_package(
     request: Request,
     package_name: Annotated[str, Form()],
@@ -47,7 +48,7 @@ async def create_package(
     return response
 
 
-@router.delete("/packages", response_class=HTMLResponse)
+@router.delete("/packages-list", response_class=HTMLResponse)
 async def delete_package(
     package_name: str,
     hx_current_url: Annotated[str, Header(alias="HX-Current-URL")] = None,
@@ -56,9 +57,7 @@ async def delete_package(
 
     current_packages = parse_packages(hx_current_url)
 
-    print("CURRENT PACKAGE BEFORE REMOVE", current_packages)
     current_packages.remove(package_name)
-    print("CURRENT PACKAGE AFTER REMOVE", current_packages)
 
     response = Response(
         content="",
@@ -69,3 +68,13 @@ async def delete_package(
     print(response.headers)
 
     return response
+
+
+@router.get("/packages-graph", response_class=HTMLResponse)
+async def list_packages(
+    request: Request,
+    hx_current_url: Annotated[str, Header(alias="HX-Current-URL")] = None,
+):
+    current_packages = parse_packages(hx_current_url)
+    content = generate_chart(current_packages).to_html() if current_packages else ""
+    return Response(content=content, media_type="text/html")

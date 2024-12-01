@@ -1,3 +1,11 @@
-{% from "macros/packages.html" import package_list %}
+{% from "fragments/package_line_item.html" import package_line_item %}
+
+{% macro package_list(packages) %}
+
+{% for package in packages %}
+{{ package_line_item(package) }}
+{% endfor %}
+
+{% endmacro %}
 
 {{ package_list(packages) }}

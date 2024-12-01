@@ -1,4 +1,4 @@
-{% from "macros/search.html" import search_input %}
+{% from "fragments/search_input.html" import search_input %}
 
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
@@ -9,6 +9,9 @@
   <meta name="viewport" content="initial-scale=1, width=device-width" />
   <meta name="color-scheme" content="light" />
   <script src="https://unpkg.com/htmx.org@2.0.3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
   <script>
     function clearSearchResults() {
       document.getElementById('search-results').innerHTML = '';
@@ -17,40 +20,51 @@
   </script>
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.conditional.min.css" />
 
   <style>
-    /* --pico-form-element-focus-color */
-    /* --pico-form-element-active-border-color */
-    /* --pico-form-element-focus-color) */
-    /* --pico-form-element-border-color */
-    /* var(--pico-border-width) solid var(--pico-border-color) */
+    [data-theme="light"],
+    :root:not([data-theme="dark"]) {
+      --pico-primary-background: var(--pico-form-element-border-color);
+      --pico-border-width: 0.12rem;
+    }
 
-    input[type="search"] {
-      --pico-border-radius: 0rem;
+    #package-search-form {
+      position: relative;
+    }
+
+    #package-search-input {
+      border-radius: 0rem;
       margin-bottom: 0;
       box-shadow: none;
+      height: 2.25rem;
+      padding-left: 2.5rem;
     }
 
     .search-results {
-      padding: 0.5rem;
-      background: var(--pico-form-element-active-background-color);
+      position: absolute;
+      width: 100%;
+      padding: 0;
+      background: var(--pico-form-element-background-color);
       border: var(--pico-border-width) solid var(--pico-form-element-active-border-color);
+      border-top: none;
       box-shadow: var(--pico-box-shadow);
       max-height: 300px;
       overflow-y: auto;
+      z-index: 1002;
     }
 
     .search-item {
       cursor: pointer;
       display: flex;
       flex-direction: column;
+      padding: 0.5rem;
+      font-size: 0.9rem;
     }
 
     .search-item:hover,
     .search-item:focus {
-      background: var(--primary-hover);
-      background-color: var(--pico-form-element-background-color)
+      background-color: var(--pico-muted-border-color);
     }
 
     .package-list {
@@ -63,20 +77,19 @@
 
     .package-item {
       min-width: fit-content;
-      height: 40px;
+      height: 30px;
       display: flex;
       align-items: center;
       padding: 0.5rem 2rem 0.5rem 0.75rem;
-      border-radius: 8px;
-      border-width: 3px;
-      border-style: solid;
+      border: var(--pico-border-width) solid var(--pico-form-element-active-border-color);
+      border-radius: var(--pico-border-radius);
       position: relative;
     }
 
     .delete-x {
       position: absolute;
       right: 8px;
-      top: 7px;
+      top: 3px;
       font-size: 18px;
       font-weight: bold;
       cursor: pointer;
@@ -86,12 +99,17 @@
     .delete-x:hover {
       color: red;
     }
+
+    #vis {
+      width: 100%;
+    }
+
   </style>
   <title>PyPack Trends</title>
 </head>
 
 <body>
-  <div class="container">
+  <div class="container pico">
     <header>
       <h3>🐍 PyPack Trends</h3>
     </header>
@@ -99,35 +117,56 @@
       <p>Compare package download counts over time</p>
     </div>
 
-    <div id="search-wrapper" class="search-wrapper">
-      <form 
-        id="package-form"
-        hx-get="/search-input" 
-        hx-target="#search-input"
+    <form 
+      id="package-search-form"
+      hx-trigger="submit" 
+      hx-post="/packages-list"
+      hx-target="#package-list"
+      hx-swap="beforeend"
+      hx-on:submit="document.getElementById('package-search-results').innerHTML = ''; document.getElementById('package-search-input').value = '';"
+    >
+      <input  
+        id="package-search-input"
+        type="search" 
+        name="package_name" 
+        placeholder="Search for python packages..." 
+        aria-label="Search"
+        onblur="setTimeout(function() { document.getElementById('package-search-results').innerHTML = ''; }, 100);"
+        hx-trigger="input changed delay:200ms, focus[this.value.trim() !== ''], search"
+        hx-get="/search-results" 
+        hx-include="this"
+        hx-target="#package-search-results" 
         hx-swap="innerHTML"
-        hx-trigger="submit, blur"
-        hx-vals='js:{trigger: event ? event.type : "unknown"}'>
-        <div id="search-input">
-          {{ search_input() }}
-        </div>
-      </form>
+        hx-sync="closest form:abort"
+      >
+      <ul id="package-search-results" class="search-results" >
+      </ul>
+
+    </form>
+
+    <div hx-trigger="load" hx-get="/packages-list" hx-target="#package-list" hx-swap="innerHTML">
+      <ul 
+        id="package-list" 
+        class="package-list"
+      >
+      </ul>
     </div>
 
+  </div>
 
-    <div 
-      hx-get="/packages"
-      hx-trigger="load">
-    </div>
+  <div id="packages-graph" class="container" hx-trigger="load" hx-get="/packages-graph">
+  </div>
 
-    <hr />
-    <footer>
-      <h4>About</h4>
-      <p>
-        This site was created by
-        <a href="https://github.com/tylerhillery">Tyler Hillery</a>
-      </p>
-    </footer>
+  <div class="container pico">
+      <hr />
+        <footer>
+          <h4>About</h4>
+          <p>
+            This site was created by
+            <a href="https://github.com/tylerhillery">Tyler Hillery</a>
+          </p>
+        </footer>
+  </div>
+
 </body>
-<div>
-
 </html>
