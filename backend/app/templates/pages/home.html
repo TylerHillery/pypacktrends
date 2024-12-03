@@ -124,8 +124,7 @@
 
     <form id="package-search-form" hx-trigger="submit" hx-post="/package-list" hx-target="#package-list"
       hx-swap="beforeend" hx-on::after-request="
-          console.log('Triggering Event:', event.detail.requestConfig);
-          if (event.detail.requestConfig.triggeringEvent.type === 'submit' && 
+          if (event.detail.requestConfig.triggeringEvent.type === 'submit' &&
               event.detail.requestConfig.elt.id === 'package-search-form') {
             htmx.trigger('#packages-graph', 'dataRefresh')
           }">
@@ -135,7 +134,7 @@
       </div>
     </form>
     <div hx-trigger="load" hx-get="/package-list" hx-target="#package-list" hx-swap="innerHTML">
-      <ul id="package-list" class="package-list">
+      <ul id="package-list" class="package-list" hx-on::after-request="htmx.trigger('#packages-graph', 'dataRefresh')">
       </ul>
     </div>
   </div>

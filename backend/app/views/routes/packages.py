@@ -21,13 +21,16 @@ async def get_package_list(
     hx_current_url: Annotated[str, Header(alias="HX-Current-URL")] = None,
 ):
     current_packages = parse_packages(hx_current_url)
+    colors = generate_altair_colors(len(current_packages))
+
+    package_data = [
+        {"name": name, "color": color} for name, color in zip(current_packages, colors)
+    ]
 
     return templates.TemplateResponse(
         request=request,
         name="fragments/package_list.html",
-        context={
-            "packages": current_packages,
-        },
+        context={"package_data": package_data},
     )
 
 
@@ -51,8 +54,6 @@ async def create_package(
         )
 
     current_packages.append(package_name)
-
-    print("COLORS", generate_altair_colors(len(current_packages)))
 
     return templates.TemplateResponse(
         request=request,
