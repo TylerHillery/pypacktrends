@@ -40,9 +40,6 @@ def validate_package(package_name: str) -> bool:
 
 
 def generate_altair_colors(n: int, seed: int = 42) -> list[str]:
-    if n < 1:
-        raise ValueError("n must be at least 1")
-
     random.seed(seed)
     colors = []
 
@@ -71,9 +68,16 @@ def generate_altair_colors(n: int, seed: int = 42) -> list[str]:
     return colors
 
 
-def generate_chart(packages: list[str]) -> alt.Chart:
+def generate_chart(packages: list[str], theme: str | None) -> alt.Chart:
     packages = {str(i): package for i, package in enumerate(packages)}
     placeholders = ", ".join(f":{i}" for i in range(len(packages)))
+
+    if theme == "dark":
+        alt.theme.enable("dark")
+    else:
+        alt.theme.enable("default")
+
+    alt.ViewBackground(fillOpacity=0)
 
     with read_engine.connect() as conn:
         result = conn.execute(
@@ -101,7 +105,7 @@ def generate_chart(packages: list[str]) -> alt.Chart:
 
     base = alt.Chart(df).encode(
         x=alt.X("week:T", title=None, axis=alt.Axis(tickCount=2)),
-        y=alt.Y("downloads:Q", title=None, axis=alt.Axis(tickCount=4)),
+        y=alt.Y("downloads:Q", title=None, axis=alt.Axis(tickCount=3)),
         color="package:N",
         tooltip=[
             alt.Tooltip("package:N"),
@@ -125,13 +129,18 @@ def generate_chart(packages: list[str]) -> alt.Chart:
         ).legend(orient="top"),
     )
 
-    return (points + lines).properties(
-        width="container",
-        height=400,
-        usermeta={"embedOptions": {"tooltip": {"theme": "dark"}, "actions": False}},
+    return (
+        (points + lines)
+        .properties(
+            width="container",
+            height=400,
+            usermeta={"embedOptions": {"actions": False}},
+        )
+        .configure(background="rgba(0,0,0,0)")
     )
 
 
 if __name__ == "__main__":
     current_packages = {"duckdb", "polars"}
+    print(generate_chart(current_packages))
     generate_chart(current_packages).show()

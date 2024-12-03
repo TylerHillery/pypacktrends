@@ -9,9 +9,9 @@ router = APIRouter()
 
 @router.get("/", response_class=HTMLResponse)
 async def home_view(request: Request):
+    theme = request.cookies.get("theme", "light")
     return templates.TemplateResponse(
-        "pages/home.html",
-        {"request": request},
+        request=request, name="pages/home.html", context={"theme": theme}
     )
 
 

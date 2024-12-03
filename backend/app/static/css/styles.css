@@ -1,0 +1,125 @@
+#package-search-form {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+#package-search-input {
+  border-radius: 0rem;
+  margin-bottom: 0;
+  box-shadow: none;
+  height: 2.25rem;
+  padding-left: 2.5rem;
+}
+
+#package-search-input:not([aria-invalid="true"]) {
+  border-color: var(--pico-form-element-border-color);
+}
+
+.package-search-results {
+  position: absolute;
+  width: 100%;
+  padding: 0;
+  background: var(--pico-form-element-background-color);
+  border-color: var(--pico-form-element-border-color);
+  border-top: none;
+  box-shadow: var(--pico-box-shadow);
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1002;
+}
+
+.search-item {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  padding: 0 0.5rem;
+  font-size: 0.9rem;
+}
+
+.search-item:hover,
+.search-item:focus {
+  background-color: var(--pico-muted-border-color);
+}
+
+.search-item:focus {
+  outline: none;
+}
+
+#package-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0;
+}
+
+.package-item {
+  min-width: fit-content;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  border: 0.12rem solid var(--pico-form-element-active-border-color);
+  border-radius: var(--pico-border-radius);
+  position: relative;
+}
+
+.delete-x {
+  position: absolute;
+  left: 80%;
+  top: 50%;
+  transform: translateY(-55%);
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.delete-x:hover {
+  color: red;
+}
+
+svg.icon-theme-toggle {
+  --theme-toggle-duration: 0.4s;
+}
+
+.moon {
+  transform: scaleX(-1) rotate(-120deg);
+}
+
+svg.icon-theme-toggle g circle,
+svg.icon-theme-toggle g path {
+  transform-origin: center;
+  transition: transform 0.26s cubic-bezier(0, 0, 0, 1.25) 0.14s;
+}
+
+svg.icon-theme-toggle.moon g circle {
+  transform: scale(1.4);
+  transition-delay: 0s;
+}
+
+svg.icon-theme-toggle.moon g path {
+  transform: scale(0.75);
+  transition-delay: 0s;
+}
+
+svg.icon-theme-toggle :first-child path {
+  transition-duration: calc(var(--theme-toggle-duration) * 0.6);
+  transition-property: transform, d;
+  transition-timing-function: cubic-bezier(0, 0, 0.5, 1);
+}
+
+svg.icon-theme-toggle.moon :first-child path {
+  d: path("M-9 3h25a1 1 0 0017 13v30H0Z");
+  transition-delay: calc(var(--theme-toggle-duration) * 0.4);
+  transition-timing-function: cubic-bezier(0, 0, 0, 1.25);
+}
+
+@supports not (d: path("")) {
+  svg.icon-theme-toggle.moon :first-child path {
+    transform: translate3d(-9px, 14px, 0);
+  }
+}
+
+#vis {
+  width: 100%;
+}

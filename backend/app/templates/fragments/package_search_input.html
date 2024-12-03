@@ -15,7 +15,7 @@
   }, 300)"
   {% if not is_valid_submission %}aria-invalid="true"{% endif %}
   value="{% if not is_valid_submission %}{{ package_name }}{% endif %}"
-  hx-trigger="input changed delay:200ms, focus[this.value.trim() !== ''], search" 
+  hx-trigger="input changed delay:200ms, focus[this.value.trim() !== '']" 
   hx-get="/package-search-results"
   hx-include="this" 
   hx-target="#package-search-results" 

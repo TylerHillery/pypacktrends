@@ -1,126 +1,46 @@
 {% from "fragments/package_search_input.html" import package_search_input %}
 
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="{{ theme }}">
 
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="initial-scale=1, width=device-width" />
-  <meta name="color-scheme" content="light" />
   <script src="https://unpkg.com/htmx.org@2.0.3"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
-  <script>
-    function submitPackageSearchForm(packageName) {
-      document.getElementById('package-search-input').value = packageName;
-      htmx.trigger('#package-search-form', 'submit');
-    }
-  </script>
-  <link rel="icon"
-    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.conditional.min.css" />
-
-  <style>
-    [data-theme="light"],
-    :root:not([data-theme="dark"]) {
-      --pico-primary-background: var(--pico-form-element-border-color);
-      --pico-border-width: 0.12rem;
-    }
-
-    #package-search-form {
-      position: relative;
-      margin-bottom: 1rem;
-    }
-
-    #package-search-input {
-      border-radius: 0rem;
-      margin-bottom: 0;
-      box-shadow: none;
-      height: 2.25rem;
-      padding-left: 2.5rem;
-    }
-
-    .package-search-results {
-      position: absolute;
-      width: 100%;
-      padding: 0;
-      background: var(--pico-form-element-background-color);
-      border: var(--pico-border-width) solid var(--pico-form-element-active-border-color);
-      border-top: none;
-      box-shadow: var(--pico-box-shadow);
-      max-height: 300px;
-      overflow-y: auto;
-      z-index: 1002;
-    }
-
-    .search-item {
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      padding: 0 0.5rem;
-      font-size: 0.9rem;
-    }
-
-    .search-item:hover,
-    .search-item:focus {
-      background-color: var(--pico-muted-border-color);
-    }
-
-    .search-item:focus {
-      outline: none;
-    }
-
-    #package-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      width: 100%;
-      padding: 0;
-    }
-
-    .package-item {
-      min-width: fit-content;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      padding: 0.5rem 2rem 0.5rem 0.75rem;
-      border: 0.17rem solid var(--pico-form-element-active-border-color);
-      border-radius: var(--pico-border-radius);
-      position: relative;
-    }
-
-    .delete-x {
-      position: absolute;
-      right: 8px;
-      top: 3px;
-      font-weight: bold;
-      cursor: pointer;
-      line-height: 1;
-    }
-
-    .delete-x:hover {
-      color: red;
-    }
-
-    #vis {
-      width: 100%;
-    }
-
-
-  </style>
+  <link rel="stylesheet" href="/static/css/styles.css">
   <title>PyPack Trends</title>
 </head>
 
 <body class="container">
   <div class="pico">
-    <header>
-      <h3>🐍 PyPack Trends</h3>
+    <header style="text-align: center;">
+      <div style="display: flex; justify-content: flex-end;">
+        <a class="contrast" aria-label="Turn on dark mode" data-discover="true" onclick="switchTheme()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 32 32" fill="currentColor"
+            class="icon-theme-toggle">
+            <clipPath id="theme-toggle-cutout">
+              <path d="M0-11h25a1 1 0 0017 13v30H0Z"></path>
+            </clipPath>
+            <g clip-path="url(#theme-toggle-cutout)">
+              <circle cx="16" cy="16" r="8.4"></circle>
+              <path
+                d="M18.3 3.2c0 1.3-1 2.3-2.3 2.3s-2.3-1-2.3-2.3S14.7.9 16 .9s2.3 1 2.3 2.3zm-4.6 25.6c0-1.3 1-2.3 2.3-2.3s2.3 1 2.3 2.3-1 2.3-2.3 2.3-2.3-1-2.3-2.3zm15.1-10.5c-1.3 0-2.3-1-2.3-2.3s1-2.3 2.3-2.3 2.3 1 2.3 2.3-1 2.3-2.3 2.3zM3.2 13.7c1.3 0 2.3 1 2.3 2.3s-1 2.3-2.3 2.3S.9 17.3.9 16s1-2.3 2.3-2.3zm5.8-7C9 7.9 7.9 9 6.7 9S4.4 8 4.4 6.7s1-2.3 2.3-2.3S9 5.4 9 6.7zm16.3 21c-1.3 0-2.3-1-2.3-2.3s1-2.3 2.3-2.3 2.3 1 2.3 2.3-1 2.3-2.3 2.3zm2.4-21c0 1.3-1 2.3-2.3 2.3S23 7.9 23 6.7s1-2.3 2.3-2.3 2.4 1 2.4 2.3zM6.7 23C8 23 9 24 9 25.3s-1 2.3-2.3 2.3-2.3-1-2.3-2.3 1-2.3 2.3-2.3z">
+              </path>
+            </g>
+          </svg>
+        </a>
+      </div>
+      <hgroup>
+        <h2>🐍 PyPack Trends</h2>
+        <p>Compare package download counts over time</p>
+      </hgroup>
     </header>
-    <div>
-      <p>Compare package download counts over time</p>
-    </div>
 
     <form id="package-search-form" hx-trigger="submit" hx-post="/package-list" hx-target="#package-list"
       hx-swap="beforeend" hx-on::after-request="
@@ -128,8 +48,8 @@
               event.detail.requestConfig.elt.id === 'package-search-form') {
             htmx.trigger('#packages-graph', 'dataRefresh')
           }">
-      <div id="package-search-container" hx-trigger="submit from:#package-search-form" hx-target="this"
-        hx-get="/package-search-input" hx-include="#package-search-form" hx-swap="innerHTML">
+      <div id="package-search-container" hx-trigger="search" hx-target="this" hx-get="/package-search-input"
+        hx-include="#package-search-form" hx-swap="innerHTML">
         {{ package_search_input() }}
       </div>
     </form>
@@ -154,6 +74,8 @@
     </footer>
   </div>
 
+  <script src="/static/js/theme.js"></script>
+  <script src="/static/js/search.js"></script>
 </body>
 
 </html>

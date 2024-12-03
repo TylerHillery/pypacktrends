@@ -85,6 +85,8 @@ async def list_packages(
     request: Request,
     hx_current_url: Annotated[str, Header(alias="HX-Current-URL")] = None,
 ):
+    theme = request.cookies.get("theme", "light")
+    print("THEME ", theme)
     current_packages = parse_packages(hx_current_url)
-    content = generate_chart(current_packages).to_html() if current_packages else ""
+    content = generate_chart(current_packages, theme).to_html() if current_packages else ""
     return HTMLResponse(content=content)
