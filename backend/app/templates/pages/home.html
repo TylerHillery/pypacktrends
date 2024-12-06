@@ -11,7 +11,8 @@
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐍</text></svg>">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.conditional.min.css" />
   <link rel="stylesheet" href="/static/css/styles.css">
   <title>PyPack Trends</title>
@@ -43,24 +44,21 @@
     </header>
 
     <form id="package-search-form" hx-trigger="submit" hx-post="/package-list" hx-target="#package-list"
-      hx-swap="beforeend" hx-on::after-request="
-          if (event.detail.requestConfig.triggeringEvent.type === 'submit' &&
-              event.detail.requestConfig.elt.id === 'package-search-form') {
-            htmx.trigger('#packages-graph', 'dataRefresh')
-          }">
+      hx-swap="beforeend">
       <div id="package-search-container" hx-trigger="search" hx-target="this" hx-get="/package-search-input"
         hx-include="#package-search-form" hx-swap="innerHTML">
         {{ package_search_input() }}
       </div>
     </form>
     <div hx-trigger="load" hx-get="/package-list" hx-target="#package-list" hx-swap="innerHTML">
-      <ul id="package-list" class="package-list" hx-on::after-request="htmx.trigger('#packages-graph', 'dataRefresh')">
+      <ul id="package-list" class="package-list" hx-on::after-swap="htmx.trigger('#packages-graph', 'dataRefresh')">
+        <div style="height: 50px"></div>
       </ul>
     </div>
   </div>
 
 
-  <div id="packages-graph" hx-trigger="load, dataRefresh from:body" hx-get="/packages-graph" hx-swap="innerHTML">
+  <div id="packages-graph" hx-trigger="dataRefresh from:body" hx-get="/packages-graph" hx-swap="innerHTML">
   </div>
 
   <div class="pico">

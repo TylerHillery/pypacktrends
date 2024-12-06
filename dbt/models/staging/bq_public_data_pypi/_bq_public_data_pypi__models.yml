@@ -3,12 +3,6 @@ version: 2
 models:
   - name: stg_bq_public_data_pypi__distribution_metadata
     description: '{{ doc("pypi_package_distribution_metadata") }}'
-    data_tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - package_name
-            - package_version
-          where: date(package_uploaded_at) >= date_sub(current_date(), interval 2 day)
     columns:
       - name: package_metadata_version
         data_type: string

@@ -122,4 +122,31 @@ svg.icon-theme-toggle.moon :first-child path {
 
 #vis {
   width: 100%;
+  opacity: 1;
+  transition: opacity 1s ease-out;
+}
+
+#vis.htmx-added {
+  opacity: 0;
+}
+
+.pico select[name="time_range"] { 
+  min-height: 0;
+  height: auto;
+  background-color: transparent; 
+  border: none;
+  border-bottom: 0.12rem solid var(--pico-form-element-border-color); 
+  border-radius: 0; 
+  display: inline;
+  width: auto;
+  padding: 0 1.8rem 0 0.2rem !important;
+  vertical-align: baseline;
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  color: inherit;
+}
+
+.pico label[for="time-range"] {
+    display: inline;
 }

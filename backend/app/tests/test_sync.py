@@ -63,7 +63,7 @@ def test_sync_pypi_downloads(read_engine: Engine, write_engine: Engine) -> None:
     sync_pypi_downloads(write_engine, start_date, end_date, limit_value)
     with read_engine.connect() as conn:
         result = conn.execute(
-            text("select count(*) from pypi_package_downloads_per_day")
+            text("select count(*) from pypi_package_download_week")
         )
         num_of_rows_inserted = result.scalar()
     assert num_of_rows_inserted == limit_value

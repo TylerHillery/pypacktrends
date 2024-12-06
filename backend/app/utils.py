@@ -1,4 +1,3 @@
-from datetime import date, timedelta
 import random
 import colorsys
 from urllib.parse import urlparse, parse_qs, urlencode
@@ -7,20 +6,29 @@ import altair as alt
 import pandas as pd
 
 from app.core.db import read_engine
-
-DATE_FORMAT: str = "%Y-%m-%d"
-
-
-def get_date_n_days_ago(date: date, n_days: int) -> str:
-    return (date - timedelta(days=n_days)).strftime(DATE_FORMAT)
+from app.models import TimeRangeModel
+from datetime import datetime, timedelta
 
 
-def parse_packages(hx_current_url: str) -> list[str]:
-    return parse_qs(urlparse(hx_current_url).query).get("packages", [])
+def start_of_week(date: str) -> str:
+    dt = datetime.strptime(date, "%Y-%m-%d")
+    start = dt - timedelta(days=dt.weekday())
+    return start.strftime("%Y-%m-%d")
 
 
-def generate_push_url(packages: list[str]) -> str:
-    return f"?{urlencode({'packages': packages}, doseq=True)}" if packages else "/"
+def parse_url_params(hx_current_url: str) -> tuple[list[str], str]:
+    parsed_qs = parse_qs(urlparse(hx_current_url).query)
+    packages = parsed_qs.get("packages", [])
+    time_range = parsed_qs.get("time_range", ["3months"])[0]
+    return packages, time_range
+
+
+def generate_push_url(packages: list[str], time_range: TimeRangeModel | None) -> str:
+    if not packages:
+        return "/"
+
+    params = {"packages": packages, "time_range": time_range}
+    return f"?{urlencode(params, doseq=True)}"
 
 
 def validate_package(package_name: str) -> bool:
@@ -68,15 +76,16 @@ def generate_altair_colors(n: int, seed: int = 42) -> list[str]:
     return colors
 
 
-def generate_chart(packages: list[str], theme: str | None) -> alt.Chart:
+def generate_chart(
+    packages: list[str], time_range: TimeRangeModel, theme: str | None
+) -> alt.Chart:
     packages = {str(i): package for i, package in enumerate(packages)}
     placeholders = ", ".join(f":{i}" for i in range(len(packages)))
-
-    if theme == "dark":
-        alt.theme.enable("dark")
-    else:
-        alt.theme.enable("default")
-
+    theme_config = {
+        "light": {"theme": "default", "tooltip": "dark"},
+        "dark": {"theme": "dark", "tooltip": "white"},
+    }
+    alt.theme.enable(theme_config[theme]["theme"])
     alt.ViewBackground(fillOpacity=0)
 
     with read_engine.connect() as conn:
@@ -84,33 +93,62 @@ def generate_chart(packages: list[str], theme: str | None) -> alt.Chart:
             text(f"""
             select
                 package_name,
-                date(package_downloaded_date, 'weekday 0', '-6 days') as week,
-                sum(downloads) as downloads
+                package_downloaded_week,
+                downloads,
+                cumulative_downloads,
+                weeks_since_first_distribution
             from
-                pypi_package_downloads_per_day
+                pypi_package_downloads_weekly_metrics
             where true
                 and package_name in ({placeholders})
-                and date(package_downloaded_date, 'weekday 0', '-6 days') != date('now', 'weekday 0', '-6 days')
-            group by
-                1,2
+                and package_downloaded_week >= :week 
+                and package_downloaded_week <  date('now', 'weekday 0', '-6 days')  
             """),
-            packages,
+            {**packages, "week": start_of_week(time_range.date)},
         )
         downloads = result.fetchall()
 
-    df = pd.DataFrame(downloads, columns=["package", "week", "downloads"])
+    df = pd.DataFrame(
+        downloads,
+        columns=[
+            "package",
+            "week",
+            "downloads",
+            "cumulative_downloads",
+            "weeks_since_first_distribution",
+        ],
+    )
     df["week"] = pd.to_datetime(df["week"])
 
     highlight = alt.selection_point(on="pointerover", fields=["package"], nearest=True)
 
+    # fix tool tip cumulative downlodas
+    if time_range.value == "allTimeCumulativeAlignTimeline":
+        x = "weeks_since_first_distribution:Q"
+        x_title = "Weeks Since First Release"
+        x_format = ","
+    else:
+        x = "week:T"
+        x_title = "Week"
+        x_format = "%Y-%m-%d"
+
+    if time_range.value in ("allTimeCumulative", "allTimeCumulativeAlignTimeline"):
+        y = "cumulative_downloads:Q"
+        y_title = "Cumulative Downloads"
+        y_format = ","
+    else:
+        y = "downloads:Q"
+        y_title = "Downloads"
+        y_format = ","
+
     base = alt.Chart(df).encode(
-        x=alt.X("week:T", title=None, axis=alt.Axis(tickCount=2)),
-        y=alt.Y("downloads:Q", title=None, axis=alt.Axis(tickCount=3)),
+        x=alt.X(x, title=x_title, axis=alt.Axis(tickCount=2.5, labelFontSize=14)),
+        y=alt.Y(y, title=y_title, axis=alt.Axis(tickCount=3, labelFontSize=14)),
         color="package:N",
         tooltip=[
             alt.Tooltip("package:N"),
-            alt.Tooltip("week:T", format="%Y-%m-%d"),
-            alt.Tooltip("downloads:Q", format=","),
+            alt.Tooltip(x, title=x_title, format=x_format),
+            alt.Tooltip(y, title=y_title, format=y_format)
         ],
     )
 
@@ -126,7 +164,7 @@ def generate_chart(packages: list[str], theme: str | None) -> alt.Chart:
                 domain=packages.values(),
                 range=generate_altair_colors(len(packages)),
             ),
-        ).legend(orient="top"),
+        ).legend(orient="right", titleFontSize=16, labelFontSize=14),
     )
 
     return (
@@ -134,13 +172,17 @@ def generate_chart(packages: list[str], theme: str | None) -> alt.Chart:
         .properties(
             width="container",
             height=400,
-            usermeta={"embedOptions": {"actions": False}},
+            usermeta={
+                "embedOptions": {
+                    "tooltip": {"theme": theme_config[theme]["tooltip"]},
+                    "actions": False,
+                },
+            },
         )
         .configure(background="rgba(0,0,0,0)")
     )
 
 
 if __name__ == "__main__":
-    current_packages = {"duckdb", "polars"}
-    print(generate_chart(current_packages))
-    generate_chart(current_packages).show()
+    current_packages = ["duckdb", "polars"]
+    generate_chart(current_packages, TimeRangeModel(value="allTimeCumulative"), "dark").show()

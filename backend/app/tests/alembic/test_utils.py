@@ -50,18 +50,22 @@ def test_read_sql_file(alembic_sql_upgrade_file: Path) -> None:
         normalize_whitespace(stmt)
         for stmt in (
             "pragma journal_mode = wal",
-            """create table pypi_package_downloads_per_day (
-                package_name            text    not null,
-                package_downloaded_date text    not null,
-                downloads               integer not null,
-                primary key (package_name, package_downloaded_date)
+            """create table pypi_package_downloads_weekly_metrics (
+                package_name                    text    not null,
+                package_downloaded_week         text    not null,
+                downloads                       integer not null,
+                cumulative_downloads            integer not null,
+                first_distribution_week         text    not null,
+                weeks_since_first_distribution  integer not null,
+                synced_at                       text    not null,
+                primary key (package_name, package_downloaded_week)
             ) strict
             """,
             """create index idx_package_name
-               on pypi_package_downloads_per_day (package_name)
+               on pypi_package_downloads_weekly_metrics (package_name)
             """,
-            """create index idx_package_downloaded_date
-               on pypi_package_downloads_per_day (package_downloaded_date)
+            """create index idx_package_downloaded_week
+               on pypi_package_downloads_weekly_metrics (package_downloaded_week)
             """,
             """create table pypi_packages (
                 package_name            text not null primary key,

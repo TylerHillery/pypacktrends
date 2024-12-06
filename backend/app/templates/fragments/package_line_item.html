@@ -3,7 +3,7 @@
 <li class="package-item" style="border-color: {{ color }}">
     <span>{{ package }}</span>
     <span class="delete-x" hx-trigger="click" hx-delete="/package-list" hx-vals='{"package_name": "{{ package }}"}'
-        hx-target="closest li" hx-swap="outerHTML">
+        hx-target="#package-list" hx-swap="innerHTML">
         &times;
     </span>
 </li>

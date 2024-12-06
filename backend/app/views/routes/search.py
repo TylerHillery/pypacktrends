@@ -6,7 +6,7 @@ from sqlalchemy import text
 
 from app.core.config import templates
 from app.core.db import read_engine
-from app.utils import parse_packages,validate_package
+from app.utils import parse_url_params, validate_package
 
 router = APIRouter()
 
@@ -20,9 +20,10 @@ def get_search_input(
     package_name = package_name.strip()
     is_valid_submission = True
     error_message = ""
+    current_packages, _ = parse_url_params(hx_current_url)
 
     if package_name != "":
-        if package_name in parse_packages(hx_current_url):
+        if package_name in current_packages: 
             is_valid_submission = False
             error_message = f"'{package_name}' already selected"
         elif not validate_package(package_name):
