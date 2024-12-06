@@ -1,7 +1,7 @@
 import colorsys
 import random
 from datetime import datetime, timedelta
-from typing import cast, get_args
+from typing import cast
 from urllib.parse import parse_qs, urlencode, urlparse
 
 import altair as alt
@@ -9,34 +9,13 @@ import pandas as pd
 from sqlalchemy import text
 
 from app.core.db import read_engine
-from app.models import TimeRangeModel, TimeRangeValue
+from app.models import QueryParams, TimeRange, TimeRangeValidValues
 
 
 def start_of_week(date: str) -> str:
     dt = datetime.strptime(date, "%Y-%m-%d")
     start = dt - timedelta(days=dt.weekday())
     return start.strftime("%Y-%m-%d")
-
-
-def parse_url_params(hx_current_url: str) -> tuple[list[str], TimeRangeValue]:
-    parsed_qs = parse_qs(urlparse(hx_current_url).query)
-    packages = parsed_qs.get("packages", [])
-
-    time_range = parsed_qs.get("time_range", ["3months"])[0]
-    valid_time_ranges = set(get_args(TimeRangeValue))
-
-    if time_range not in valid_time_ranges:
-        time_range = "3months"
-
-    return packages, cast(TimeRangeValue, time_range)
-
-
-def generate_push_url(packages: list[str], time_range: TimeRangeModel) -> str:
-    if not packages:
-        return "/"
-
-    params = {"packages": packages, "time_range": time_range.value}
-    return f"?{urlencode(params, doseq=True)}"
 
 
 def validate_package(package_name: str) -> bool:
@@ -53,6 +32,27 @@ def validate_package(package_name: str) -> bool:
             {"package_name": package_name},
         )
     return result.scalar() is not None
+
+
+def parse_query_params(url: str) -> QueryParams:
+    qs = parse_qs(urlparse(url).query)
+    packages = qs.get("packages", [])
+    time_range = TimeRange(
+        value=cast(TimeRangeValidValues, qs.get("time_range", ["3months"])[0])
+    )
+    return QueryParams(time_range=time_range, packages=packages)
+
+
+def generate_hx_push_url(query_params: QueryParams) -> str:
+    if not query_params.packages:
+        return "/"
+    return "?" + urlencode(
+        dict(
+            packages=[package for package in query_params.packages],
+            time_range=query_params.time_range.value,
+        ),
+        doseq=True,
+    )
 
 
 def generate_altair_colors(n: int, seed: int = 42) -> list[str]:
@@ -84,11 +84,9 @@ def generate_altair_colors(n: int, seed: int = 42) -> list[str]:
     return colors
 
 
-def generate_chart(
-    packages: list[str], time_range: TimeRangeModel, theme: str
-) -> alt.Chart:
-    packages_query_params = {str(i): package for i, package in enumerate(packages)}
-    placeholders = ", ".join(f":{i}" for i in range(len(packages)))
+def generate_chart(query_params: QueryParams, theme: str) -> alt.Chart:
+    packages = {str(i): package for i, package in enumerate(query_params.packages)}
+    placeholders = ", ".join(f":{i}" for i in range(len(query_params.packages)))
     theme_config = {
         "light": {"theme": "default", "tooltip": "dark"},
         "dark": {"theme": "dark", "tooltip": "white"},
@@ -112,7 +110,7 @@ def generate_chart(
                 and package_downloaded_week >= :week
                 and package_downloaded_week <  date('now', 'weekday 0', '-6 days')
             """),
-            {**packages_query_params, "week": start_of_week(time_range.date)},
+            {**packages, "week": start_of_week(query_params.time_range.date_str)},
         )
         downloads = result.fetchall()
 
@@ -130,33 +128,50 @@ def generate_chart(
 
     highlight = alt.selection_point(on="pointerover", fields=["package"], nearest=True)
 
-    # fix tool tip cumulative downlodas
-    if time_range.value == "allTimeCumulativeAlignTimeline":
-        x = "weeks_since_first_distribution:Q"
-        x_title = "Weeks Since First Release"
-        x_format = ","
+    # TODO turn into dict and unpack dict when passing in
+    if query_params.time_range.value == "allTimeCumulativeAlignTimeline":
+        x = dict(
+            shorthand="weeks_since_first_distribution:Q",
+            title="Weeks Since First Release",
+            format=",",
+        )
     else:
-        x = "week:T"
-        x_title = "Week"
-        x_format = "%Y-%m-%d"
+        x = dict(
+            shorthand="week:T",
+            title="",
+            format="%Y-%m-%d",
+        )
 
-    if time_range.value in ("allTimeCumulative", "allTimeCumulativeAlignTimeline"):
-        y = "cumulative_downloads:Q"
-        y_title = "Cumulative Downloads"
-        y_format = ","
+    if query_params.time_range.value in (
+        "allTimeCumulative",
+        "allTimeCumulativeAlignTimeline",
+    ):
+        y = dict(
+            shorthand="cumulative_downloads:Q",
+            title="Cumulative Downloads",
+        )
     else:
-        y = "downloads:Q"
-        y_title = "Downloads"
-        y_format = ","
+        y = dict(
+            shorthand="downloads:Q",
+            title="Downloads",
+        )
 
     base = alt.Chart(df).encode(
-        x=alt.X(x, title=x_title, axis=alt.Axis(tickCount=2.5, labelFontSize=14)),
-        y=alt.Y(y, title=y_title, axis=alt.Axis(tickCount=3, labelFontSize=14)),
+        x=alt.X(
+            x["shorthand"],
+            title=x["title"],
+            axis=alt.Axis(tickCount=2.5, labelFontSize=14),
+        ),
+        y=alt.Y(
+            y["shorthand"],
+            title=y["title"],
+            axis=alt.Axis(tickCount=3, labelFontSize=14),
+        ),
         color="package:N",
         tooltip=[
             alt.Tooltip("package:N"),
-            alt.Tooltip(x, title=x_title, format=x_format),
-            alt.Tooltip(y, title=y_title, format=y_format),
+            alt.Tooltip(**x),
+            alt.Tooltip(**y, format=","),
         ],
     )
 
@@ -169,7 +184,7 @@ def generate_chart(
         color=alt.Color(
             "package:N",
             scale=alt.Scale(
-                domain=packages_query_params.values(),
+                domain=packages.values(),
                 range=generate_altair_colors(len(packages)),
             ),
         ).legend(orient="right", titleFontSize=16, labelFontSize=14),
@@ -194,5 +209,8 @@ def generate_chart(
 if __name__ == "__main__":
     current_packages = ["duckdb", "polars"]
     generate_chart(
-        current_packages, TimeRangeModel(value="allTimeCumulative"), "dark"
+        QueryParams(
+            packages=current_packages, time_range=TimeRange(value="allTimeCumulative")
+        ),
+        "dark",
     ).show()

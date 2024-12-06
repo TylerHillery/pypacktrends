@@ -12,7 +12,7 @@
 }
 
 #package-search-input:not([aria-invalid="true"]) {
-  border-color: var(--pico-form-element-border-color);
+  border: var(--pico-border-width) solid var(--pico-form-element-border-color);
 }
 
 .package-search-results {
@@ -20,7 +20,7 @@
   width: 100%;
   padding: 0;
   background: var(--pico-form-element-background-color);
-  border-color: var(--pico-form-element-border-color);
+  border: var(--pico-border-width) solid var(--pico-form-element-border-color);
   border-top: none;
   box-shadow: var(--pico-box-shadow);
   max-height: 300px;
@@ -66,9 +66,9 @@
 
 .delete-x {
   position: absolute;
-  left: 80%;
-  top: 50%;
-  transform: translateY(-55%);
+  right: 0.5rem;
+  top: 49%;
+  transform: translateY(-50%);
   font-weight: bold;
   cursor: pointer;
   line-height: 1;
@@ -130,12 +130,11 @@ svg.icon-theme-toggle.moon :first-child path {
   opacity: 0;
 }
 
-.pico select[name="time_range"] {
+select[name="time_range"] {
   min-height: 0;
   height: auto;
   background-color: transparent;
   border: none;
-  border-bottom: 0.12rem solid var(--pico-form-element-border-color);
   border-radius: 0;
   display: inline;
   width: auto;
@@ -147,6 +146,6 @@ svg.icon-theme-toggle.moon :first-child path {
   color: inherit;
 }
 
-.pico label[for="time-range"] {
+label[for="time-range"] {
     display: inline;
 }

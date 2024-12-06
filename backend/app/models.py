@@ -5,9 +5,18 @@ from zoneinfo import ZoneInfo
 from dateutil.relativedelta import relativedelta
 from pydantic import BaseModel, computed_field
 
-PYPI_DOWNLOADS_MIN_DATE = "2015-12-27"
+TIME_RANGE_MAPPING = {
+    "1month": dict(months=1),
+    "3months": dict(months=3),
+    "6months": dict(months=6),
+    "1year": dict(years=1),
+    "2years": dict(years=2),
+    "5years": dict(years=5),
+}
 
-TimeRangeValue = Literal[
+PYPI_DOWNLOADS_MIN_DATE = "2016-01-01"
+
+TimeRangeValidValues = Literal[
     "1month",
     "3months",
     "6months",
@@ -20,45 +29,29 @@ TimeRangeValue = Literal[
 ]
 
 
-class TimeRangeModel(BaseModel):
-    value: TimeRangeValue = "1month"
+class TimeRange(BaseModel):
+    value: TimeRangeValidValues = "3months"
 
-    def _get_relative_date_str(self, time_range: TimeRangeValue) -> str:
-        time_range_mapping = {
-            "1month": relativedelta(months=1),
-            "3months": relativedelta(months=3),
-            "6months": relativedelta(months=6),
-            "1year": relativedelta(years=1),
-            "2years": relativedelta(years=2),
-            "5years": relativedelta(years=5),
-        }
+    @computed_field  # type: ignore
+    @property
+    def date_str(self) -> str:
+        if self.value in [
+            "allTime",
+            "allTimeCumulative",
+            "allTimeCumulativeAlignTimeline",
+        ]:
+            return PYPI_DOWNLOADS_MIN_DATE
+
         return (
-            (datetime.now(ZoneInfo("UTC")) - time_range_mapping[self.value])
+            (
+                datetime.now(ZoneInfo("UTC"))
+                - relativedelta(**(TIME_RANGE_MAPPING[self.value]))  # type: ignore
+            )
             .date()
             .isoformat()
         )
 
-    @computed_field  # type: ignore
-    @property
-    def date(self) -> str:
-        match self.value:
-            case "1month":
-                return self._get_relative_date_str(self.value)
-            case "3months":
-                return self._get_relative_date_str(self.value)
-            case "6months":
-                return self._get_relative_date_str(self.value)
-            case "1year":
-                return self._get_relative_date_str(self.value)
-            case "2years":
-                return self._get_relative_date_str(self.value)
-            case "5years":
-                return self._get_relative_date_str(self.value)
-            case "allTime":
-                return PYPI_DOWNLOADS_MIN_DATE
-            case "allTimeCumulative":
-                return PYPI_DOWNLOADS_MIN_DATE
-            case "allTimeCumulativeAlignTimeline":
-                return PYPI_DOWNLOADS_MIN_DATE
-            case _:
-                raise ValueError()
+
+class QueryParams(BaseModel):
+    packages: list[str] = []
+    time_range: TimeRange = TimeRange(value="3months")
