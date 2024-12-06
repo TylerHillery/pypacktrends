@@ -43,7 +43,7 @@ renamed as (
         sha256_digest            as package_sha256_digest,
         blake2_256_digest        as package_blake2_256_digest,
         license_expression       as package_license_expression,
-        license_files            as package_license_files,
+        license_files            as package_license_files
     from
         source
 )

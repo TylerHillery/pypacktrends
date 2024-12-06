@@ -5,8 +5,11 @@ description = ""
 requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.14.0",
+    "altair>=5.5.0",
     "fastapi[standard]>=0.115.4",
     "google-cloud-bigquery>=3.27.0",
+    "pandas>=2.2.3",
+    "python-dateutil>=2.9.0.post0",
     "sqlalchemy>=2.0.36",
 ]
 
@@ -18,6 +21,10 @@ dev = [
     "pytest>=8.3.3",
     "ruff>=0.7.1",
     "sqlfluff>=3.2.5",
+    "time-machine>=2.16.0",
+]
+repl = [
+    "ipykernel>=6.29.5",
 ]
 
 [build-system]

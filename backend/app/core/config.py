@@ -1,8 +1,13 @@
 import os
 from pathlib import Path
 
+from fastapi.templating import Jinja2Templates
+
 
 class Settings:
+    PROJECT_NAME: str = "pypacktrends"
+    TEMPLATES = Jinja2Templates(directory="app/templates")
+
     @property
     def SQLITE_DB_PATH(self) -> Path:
         return Path(
@@ -24,3 +29,4 @@ class Settings:
 
 
 settings = Settings()
+templates = settings.TEMPLATES

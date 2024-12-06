@@ -1,7 +1,7 @@
 [sqlfluff]
 dialect = sqlite
 runaway_limit = 10
-max_line_length = 80
+max_line_length = 100
 indent_unit = space
 
 [sqlfluff:indentation]

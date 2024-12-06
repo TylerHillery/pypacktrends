@@ -1,24 +1,11 @@
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
-app = FastAPI()
+from app.core.config import settings
+from app.views.main import api_router
 
+app = FastAPI(title=settings.PROJECT_NAME)
 
-@app.get("/", response_class=HTMLResponse)
-def index() -> HTMLResponse:
-    html_content = """
-    <html>
-        <head>
-            <title>PyPack Trends</title>
-        </head>
-        <body>
-            <h3>PyPack Trends 🐍 coming soon...</h3>
-        </body>
-    </html>
-    """
-    return html_content
+app.include_router(api_router)
 
-
-@app.get("/health-check/")
-async def health_check() -> bool:
-    return True
+app.mount("/static", StaticFiles(directory="app/static"), name="static")

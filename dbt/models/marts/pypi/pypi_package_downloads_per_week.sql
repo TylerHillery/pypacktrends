@@ -19,7 +19,7 @@
     cluster_by = "package_name",
     partitions = partitions_to_replace,
     partition_by = {
-      "field": "package_downloaded_date",
+      "field": "package_downloaded_week",
       "data_type": "date",
       "granularity": "day"
     }
@@ -28,17 +28,17 @@
 
 with
 
-daily_downloads as (
+weekly_downloads as (
     select
         package_name,
-        date(package_downloaded_at) as package_downloaded_date,
-        count(*)                    as downloads
+        date_trunc(date(package_downloaded_at), week (monday)) as package_downloaded_week,
+        count(*)                                               as downloads
     from
         {{ ref('stg_bq_public_data_pypi__file_downloads') }}
     where
-        date(package_downloaded_at) between {{ start_date }} and {{ end_date }}
+        date_trunc(package_downloaded_at, week (monday)) between {{ start_date }} and {{ end_date }}
     group by
         1, 2
 )
 
-select * from daily_downloads
+select * from weekly_downloads

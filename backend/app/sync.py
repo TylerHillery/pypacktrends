@@ -1,14 +1,14 @@
-from itertools import islice
 import logging
+import sys
 import time
+from datetime import datetime
+from itertools import islice
 
 from google.cloud import bigquery
 from sqlalchemy import Engine, text
 
-
 from app.core.db import read_engine, write_engine
-import sys
-from datetime import datetime
+from app.utils import start_of_week
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 logger = logging.getLogger()
@@ -34,7 +34,8 @@ def sync_pypi_packages(
         package_summary,
         package_home_page,
         package_download_url,
-        format_timestamp("%Y-%m-%dT%H:%M:%SZ", package_uploaded_at) as package_uploaded_at
+        format_timestamp("%Y-%m-%dT%H:%M:%SZ", package_uploaded_at) as package_uploaded_at,
+        format_timestamp("%Y-%m-%dT%H:%M:%SZ", current_datetime("UTC")) as synced_at
     from
         pypacktrends-prod.dbt.pypi_packages
     where
@@ -56,9 +57,9 @@ def sync_pypi_packages(
 
     upsert_sql = text("""
     insert or replace into pypi_packages
-        (package_name, latest_package_version, package_summary, package_home_page, package_download_url, package_uploaded_at)
+        (package_name, latest_package_version, package_summary, package_home_page, package_download_url, package_uploaded_at, synced_at)
     values
-        (:package_name, :latest_package_version, :package_summary, :package_home_page, :package_download_url, :package_uploaded_at)
+        (:package_name, :latest_package_version, :package_summary, :package_home_page, :package_download_url, :package_uploaded_at, :synced_at)
     """)
 
     start_time = time.time()
@@ -91,15 +92,21 @@ def sync_pypi_downloads(
 
     client = bigquery.Client()
 
+    start_week, end_week = start_of_week(start_date), start_of_week(end_date)
+
     select_query = f"""
     select
         package_name,
-        package_downloaded_date,
-        downloads
+        package_downloaded_week,
+        downloads,
+        cumulative_downloads,
+        first_distribution_week,
+        weeks_since_first_distribution,
+        format_timestamp('%Y-%m-%dT%H:%M:%SZ', current_datetime("UTC")) as synced_at
     from
-        pypacktrends-prod.dbt.pypi_package_downloads_per_day
+        pypacktrends-prod.dbt.pypi_package_downloads_weekly_metrics
     where
-        package_downloaded_date between '{start_date}' and '{end_date}'
+        package_downloaded_week between '{start_week}' and '{end_week}'
     """
 
     if limit is not None:
@@ -113,22 +120,36 @@ def sync_pypi_downloads(
     logger.info(f"Total rows to insert: {total_rows}")
     rows = iter(rows)
 
-    delete_sql = text(f"""
-    delete from pypi_package_downloads_per_day
-    where package_downloaded_date between '{start_date}' and '{end_date}'
+    delete_sql = text("""
+    delete from pypi_package_downloads_weekly_metrics
+    where package_downloaded_week between :start_week and :end_week
     """)
 
     insert_sql = text("""
-    insert into pypi_package_downloads_per_day
-        (package_name, package_downloaded_date, downloads)
-    values
-        (:package_name, :package_downloaded_date, :downloads)
+    insert into pypi_package_downloads_weekly_metrics (
+        package_name,
+        package_downloaded_week,
+        downloads,
+        cumulative_downloads,
+        first_distribution_week,
+        weeks_since_first_distribution,
+        synced_at
+    )
+    values (
+        :package_name,
+        :package_downloaded_week,
+        :downloads,
+        :cumulative_downloads,
+        :first_distribution_week,
+        :weeks_since_first_distribution,
+        :synced_at
+    )
     """)
 
     start_time = time.time()
 
     with write_engine.begin() as conn:
-        conn.execute(delete_sql)
+        conn.execute(delete_sql, {"start_week": start_week, "end_week": end_week})
         batch_count = 0
         while batch := list(islice(rows, BATCH_SIZE)):
             batch_count += 1

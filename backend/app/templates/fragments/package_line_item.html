@@ -1,0 +1,13 @@
+{% macro package_line_item(package, color) %}
+
+<li class="package-item" style="border-color: {{ color }}">
+    <span>{{ package }}</span>
+    <span class="delete-x" hx-trigger="click" hx-delete="/package-list" hx-vals='{"package_name": "{{ package }}"}'
+        hx-target="#package-list" hx-swap="innerHTML">
+        &times;
+    </span>
+</li>
+
+{% endmacro %}
+
+{{ package_line_item(package_name, color) }}

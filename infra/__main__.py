@@ -1,10 +1,10 @@
 import pulumi
-import pulumi_command as command
 import pulumi_cloudflare as cloudflare
+import pulumi_command as command
 import pulumi_digitalocean as digitalocean
 import pulumi_docker_build as docker_build
-import pulumi_github as github
 import pulumi_gcp as gcp
+import pulumi_github as github
 import pulumi_tls as tls
 from config import settings
 from utils import render_template

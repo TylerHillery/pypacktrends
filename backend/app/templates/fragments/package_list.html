@@ -1,0 +1,11 @@
+{% from "fragments/package_line_item.html" import package_line_item %}
+
+{% macro package_list(package_data) %}
+
+{% for package in package_data %}
+{{ package_line_item(package.name, package.color) }}
+{% endfor %}
+
+{% endmacro %}
+
+{{ package_list(package_data) }}
