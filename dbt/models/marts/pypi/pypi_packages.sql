@@ -57,13 +57,13 @@ first_package_distributions as (
 
 final as (
     select
-        package_name,
-        latest_package_version,
-        package_summary,
-        package_home_page,
-        package_download_url,
-        package_uploaded_at,
-        first_package_uploaded_at
+        last_package_distributions.package_name,
+        last_package_distributions.latest_package_version,
+        last_package_distributions.package_summary,
+        last_package_distributions.package_home_page,
+        last_package_distributions.package_download_url,
+        last_package_distributions.package_uploaded_at,
+        first_package_distributions.first_package_uploaded_at
     from
         last_package_distributions
     inner join
