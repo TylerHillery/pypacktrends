@@ -128,7 +128,6 @@ def generate_chart(query_params: QueryParams, theme: str) -> alt.Chart:
 
     highlight = alt.selection_point(on="pointerover", fields=["package"], nearest=True)
 
-    # TODO turn into dict and unpack dict when passing in
     if query_params.time_range.value == "allTimeCumulativeAlignTimeline":
         x = dict(
             shorthand="weeks_since_first_distribution:Q",
@@ -204,13 +203,3 @@ def generate_chart(query_params: QueryParams, theme: str) -> alt.Chart:
         )
         .configure(background="rgba(0,0,0,0)")
     )
-
-
-if __name__ == "__main__":
-    current_packages = ["duckdb", "polars"]
-    generate_chart(
-        QueryParams(
-            packages=current_packages, time_range=TimeRange(value="allTimeCumulative")
-        ),
-        "dark",
-    ).show()

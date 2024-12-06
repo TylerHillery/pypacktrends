@@ -21,6 +21,7 @@ dev = [
     "pytest>=8.3.3",
     "ruff>=0.7.1",
     "sqlfluff>=3.2.5",
+    "time-machine>=2.16.0",
 ]
 repl = [
     "ipykernel>=6.29.5",
