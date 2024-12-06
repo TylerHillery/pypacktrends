@@ -19,8 +19,14 @@ package_distributions_ranked as (
         package_home_page,
         package_download_url,
         timestamp_trunc(package_uploaded_at, second) as package_uploaded_at,
-        row_number() over (partition by package_name order by package_uploaded_at asc) as package_uploaded_at_asc_rank,
-        row_number() over (partition by package_name order by package_uploaded_at desc) as package_uploaded_at_desc_rank
+        row_number() over (
+            partition by package_name
+            order by package_uploaded_at asc
+        )                                            as package_uploaded_at_asc_rank,
+        row_number() over (
+            partition by package_name
+            order by package_uploaded_at desc
+        )                                            as package_uploaded_at_desc_rank
     from
         {{ ref('stg_bq_public_data_pypi__distribution_metadata') }}
 ),
@@ -32,7 +38,7 @@ last_package_distributions as (
         package_summary,
         package_home_page,
         package_download_url,
-        package_uploaded_at,
+        package_uploaded_at
     from
         package_distributions_ranked
     where
@@ -60,7 +66,9 @@ final as (
         first_package_uploaded_at
     from
         last_package_distributions
-        inner join first_package_distributions using(package_name)
+    inner join
+        first_package_distributions
+        on last_package_distributions.package_name = first_package_distributions.package_name
 )
 
 select * from final

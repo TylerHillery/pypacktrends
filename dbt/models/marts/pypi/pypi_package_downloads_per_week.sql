@@ -31,12 +31,12 @@ with
 weekly_downloads as (
     select
         package_name,
-        date_trunc(date(package_downloaded_at), week(monday)) as package_downloaded_week,
-        count(*)                                              as downloads
+        date_trunc(date(package_downloaded_at), week (monday)) as package_downloaded_week,
+        count(*)                                               as downloads
     from
         {{ ref('stg_bq_public_data_pypi__file_downloads') }}
     where
-        date_trunc(package_downloaded_at, week(monday)) between {{ start_date }} and {{ end_date }}
+        date_trunc(package_downloaded_at, week (monday)) between {{ start_date }} and {{ end_date }}
     group by
         1, 2
 )
