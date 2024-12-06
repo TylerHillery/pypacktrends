@@ -5,10 +5,10 @@ import pytest
 from sqlalchemy import Engine, text
 
 from app.alembic.utils import (
+    NullLogger,
     get_sql_migration_file,
     read_sql_file,
     run_sql_statements,
-    NullLogger,
 )
 
 

@@ -1,5 +1,5 @@
 
-{% macro pypi_package_filter(column_name) -%} 
+{% macro pypi_package_filter(column_name) -%}
     {% set package_list = [
         'dask',
         'datafusion',
@@ -12,7 +12,7 @@
     ] %}
 
     {%- if target.name != 'prod' -%}
-        {{ column_name }} in ('{{ package_list | join("', '") }}') 
+        {{ column_name }} in ('{{ package_list | join("', '") }}')
     {%- endif -%}
 
 {% endmacro %}

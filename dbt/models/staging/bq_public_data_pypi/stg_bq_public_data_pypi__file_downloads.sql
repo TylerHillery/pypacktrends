@@ -15,7 +15,7 @@ renamed as (
         tls_cipher   as package_download_tls_cipher
     from
         source
-   where 
+   where
         {{ pypi_package_filter('project') }}
 )
 

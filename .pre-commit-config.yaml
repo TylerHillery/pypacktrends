@@ -15,6 +15,9 @@ repos:
       - id: ruff
         args:
           - --fix
+      - id: ruff
+        name: sort imports with ruff
+        args: [--select, I, --fix]
       - id: ruff-format
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.10.0
@@ -26,3 +29,4 @@ repos:
           - --strict
         additional_dependencies:
           - pydantic~=2.0
+          - types-python-dateutil

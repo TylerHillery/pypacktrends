@@ -30,7 +30,7 @@ last_package_distributions as (
         package_name,
         package_version as latest_package_version,
         package_summary,
-        package_home_page, 
+        package_home_page,
         package_download_url,
         package_uploaded_at,
     from
@@ -49,12 +49,12 @@ first_package_distributions as (
         package_uploaded_at_asc_rank = 1
 ),
 
-final as ( 
+final as (
     select
         package_name,
         latest_package_version,
         package_summary,
-        package_home_page, 
+        package_home_page,
         package_download_url,
         package_uploaded_at,
         first_package_uploaded_at
@@ -64,4 +64,3 @@ final as (
 )
 
 select * from final
-

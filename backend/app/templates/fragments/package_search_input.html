@@ -1,10 +1,10 @@
 {% macro package_search_input(package_name="", is_valid_submission=True, error_message="") %}
 
 
-<input 
-  id="package-search-input" 
-  type="search" 
-  name="package_name" 
+<input
+  id="package-search-input"
+  type="search"
+  name="package_name"
   placeholder="Search for python packages..."
   aria-label="Search"
   tabindex="0"
@@ -15,12 +15,12 @@
   }, 300)"
   {% if not is_valid_submission %}aria-invalid="true"{% endif %}
   value="{% if not is_valid_submission %}{{ package_name }}{% endif %}"
-  hx-trigger="input changed delay:200ms, focus[this.value.trim() !== '']" 
+  hx-trigger="input changed delay:200ms, focus[this.value.trim() !== '']"
   hx-get="/package-search-results"
-  hx-include="this" 
-  hx-target="#package-search-results" 
-  hx-swap="innerHTML" 
-  hx-sync="closest form:abort" 
+  hx-include="this"
+  hx-target="#package-search-results"
+  hx-swap="innerHTML"
+  hx-sync="closest form:abort"
 >
 
 <div id="package-search-results"></div>

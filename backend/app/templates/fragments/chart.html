@@ -1,5 +1,5 @@
 <div class="pico">
-    <label for="time-range"><strong>Downloads </strong>in past</label>
+    <label for="time-range"><strong>Time Range:</strong></label>
     <select name="time_range" id="time-range" hx-trigger="change" hx-get="/packages-graph" hx-target="#packages-graph"
         hx-swap="innerHTML">
         <option value="1month" {% if time_range == '1month' %}selected{% endif %}>1 month</option>
@@ -10,7 +10,7 @@
         <option value="5years" {% if time_range == '5years' %}selected{% endif %}>5 years</option>
         <option value="allTime" {% if time_range == 'allTime' %}selected{% endif %}>All Time</option>
         <option value="allTimeCumulative" {% if time_range == 'allTimeCumulative' %}selected{% endif %}>All Time Cumulative</option>
-        <option value="allTimeCumulativeAlignTimeline" {% if time_range == 'allTimeCumulativeAlignTimeline' %}selected{% endif %}>All Time Cumulative Align Timeline</option>
+        <option value="allTimeCumulativeAlignTimeline" {% if time_range == 'allTimeCumulativeAlignTimeline' %}selected{% endif %}>All Time Cumulative (Align Timeline)</option>
     </select>
 </div>
 {{ chart | safe }}

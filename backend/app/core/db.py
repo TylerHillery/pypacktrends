@@ -1,8 +1,8 @@
+import sqlite3
+from datetime import date, datetime
 from typing import Optional
 
-from datetime import datetime, date
 from sqlalchemy import Connection, Engine, create_engine, event
-import sqlite3
 
 from app.core.config import settings
 

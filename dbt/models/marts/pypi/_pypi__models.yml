@@ -27,7 +27,7 @@ models:
 
       - name: first_package_uploaded_at
         data_type: timestamp
-        description: The min package uploaded at datetime from all distributions 
+        description: The min package uploaded at datetime from all distributions
 
   - name: pypi_package_downloads_per_week
     description: Aggregates weekly download counts of Python packages from PyPI
@@ -50,9 +50,9 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - package_name
-            - package_downloaded_week 
+            - package_downloaded_week
 
-  - name: pypi_package_downloads_weekly_metrics 
+  - name: pypi_package_downloads_weekly_metrics
     description: "Weekly download metrics and cumulative statistics for PyPI packages"
     columns:
       - name: package_name
@@ -67,19 +67,19 @@ models:
         data_type: int64
         description: '{{ doc("downloads") }}'
 
-      - name: cumulative_downloads 
+      - name: cumulative_downloads
         data_type: int64
         description: The total number of cumulative downloads for the package
 
-      - name: weeks_since_first_distribution 
+      - name: weeks_since_first_distribution
         data_type: int64
         description: >
           The amount of weeks since the first distribution was uploaded to PyPI,
           except for packages that were uploaded before the min package downloaded week
-          across all packages on PyPI 
+          across all packages on PyPI
 
     data_tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - package_name
-            - package_downloaded_week 
+            - package_downloaded_week

@@ -1,13 +1,15 @@
-import random
 import colorsys
-from urllib.parse import urlparse, parse_qs, urlencode
-from sqlalchemy import text
+import random
+from datetime import datetime, timedelta
+from typing import cast, get_args
+from urllib.parse import parse_qs, urlencode, urlparse
+
 import altair as alt
 import pandas as pd
+from sqlalchemy import text
 
 from app.core.db import read_engine
-from app.models import TimeRangeModel
-from datetime import datetime, timedelta
+from app.models import TimeRangeModel, TimeRangeValue
 
 
 def start_of_week(date: str) -> str:
@@ -16,18 +18,24 @@ def start_of_week(date: str) -> str:
     return start.strftime("%Y-%m-%d")
 
 
-def parse_url_params(hx_current_url: str) -> tuple[list[str], str]:
+def parse_url_params(hx_current_url: str) -> tuple[list[str], TimeRangeValue]:
     parsed_qs = parse_qs(urlparse(hx_current_url).query)
     packages = parsed_qs.get("packages", [])
+
     time_range = parsed_qs.get("time_range", ["3months"])[0]
-    return packages, time_range
+    valid_time_ranges = set(get_args(TimeRangeValue))
+
+    if time_range not in valid_time_ranges:
+        time_range = "3months"
+
+    return packages, cast(TimeRangeValue, time_range)
 
 
-def generate_push_url(packages: list[str], time_range: TimeRangeModel | None) -> str:
+def generate_push_url(packages: list[str], time_range: TimeRangeModel) -> str:
     if not packages:
         return "/"
 
-    params = {"packages": packages, "time_range": time_range}
+    params = {"packages": packages, "time_range": time_range.value}
     return f"?{urlencode(params, doseq=True)}"
 
 
@@ -49,7 +57,7 @@ def validate_package(package_name: str) -> bool:
 
 def generate_altair_colors(n: int, seed: int = 42) -> list[str]:
     random.seed(seed)
-    colors = []
+    colors: list[str] = []
 
     while len(colors) < n:
         # Python blue, yellow, green
@@ -77,9 +85,9 @@ def generate_altair_colors(n: int, seed: int = 42) -> list[str]:
 
 
 def generate_chart(
-    packages: list[str], time_range: TimeRangeModel, theme: str | None
+    packages: list[str], time_range: TimeRangeModel, theme: str
 ) -> alt.Chart:
-    packages = {str(i): package for i, package in enumerate(packages)}
+    packages_query_params = {str(i): package for i, package in enumerate(packages)}
     placeholders = ", ".join(f":{i}" for i in range(len(packages)))
     theme_config = {
         "light": {"theme": "default", "tooltip": "dark"},
@@ -101,10 +109,10 @@ def generate_chart(
                 pypi_package_downloads_weekly_metrics
             where true
                 and package_name in ({placeholders})
-                and package_downloaded_week >= :week 
-                and package_downloaded_week <  date('now', 'weekday 0', '-6 days')  
+                and package_downloaded_week >= :week
+                and package_downloaded_week <  date('now', 'weekday 0', '-6 days')
             """),
-            {**packages, "week": start_of_week(time_range.date)},
+            {**packages_query_params, "week": start_of_week(time_range.date)},
         )
         downloads = result.fetchall()
 
@@ -148,7 +156,7 @@ def generate_chart(
         tooltip=[
             alt.Tooltip("package:N"),
             alt.Tooltip(x, title=x_title, format=x_format),
-            alt.Tooltip(y, title=y_title, format=y_format)
+            alt.Tooltip(y, title=y_title, format=y_format),
         ],
     )
 
@@ -161,7 +169,7 @@ def generate_chart(
         color=alt.Color(
             "package:N",
             scale=alt.Scale(
-                domain=packages.values(),
+                domain=packages_query_params.values(),
                 range=generate_altair_colors(len(packages)),
             ),
         ).legend(orient="right", titleFontSize=16, labelFontSize=14),
@@ -185,4 +193,6 @@ def generate_chart(
 
 if __name__ == "__main__":
     current_packages = ["duckdb", "polars"]
-    generate_chart(current_packages, TimeRangeModel(value="allTimeCumulative"), "dark").show()
+    generate_chart(
+        current_packages, TimeRangeModel(value="allTimeCumulative"), "dark"
+    ).show()

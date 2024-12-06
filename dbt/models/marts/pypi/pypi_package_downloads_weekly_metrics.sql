@@ -29,15 +29,14 @@ weeks_since_first_distribution as (
         -- is before the min week from all packages in PyPI we set it to that first week
         greatest(packages.first_distribution_week, downloads.first_pypi_downloaded_week) as first_distribution_week,
         date_diff(
-            downloads.package_downloaded_week, 
-            greatest(packages.first_distribution_week, downloads.first_pypi_downloaded_week), 
+            downloads.package_downloaded_week,
+            greatest(packages.first_distribution_week, downloads.first_pypi_downloaded_week),
             week
         ) + 1 as weeks_since_first_distribution
     from
         pypi_package_downloads_per_week as downloads
-        inner join pypi_package_first_distribution_week as packages 
+        inner join pypi_package_first_distribution_week as packages
             on packages.package_name = downloads.package_name
 )
 
 select * from weeks_since_first_distribution
-

@@ -130,13 +130,13 @@ svg.icon-theme-toggle.moon :first-child path {
   opacity: 0;
 }
 
-.pico select[name="time_range"] { 
+.pico select[name="time_range"] {
   min-height: 0;
   height: auto;
-  background-color: transparent; 
+  background-color: transparent;
   border: none;
-  border-bottom: 0.12rem solid var(--pico-form-element-border-color); 
-  border-radius: 0; 
+  border-bottom: 0.12rem solid var(--pico-form-element-border-color);
+  border-radius: 0;
   display: inline;
   width: auto;
   padding: 0 1.8rem 0 0.2rem !important;

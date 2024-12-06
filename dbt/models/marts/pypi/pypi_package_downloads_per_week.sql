@@ -21,7 +21,7 @@
     partition_by = {
       "field": "package_downloaded_week",
       "data_type": "date",
-      "granularity": "day" 
+      "granularity": "day"
     }
   )
 }}
@@ -35,7 +35,7 @@ weekly_downloads as (
         count(*)                                              as downloads
     from
         {{ ref('stg_bq_public_data_pypi__file_downloads') }}
-    where 
+    where
         date_trunc(package_downloaded_at, week(monday)) between {{ start_date }} and {{ end_date }}
     group by
         1, 2

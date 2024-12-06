@@ -1,16 +1,15 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Request, Form, Header
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import APIRouter, Form, Header, Request
+from fastapi.responses import HTMLResponse
 
 from app.core.config import templates
-from app.models import TimeRangeModel
-
+from app.models import TimeRangeModel, TimeRangeValue
 from app.utils import (
     generate_altair_colors,
+    generate_chart,
     generate_push_url,
     parse_url_params,
-    generate_chart,
     validate_package,
 )
 
@@ -20,8 +19,8 @@ router = APIRouter()
 @router.get("/package-list", response_class=HTMLResponse)
 async def get_package_list(
     request: Request,
-    hx_current_url: Annotated[str, Header(alias="HX-Current-URL")] = None,
-):
+    hx_current_url: Annotated[str, Header(alias="HX-Current-URL")],
+) -> HTMLResponse:
     current_packages, _ = parse_url_params(hx_current_url)
     colors = generate_altair_colors(len(current_packages))
 
@@ -40,19 +39,19 @@ async def get_package_list(
 async def create_package(
     request: Request,
     package_name: Annotated[str, Form()],
-    hx_current_url: Annotated[str, Header(alias="HX-Current-URL")] = None,
-):
+    hx_current_url: Annotated[str, Header(alias="HX-Current-URL")],
+) -> HTMLResponse:
     package_name = package_name.strip()
     current_packages, current_time_range = parse_url_params(hx_current_url)
 
     if package_name in current_packages:
-        return JSONResponse(
-            status_code=409, content={"error": f"'{package_name}' already selected"}
+        return HTMLResponse(
+            status_code=409, content=f"'{package_name}' already selected"
         )
 
     if not validate_package(package_name):
-        return JSONResponse(
-            status_code=422, content={"error": f"'{package_name}' not found on PyPI"}
+        return HTMLResponse(
+            status_code=422, content=f"'{package_name}' not found on PyPI"
         )
 
     current_packages.append(package_name)
@@ -64,7 +63,11 @@ async def create_package(
             "package_name": package_name,
             "color": generate_altair_colors(len(current_packages))[-1],
         },
-        headers={"HX-Push-Url": generate_push_url(current_packages, current_time_range)},
+        headers={
+            "HX-Push-Url": generate_push_url(
+                current_packages, TimeRangeModel(value=current_time_range)
+            )
+        },
     )
 
 
@@ -72,8 +75,8 @@ async def create_package(
 async def delete_package(
     request: Request,
     package_name: str,
-    hx_current_url: Annotated[str, Header(alias="HX-Current-URL")] = None,
-):
+    hx_current_url: Annotated[str, Header(alias="HX-Current-URL")],
+) -> HTMLResponse:
     package_name = package_name.strip()
     current_packages, current_time_range = parse_url_params(hx_current_url)
     current_packages.remove(package_name)
@@ -87,21 +90,29 @@ async def delete_package(
         request=request,
         name="fragments/package_list.html",
         context={"package_data": package_data},
-        headers={"HX-Push-Url": generate_push_url(current_packages, current_time_range)},
+        headers={
+            "HX-Push-Url": generate_push_url(
+                current_packages, TimeRangeModel(value=current_time_range)
+            )
+        },
     )
 
 
 @router.get("/packages-graph", response_class=HTMLResponse)
 async def list_packages(
     request: Request,
-    time_range: str | None = None,
-    hx_current_url: Annotated[str, Header(alias="HX-Current-URL")] = None,
-):
+    hx_current_url: Annotated[str, Header(alias="HX-Current-URL")],
+    time_range: TimeRangeValue | None = None,
+) -> HTMLResponse:
     theme = request.cookies.get("theme", "light")
     current_packages, current_time_range = parse_url_params(hx_current_url)
 
     # TODO: error handeling
-    time_range = TimeRangeModel(value=time_range) if time_range is not None else TimeRangeModel(value=current_time_range)
+    time_range_model = (
+        TimeRangeModel(value=time_range)
+        if time_range is not None
+        else TimeRangeModel(value=current_time_range)
+    )
 
     if len(current_packages) < 1:
         return HTMLResponse("")
@@ -110,8 +121,10 @@ async def list_packages(
         request=request,
         name="fragments/chart.html",
         context={
-            "chart": generate_chart(current_packages, time_range, theme).to_html(),
-            "time_range": time_range.value,
+            "chart": generate_chart(
+                current_packages, time_range_model, theme
+            ).to_html(),
+            "time_range": time_range_model.value,
         },
-        headers={"HX-Push-Url": generate_push_url(current_packages, time_range.value)},
+        headers={"HX-Push-Url": generate_push_url(current_packages, time_range_model)},
     )

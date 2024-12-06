@@ -1,7 +1,7 @@
 from typing import Annotated
-from fastapi import APIRouter, Request, Header
-from fastapi.responses import HTMLResponse
 
+from fastapi import APIRouter, Header, Request
+from fastapi.responses import HTMLResponse
 from sqlalchemy import text
 
 from app.core.config import templates
@@ -15,15 +15,15 @@ router = APIRouter()
 def get_search_input(
     request: Request,
     package_name: str,
-    hx_current_url: Annotated[str, Header(alias="HX-Current-URL")] = None,
-):
+    hx_current_url: Annotated[str, Header(alias="HX-Current-URL")],
+) -> HTMLResponse:
     package_name = package_name.strip()
     is_valid_submission = True
     error_message = ""
     current_packages, _ = parse_url_params(hx_current_url)
 
     if package_name != "":
-        if package_name in current_packages: 
+        if package_name in current_packages:
             is_valid_submission = False
             error_message = f"'{package_name}' already selected"
         elif not validate_package(package_name):
@@ -36,7 +36,7 @@ def get_search_input(
         context={
             "package_name": package_name,
             "is_valid_submission": is_valid_submission,
-            "error_message": error_message
+            "error_message": error_message,
         },
     )
 
@@ -45,7 +45,7 @@ def get_search_input(
 def get_search_results(
     request: Request,
     package_name: str,
-):
+) -> HTMLResponse:
     with read_engine.connect() as conn:
         result = conn.execute(
             text("""

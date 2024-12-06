@@ -104,7 +104,7 @@ def sync_pypi_downloads(
         weeks_since_first_distribution,
         format_timestamp('%Y-%m-%dT%H:%M:%SZ', current_datetime("UTC")) as synced_at
     from
-        pypacktrends-prod.dbt_tylhil.pypi_package_downloads_weekly_metrics
+        pypacktrends-prod.dbt.pypi_package_downloads_weekly_metrics
     where
         package_downloaded_week between '{start_week}' and '{end_week}'
     """
@@ -127,21 +127,21 @@ def sync_pypi_downloads(
 
     insert_sql = text("""
     insert into pypi_package_downloads_weekly_metrics (
-        package_name, 
-        package_downloaded_week, 
-        downloads, 
-        cumulative_downloads, 
-        first_distribution_week, 
-        weeks_since_first_distribution, 
+        package_name,
+        package_downloaded_week,
+        downloads,
+        cumulative_downloads,
+        first_distribution_week,
+        weeks_since_first_distribution,
         synced_at
     )
-    values ( 
-        :package_name, 
-        :package_downloaded_week, 
-        :downloads, 
-        :cumulative_downloads, 
-        :first_distribution_week, 
-        :weeks_since_first_distribution, 
+    values (
+        :package_name,
+        :package_downloaded_week,
+        :downloads,
+        :cumulative_downloads,
+        :first_distribution_week,
+        :weeks_since_first_distribution,
         :synced_at
     )
     """)
