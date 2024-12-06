@@ -73,7 +73,8 @@ def test_read_sql_file(alembic_sql_upgrade_file: Path) -> None:
                 package_summary         text,
                 package_home_page       text,
                 package_download_url    text,
-                package_uploaded_at     text not null
+                package_uploaded_at     text not null,
+                synced_at               text not null
             ) strict
             """,
             """create index idx_package_uploaded_at
