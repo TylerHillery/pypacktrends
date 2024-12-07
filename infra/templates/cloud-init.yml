@@ -22,6 +22,7 @@ runcmd:
   # system updates
   - apt update
   - DEBIAN_FRONTEND=noninteractive apt upgrade -y --allow-downgrades --allow-remove-essential --allow-change-held-packages
+  - apt install -y sqlite3
 
   # docker configs
   - curl -fssl https://get.docker.com | sh
