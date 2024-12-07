@@ -71,12 +71,23 @@ models:
         data_type: int64
         description: The total number of cumulative downloads for the package
 
+      - name: first_distribution_week
+        data_type: date
+        description: >
+          The week of the first distribution was uploaded to PyPI, except for
+          packages that were uploaded before the min package downloaded week
+          across all packages on PyPI
+
       - name: weeks_since_first_distribution
         data_type: int64
         description: >
           The amount of weeks since the first distribution was uploaded to PyPI,
           except for packages that were uploaded before the min package downloaded week
           across all packages on PyPI
+        data_tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
 
     data_tests:
       - dbt_utils.unique_combination_of_columns:
