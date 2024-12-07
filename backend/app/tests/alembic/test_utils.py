@@ -59,7 +59,7 @@ def test_read_sql_file(alembic_sql_upgrade_file: Path) -> None:
                 weeks_since_first_distribution  integer not null,
                 synced_at                       text    not null,
                 primary key (package_name, package_downloaded_week)
-            ) strict
+            )
             """,
             """create index idx_package_name
                on pypi_package_downloads_weekly_metrics (package_name)
@@ -75,7 +75,7 @@ def test_read_sql_file(alembic_sql_upgrade_file: Path) -> None:
                 package_download_url    text,
                 package_uploaded_at     text not null,
                 synced_at               text not null
-            ) strict
+            )
             """,
             """create index idx_package_uploaded_at
                on pypi_packages (package_uploaded_at)

@@ -9,7 +9,7 @@ create table pypi_package_downloads_weekly_metrics (
     weeks_since_first_distribution integer not null,
     synced_at                      text    not null,
     primary key (package_name, package_downloaded_week)
-) strict;
+);
 
 create index idx_package_name
 on pypi_package_downloads_weekly_metrics (package_name);
@@ -25,7 +25,7 @@ create table pypi_packages (
     package_download_url   text,
     package_uploaded_at    text not null,
     synced_at              text not null
-) strict;
+);
 
 create index idx_package_uploaded_at
 on pypi_packages (package_uploaded_at);
