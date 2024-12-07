@@ -13,6 +13,8 @@
 
     {%- if target.name != 'prod' -%}
         {{ column_name }} in ('{{ package_list | join("', '") }}')
+    {%- else -%}
+        true
     {%- endif -%}
 
 {% endmacro %}
