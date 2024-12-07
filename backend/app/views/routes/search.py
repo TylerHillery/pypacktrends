@@ -22,12 +22,13 @@ def get_search_input(
     error_message = ""
     is_valid_submission = True
 
-    if package_name in query_params.packages:
-        is_valid_submission = False
-        error_message = f"'{package_name}' already selected"
-    elif not validate_package(package_name):
-        is_valid_submission = False
-        error_message = f"'{package_name}' not found on PyPI"
+    if package_name != "":
+        if package_name in query_params.packages:
+            is_valid_submission = False
+            error_message = f"'{package_name}' already selected"
+        elif not validate_package(package_name):
+            is_valid_submission = False
+            error_message = f"'{package_name}' not found on PyPI"
 
     return templates.TemplateResponse(
         request=request,
