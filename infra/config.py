@@ -63,8 +63,8 @@ class Settings:
     sentry_config: pulumi.Config = pulumi.Config("sentry")
     SENTRY_DSN: pulumi.Output | None = sentry_config.get_secret("dsn")
     SENTRY_AUTH_TOKEN: pulumi.Output | None = sentry_config.get_secret("auth-token")
-    SENTRY_ORG: str = pulumi_config.get("org") or "tyler-tries"
-    SENTRY_PROJECT: str = pulumi_config.get("project") or "pypacktrends"
+    SENTRY_ORG: str = sentry_config.get("org") or "tyler-tries"
+    SENTRY_PROJECT: str = sentry_config.get("project") or "pypacktrends"
 
     tailscale_config: pulumi.Config = pulumi.Config("tailscale")
     TAILSCALE_AUTH_KEY: pulumi.Output | None = tailscale_config.get_secret("auth-key")

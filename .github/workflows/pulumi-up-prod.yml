@@ -48,11 +48,11 @@ jobs:
 
       - name: Debug Pulumi outputs
         run: |
-          echo "Ref value: ${{ steps.pulumi.outputs.docker_build_image_backend_ref }}"
-          echo "Old ref value: ${{ steps.pulumi.outputs.docker_build_image_backend_old_ref }}"
+          echo "Ref value: ${{ steps.pulumi.outputs.docker-build-image-backend:ref }}"
+          echo "Old ref value: ${{ steps.pulumi.outputs.docker-build-image-backend:old-ref }}"
 
       - name: Create Sentry release
-        if: ${{ steps.pulumi.outputs.docker_build_image_backend_ref }} != ${{ steps.pulumi.outputs.docker_build_image_backend_old_ref }}
+        if: ${{ steps.pulumi.outputs.docker-build-image-backend:ref }} != ${{ steps.pulumi.outputs.docker-build-image-backend:old-ref }}
         uses: getsentry/action-release@v1
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
