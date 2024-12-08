@@ -7,7 +7,7 @@ import pulumi_gcp as gcp
 import pulumi_github as github
 import pulumi_tls as tls
 from config import settings
-from utils import render_template
+from utils import create_cmd, render_template
 
 # Docker Build Image
 backend_image = docker_build.Image(
@@ -118,17 +118,22 @@ cloudfalre_email_routing_catch_all = cloudflare.EmailRoutingCatchAll(
     actions=[{"type": "forward", "values": [settings.CLOUDFLARE_FORWARD_EMAIL]}],
 )
 
+
+create = create_cmd(
+    vps_project_path=settings.VPS_PROJECT_PATH,
+    sentry_dsn=settings.SENTRY_DSN,
+    container_registry_prefix=settings.CONTAINER_REGISTRY_PREFIX,
+    backend_service_name=settings.BACKEND_SERVICE_NAME,
+)
+pulumi.export("remote-command:create", create)
+
 remote_command = command.remote.Command(
     "remote-command",
     connection=command.remote.ConnectionArgs(
         host=droplet.name,
         user=settings.VPS_USERNAME,
     ),
-    create=f"""
-        cd {settings.VPS_PROJECT_PATH}
-        git pull
-        SENTRY_DSN='{settings.SENTRY_DSN}' ./scripts/update_service.sh {settings.CONTAINER_REGISTRY_PREFIX} {settings.BACKEND_SERVICE_NAME}
-    """,
+    create=create,
     triggers=[backend_image.ref],
 )
 

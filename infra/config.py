@@ -61,7 +61,7 @@ class Settings:
     )
 
     sentry_config: pulumi.Config = pulumi.Config("sentry")
-    SENTRY_DSN: pulumi.Output | None = pulumi_config.get_secret("dsn")
+    SENTRY_DSN: pulumi.Output | None = sentry_config.get_secret("dsn")
 
     tailscale_config: pulumi.Config = pulumi.Config("tailscale")
     TAILSCALE_AUTH_KEY: pulumi.Output | None = tailscale_config.get_secret("auth-key")
