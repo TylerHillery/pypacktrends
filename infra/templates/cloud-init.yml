@@ -13,6 +13,8 @@ runcmd:
   # ssh configs
   - sed -i '/PermitRootLogin/d' /etc/ssh/sshd_config
   - echo "PermitRootLogin without-password" >> /etc/ssh/sshd_config
+  - sed -i '/^AcceptEnv /d' /etc/ssh/sshd_config
+  - echo "AcceptEnv LANG LC_* SENTRY_DSN" >> /etc/ssh/sshd_config
   - systemctl restart sshd
 
   # disable needrestart prompts
@@ -47,7 +49,7 @@ runcmd:
   - sudo -u {{ vps_username }} git clone https://github.com/{{ github_username }}/{{ project_name }}.git {{ vps_project_path }}
 
   # start containers using full path to docker-compose.yml
-  - sudo -u {{ vps_username }} docker compose -f {{ vps_project_path }}/docker-compose.yml up -d
+  - sudo -u {{ vps_username }} SENTRY_DSN={{ sentry_dsn }} docker compose -f {{ vps_project_path }}/docker-compose.yml up -d
 
   # ufw configs
   - ufw allow OpenSSH

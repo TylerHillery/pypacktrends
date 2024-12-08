@@ -1,22 +1,21 @@
-import os
 from pathlib import Path
+from typing import Literal
 
 from fastapi.templating import Jinja2Templates
+from pydantic import HttpUrl, computed_field
+from pydantic_settings import BaseSettings
 
 
-class Settings:
+class Settings(BaseSettings):
     PROJECT_NAME: str = "pypacktrends"
-    TEMPLATES = Jinja2Templates(directory="app/templates")
+    TEMPLATES: Jinja2Templates = Jinja2Templates(directory="app/templates")
+    ENVIRONMENT: Literal["dev", "ci", "prod"] = "dev"
+    SENTRY_DSN: HttpUrl | None = None
+    SQLITE_DB_PATH: Path = (
+        Path(__file__).parent.resolve() / "../../../data/pypacktrends.db"
+    )
 
-    @property
-    def SQLITE_DB_PATH(self) -> Path:
-        return Path(
-            os.getenv(
-                "SQLITE_DB_PATH",
-                Path(__file__).parent.resolve() / "../../../data/pypacktrends.db",
-            )
-        ).resolve()
-
+    @computed_field  # type: ignore
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         if not self.SQLITE_DB_PATH.parent.exists():

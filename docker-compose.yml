@@ -7,7 +7,9 @@ services:
     volumes:
       - ./data/:/app/data/
     environment:
-      SQLITE_DB_PATH: /app/data/pypacktrends.db
+      ENVIRONMENT: prod
+      SENTRY_DSN: ${SENTRY_DSN}
+      SQLITE_DB_PATH: ${SQLITE_DB_PATH-/app/data/pypacktrends.db}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health-check/"]
       interval: 10s

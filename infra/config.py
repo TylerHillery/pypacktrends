@@ -60,6 +60,9 @@ class Settings:
         pulumi_config.get("oidc-issuer") or "https://api.pulumi.com/oidc"
     )
 
+    sentry_config: pulumi.Config = pulumi.Config("sentry")
+    SENTRY_DSN: pulumi.Output | None = pulumi_config.get_secret("dsn")
+
     tailscale_config: pulumi.Config = pulumi.Config("tailscale")
     TAILSCALE_AUTH_KEY: pulumi.Output | None = tailscale_config.get_secret("auth-key")
     TAILSCALE_OAUTH_CLIENT_ID: pulumi.Output | None = tailscale_config.get_secret(

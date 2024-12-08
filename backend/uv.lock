@@ -67,7 +67,9 @@ dependencies = [
     { name = "fastapi", extra = ["standard"] },
     { name = "google-cloud-bigquery" },
     { name = "pandas" },
+    { name = "pydantic-settings" },
     { name = "python-dateutil" },
+    { name = "sentry-sdk", extra = ["fastapi"] },
     { name = "sqlalchemy" },
 ]
 
@@ -92,7 +94,9 @@ requires-dist = [
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.4" },
     { name = "google-cloud-bigquery", specifier = ">=3.27.0" },
     { name = "pandas", specifier = ">=2.2.3" },
+    { name = "pydantic-settings", specifier = ">=2.6.1" },
     { name = "python-dateutil", specifier = ">=2.9.0.post0" },
+    { name = "sentry-sdk", extras = ["fastapi"], specifier = ">=2.19.2" },
     { name = "sqlalchemy", specifier = ">=2.0.36" },
 ]
 
@@ -1282,6 +1286,19 @@ wheels = [
 ]
 
 [[package]]
+name = "pydantic-settings"
+version = "2.6.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pydantic" },
+    { name = "python-dotenv" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b5/d4/9dfbe238f45ad8b168f5c96ee49a3df0598ce18a0795a983b419949ce65b/pydantic_settings-2.6.1.tar.gz", hash = "sha256:e0f92546d8a9923cb8941689abf85d6601a8c19a23e97a34b2964a2e3f813ca0", size = 75646 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5e/f9/ff95fd7d760af42f647ea87f9b8a383d891cdb5e5dbd4613edaeb094252a/pydantic_settings-2.6.1-py3-none-any.whl", hash = "sha256:7fb0637c786a558d3103436278a7c4f1cfd29ba8973238a50c5bb9a55387da87", size = 28595 },
+]
+
+[[package]]
 name = "pygments"
 version = "2.18.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1575,6 +1592,24 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/0b/fb/c39cbf32d1f3e318674b8622f989417231794926b573f76dd4d0ca49f0f1/ruff-0.7.1-py3-none-win32.whl", hash = "sha256:b517a2011333eb7ce2d402652ecaa0ac1a30c114fbbd55c6b8ee466a7f600ee9", size = 8594180 },
     { url = "https://files.pythonhosted.org/packages/5a/71/ec8cdea34ecb90c830ca60d54ac7b509a7b5eab50fae27e001d4470fe813/ruff-0.7.1-py3-none-win_amd64.whl", hash = "sha256:f38c41fcde1728736b4eb2b18850f6d1e3eedd9678c914dede554a70d5241307", size = 9419751 },
     { url = "https://files.pythonhosted.org/packages/79/7b/884553415e9f0a9bf358ed52fb68b934e67ef6c5a62397ace924a1afdf9a/ruff-0.7.1-py3-none-win_arm64.whl", hash = "sha256:19aa200ec824c0f36d0c9114c8ec0087082021732979a359d6f3c390a6ff2a37", size = 8717402 },
+]
+
+[[package]]
+name = "sentry-sdk"
+version = "2.19.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "certifi" },
+    { name = "urllib3" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/36/4a/eccdcb8c2649d53440ae1902447b86e2e2ad1bc84207c80af9696fa07614/sentry_sdk-2.19.2.tar.gz", hash = "sha256:467df6e126ba242d39952375dd816fbee0f217d119bf454a8ce74cf1e7909e8d", size = 299047 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/31/4d/74597bb6bcc23abc774b8901277652c61331a9d4d0a8d1bdb20679b9bbcb/sentry_sdk-2.19.2-py2.py3-none-any.whl", hash = "sha256:ebdc08228b4d131128e568d696c210d846e5b9d70aa0327dec6b1272d9d40b84", size = 322942 },
+]
+
+[package.optional-dependencies]
+fastapi = [
+    { name = "fastapi" },
 ]
 
 [[package]]

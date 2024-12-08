@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 set -e
-set -x
 
 # Check if required arguments are provided
 if [ "$#" -ne 2 ]; then
@@ -50,7 +49,9 @@ fi
 
 # Scale up the specified service to two containers
 log "Scaling up service $SERVICE_NAME to two containers..."
-docker compose -f docker-compose.yml up -d --no-deps --scale "$SERVICE_NAME"=2 --no-recreate "$SERVICE_NAME"
+docker compose -f docker-compose.yml \
+    -e SENTRY_DSN="${SENTRY_DSN}" \
+    up -d --no-deps --scale "$SERVICE_NAME"=2 --no-recreate "$SERVICE_NAME"
 
 # Get the name of the new container for the specified service
 new_container=$(docker ps --filter "ancestor=${FULL_IMAGE_NAME}" --format "{{.Names}}" | grep "$SERVICE_NAME" | tail -n 1)
