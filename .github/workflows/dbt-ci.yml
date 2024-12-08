@@ -60,6 +60,9 @@ jobs:
         run: dbt deps
       - name: SQLFluff
         run: ./scripts/sqlfluff.sh
+      - name: Create CI BQ dataset
+        run: |
+          bq mk --location=US dbt_pr_${{ github.event.pull_request.number }} || true
       - name: Clone dbt incremental models
         run: dbt clone --target ci --select state:modified+,config.materialized:incremental,state:old --state ./prod-run-artifacts
       - name: dbt Build
