@@ -34,7 +34,7 @@ jobs:
         run: |
             export UV_PROJECT_ENVIRONMENT="${pythonLocation}"
             uv sync --frozen
-      - name: Pulumi Preview Stack
+      - name: Pulumi Preview
         uses: pulumi/actions@v6
         with:
           command: preview

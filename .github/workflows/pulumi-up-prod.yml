@@ -35,7 +35,7 @@ jobs:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:cicd
-      - name: Pulumi Up Stack
+      - name: Pulumi Up
         uses: pulumi/actions@v6
         with:
           command: up
@@ -45,3 +45,11 @@ jobs:
           color: always
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Create Sentry release
+        if: steps.pulumi.outputs['docker-build-image-backend:ref'] != steps.pulumi.outputs['docker-build-image-backend:old-ref']
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
