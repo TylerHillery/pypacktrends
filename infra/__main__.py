@@ -13,7 +13,11 @@ stack_ref = pulumi.StackReference(
     f"{settings.ORG_NAME}/{settings.PROJECT_NAME}/{settings.STACK_NAME}"
 )
 
-old_backend_image_ref = stack_ref.get_output("docker-build-image-backend:ref")
+
+pulumi.export(
+    f"docker-build-image-{settings.BACKEND_SERVICE_NAME}:old-ref",
+    stack_ref.get_output("docker-build-image-backend:ref"),
+)
 
 # Docker Build Image
 backend_image = docker_build.Image(
@@ -39,10 +43,6 @@ pulumi.export(
     backend_image.ref,
 )
 
-pulumi.export(
-    f"docker-build-image-{settings.BACKEND_SERVICE_NAME}:is-changed",
-    old_backend_image_ref != backend_image.ref,
-)
 
 # Droplet Configs
 ssh_key = tls.PrivateKey("tls-private-key", algorithm="RSA", rsa_bits=4096)
