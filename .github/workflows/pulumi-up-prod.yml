@@ -36,6 +36,7 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:cicd
       - name: Pulumi Up
+        id: pulumi
         uses: pulumi/actions@v6
         with:
           command: up
