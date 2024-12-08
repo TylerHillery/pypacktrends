@@ -9,6 +9,12 @@ import pulumi_tls as tls
 from config import settings
 from utils import create_cmd, render_template
 
+stack_ref = pulumi.StackReference(
+    f"{settings.ORG_NAME}/{settings.PROJECT_NAME}/{settings.STACK_NAME}"
+)
+
+old_backend_image_ref = stack_ref.get_output("docker-build-image-backend")
+
 # Docker Build Image
 backend_image = docker_build.Image(
     f"docker-build-image-{settings.BACKEND_SERVICE_NAME}",
@@ -31,6 +37,11 @@ backend_image = docker_build.Image(
 pulumi.export(
     f"docker-build-image-{settings.BACKEND_SERVICE_NAME}:ref",
     backend_image.ref,
+)
+
+pulumi.export(
+    f"docker-build-image-{settings.BACKEND_SERVICE_NAME}:is-changed",
+    old_backend_image_ref != backend_image.ref,
 )
 
 # Droplet Configs
@@ -314,4 +325,25 @@ github_actions_secret_workload_identity_provider = github.ActionsSecret(
     secret_name="WORKLOAD_IDENTITY_PROVIDER",
     repository=settings.PROJECT_NAME,
     plaintext_value=workload_identity_provider,
+)
+
+github_actions_secret_sentry_auth_token = github.ActionsSecret(
+    "github-actions-secret-sentry-auth-token",
+    secret_name="SENTRY_AUTH_TOKEN",
+    repository=settings.PROJECT_NAME,
+    plaintext_value=settings.SENTRY_AUTH_TOKEN,
+)
+
+github_actions_secret_sentry_org = github.ActionsSecret(
+    "github-actions-secret-sentry-org",
+    secret_name="SENTRY_ORG",
+    repository=settings.PROJECT_NAME,
+    plaintext_value=settings.SENTRY_ORG,
+)
+
+github_actions_secret_sentry_project = github.ActionsSecret(
+    "github-actions-secret-sentry-project",
+    secret_name="SENTRY_PROJECT",
+    repository=settings.PROJECT_NAME,
+    plaintext_value=settings.SENTRY_PROJECT,
 )
