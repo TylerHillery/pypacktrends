@@ -1,7 +1,7 @@
 from sqlalchemy import Engine, text
 from sqlalchemy.engine.url import make_url
 
-from app.core.config import settings
+from app.core.config import Settings
 from app.tests.conftest import SQLITE_TEST_DB
 
 
@@ -33,15 +33,19 @@ def test_db_manager_pragma_synchronous(read_engine: Engine) -> None:
         assert result == expected_result
 
 
-def test_db_manager_url_read_engine(read_engine: Engine) -> None:
+def test_db_manager_url_read_engine(
+    read_engine: Engine, test_settings: Settings
+) -> None:
     result = read_engine.url
-    expected_result = make_url(f"{settings.SQLALCHEMY_DATABASE_URI}&mode=ro")
+    expected_result = make_url(f"{test_settings.SQLALCHEMY_DATABASE_URI}&mode=ro")
     assert result == expected_result
     assert result.database.removeprefix("file:") == str(SQLITE_TEST_DB)
 
 
-def test_db_manager_url_write_engine(write_engine: Engine) -> None:
+def test_db_manager_url_write_engine(
+    write_engine: Engine, test_settings: Settings
+) -> None:
     result = write_engine.url
-    expected_result = make_url(settings.SQLALCHEMY_DATABASE_URI)
+    expected_result = make_url(test_settings.SQLALCHEMY_DATABASE_URI)
     assert result == expected_result
     assert result.database.removeprefix("file:") == str(SQLITE_TEST_DB)

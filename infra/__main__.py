@@ -48,6 +48,7 @@ user_data = render_template(
     github_username=settings.GITHUB_USERNAME,
     project_name=settings.PROJECT_NAME,
     tailscale_auth_key=settings.TAILSCALE_AUTH_KEY,
+    sentry_dsn=settings.SENTRY_DSN,
     vps_username=settings.VPS_USERNAME,
     vps_project_path=settings.VPS_PROJECT_PATH,
 )
@@ -126,7 +127,7 @@ remote_command = command.remote.Command(
     create=f"""
         cd {settings.VPS_PROJECT_PATH}
         git pull
-        ./scripts/update_service.sh {settings.CONTAINER_REGISTRY_PREFIX} {settings.BACKEND_SERVICE_NAME}
+        SENTRY_DSN='{settings.SENTRY_DSN}' ./scripts/update_service.sh {settings.CONTAINER_REGISTRY_PREFIX} {settings.BACKEND_SERVICE_NAME}
     """,
     triggers=[backend_image.ref],
 )
