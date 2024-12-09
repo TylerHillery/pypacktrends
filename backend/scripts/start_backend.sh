@@ -15,5 +15,5 @@ cd "$PROJECT_ROOT"
 if [ "${ENVIRONMENT}" = "dev" ]; then
     exec fastapi run --reload app/main.py
 else
-    exec fastapi run --workers 2 app/main.py
+    exec fastapi run --workers 1 app/main.py
 fi
