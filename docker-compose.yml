@@ -35,6 +35,31 @@ services:
       BACKEND_CONTAINER_NAME: ${BACKEND_CONTAINER_NAME-pypacktrends-backend-1}
       BACKEND_CONTAINER_PORT: ${BACKEND_CONTAINER_PORT-8000}
 
+  cadvisor:
+    container_name: cadvisor
+    image: gcr.io/cadvisor/cadvisor:latest
+    restart: always
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:r0
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - caddy
+
+  alloy:
+    container_name: alloy
+    image: grafana/alloy:latest
+    restart: always
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy
+      - grafana_data:/var/lib/alloy/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: >
+      run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
+    networks:
+      - caddy
+
 networks:
   caddy:
     name: caddy
@@ -44,3 +69,5 @@ volumes:
     name: caddy-data
   caddy_config:
     name: caddy-config
+  grafana_data:
+    name: grafana-data

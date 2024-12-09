@@ -73,6 +73,7 @@ droplet = digitalocean.Droplet(
     size=digitalocean.DropletSlug.DROPLET_S1_VCPU1_GB,
     ssh_keys=[do_ssh_key.id],
     user_data=user_data,
+    monitoring=True,
     opts=pulumi.ResourceOptions(
         ignore_changes=["user_data"],
     ),
