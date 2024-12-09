@@ -41,7 +41,7 @@ services:
     restart: always
     volumes:
       - /:/rootfs:ro
-      - /var/run:/var/run:r0
+      - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
     networks:
@@ -59,6 +59,10 @@ services:
       run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
     networks:
       - caddy
+    environment:
+      GRAFANA_API_KEY: ${GRAFANA_API_KEY}
+      GRAFANA_PROM_USER: ${GRAFANA_PROM_USER}
+      GRAFANA_LOKI_USER: ${GRAFANA_LOKI_USER}
 
 networks:
   caddy:

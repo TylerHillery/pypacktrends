@@ -5,12 +5,12 @@ discovery.relabel "alloy_check" {
 
   rule {
     target_label = "instance"
-    replacement  = constants.hostname
+    replacement  = "pypacktrends-prod"
   }
 
   rule {
     target_label = "alloy_hostname"
-    replacement  = constants.hostname
+    replacement  = "pypacktrends-prod"
   }
 
   rule {
@@ -41,8 +41,8 @@ prometheus.remote_write "metrics_service" {
     url = "https://prometheus-prod-36-prod-us-west-0.grafana.net/api/prom/push"
 
     basic_auth {
-      username = env("GRAFANA_PROM_USER")
-      password = env("GRAFANA_API_KEY")
+      username = sys.env("GRAFANA_PROM_USER")
+      password = sys.env("GRAFANA_API_KEY")
     }
   }
 }
@@ -52,8 +52,8 @@ loki.write "grafana_cloud_loki" {
     url = "https://logs-prod-021.grafana.net/loki/api/v1/push"
 
     basic_auth {
-      username = env("GRAFANA_LOKI_USER")
-      password = env("GRAFANA_API_KEY")
+      username = sys.env("GRAFANA_LOKI_USER")
+      password = sys.env("GRAFANA_API_KEY")
     }
   }
 }
@@ -71,7 +71,7 @@ discovery.relabel "integrations_cadvisor" {
 
     rule {
         target_label = "instance"
-        replacement  = constants.hostname
+        replacement  = "pypacktrends-prod"
     }
 }
 
@@ -86,7 +86,7 @@ prometheus.relabel "integrations_cadvisor" {
 }
 
 prometheus.scrape "integrations_cadvisor" {
-    targets    = discovery.relabel.integrations_cadvisor.output
+    targets = [{ __address__ = "cadvisor:8080" }]
     forward_to = [prometheus.relabel.integrations_cadvisor.receiver]
 }
 
@@ -99,12 +99,12 @@ discovery.relabel "logs_integrations_docker" {
 
     rule {
         target_label = "job"
-        replacement  = "integrations/docker"
+        replacement  = "pypacktrends-prod"
     }
 
     rule {
         target_label = "instance"
-        replacement  = constants.hostname
+        replacement  = "pypacktrends-prod"
     }
 
     rule {
@@ -132,7 +132,7 @@ discovery.relabel "integrations_node_exporter" {
 
   rule {
     target_label = "instance"
-    replacement  = constants.hostname
+    replacement  = "pypacktrends-prod"
   }
 
   rule {

@@ -43,6 +43,11 @@ class Settings:
     )
     GITHUB_TOKEN: pulumi.Output | None = github_config.get_secret("token")
 
+    grafana: pulumi.Config = pulumi.Config("grafana")
+    GRAFANA_API_KEY: pulumi.Output | None = grafana.get_secret("api-key")
+    GRAFANA_LOKI_USER: pulumi.Output | None = grafana.get_secret("loki-user")
+    GRAFANA_PROM_USER: pulumi.Output | None = grafana.get_secret("prom-user")
+
     project_config: pulumi.Config = pulumi.Config()
     CLOUDFLARE_FORWARD_EMAIL: str = (
         project_config.get("cloudflare-forward-email") or "tyhillery@gmail.com"
