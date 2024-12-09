@@ -24,7 +24,7 @@ runcmd:
   # system updates
   - apt update
   - DEBIAN_FRONTEND=noninteractive apt upgrade -y --allow-downgrades --allow-remove-essential --allow-change-held-packages
-  - apt install -y sqlite3
+  - apt install -y sqlite3 unzip
 
   # docker configs
   - curl -fssl https://get.docker.com | sh
@@ -41,15 +41,15 @@ runcmd:
   # make logs dir
   - sudo -u {{ vps_username }} mkdir /home/{{ vps_username }}/logs
 
+  # clone the repository
+  - sudo -u {{ vps_username }} git clone https://github.com/{{ github_username }}/{{ project_name }}.git {{ vps_project_path }}
+
   # create dbtdocs directory and set ownership
   - mkdir -p {{ vps_project_path }}/dbt/target
   - chown {{ vps_username }}:{{ vps_username }} {{ vps_project_path }}/dbt/target
 
-  # clone the repository
-  - sudo -u {{ vps_username }} git clone https://github.com/{{ github_username }}/{{ project_name }}.git {{ vps_project_path }}
-
   # start containers using full path to docker-compose.yml
-  - sudo -u {{ vps_username }} SENTRY_DSN={{ sentry_dsn }} docker compose -f {{ vps_project_path }}/docker-compose.yml up -d
+  - sudo -u {{ vps_username }} GRAFANA_API_KEY={{ grafana_api_key }} GRAFANA_PROM_USER={{ grafana_prom_user }} GRAFANA_LOKI_USER={{ grafana_loki_user }} SENTRY_DSN={{ sentry_dsn }} docker compose -f {{ vps_project_path }}/docker-compose.yml up -d
 
   # ufw configs
   - ufw allow OpenSSH

@@ -57,6 +57,9 @@ do_ssh_key = digitalocean.SshKey(
 user_data = render_template(
     template_name="cloud-init.yml",
     github_username=settings.GITHUB_USERNAME,
+    grafan_api_key=settings.GRAFANA_API_KEY,
+    grafana_loki_user=settings.GRAFANA_LOKI_USER,
+    grafana_prom_user=settings.GRAFANA_PROM_USER,
     project_name=settings.PROJECT_NAME,
     tailscale_auth_key=settings.TAILSCALE_AUTH_KEY,
     sentry_dsn=settings.SENTRY_DSN,
@@ -73,6 +76,7 @@ droplet = digitalocean.Droplet(
     size=digitalocean.DropletSlug.DROPLET_S1_VCPU1_GB,
     ssh_keys=[do_ssh_key.id],
     user_data=user_data,
+    monitoring=True,
     opts=pulumi.ResourceOptions(
         ignore_changes=["user_data"],
     ),

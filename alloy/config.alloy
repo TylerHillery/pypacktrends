@@ -1,0 +1,219 @@
+prometheus.exporter.self "alloy_check" { }
+
+discovery.relabel "alloy_check" {
+  targets = prometheus.exporter.self.alloy_check.targets
+
+  rule {
+    target_label = "instance"
+    replacement  = "pypacktrends-prod"
+  }
+
+  rule {
+    target_label = "alloy_hostname"
+    replacement  = "pypacktrends-prod"
+  }
+
+  rule {
+    target_label = "job"
+    replacement  = "integrations/alloy-check"
+  }
+}
+
+prometheus.scrape "alloy_check" {
+  targets    = discovery.relabel.alloy_check.output
+  forward_to = [prometheus.relabel.alloy_check.receiver]
+
+  scrape_interval = "60s"
+}
+
+prometheus.relabel "alloy_check" {
+  forward_to = [prometheus.remote_write.metrics_service.receiver]
+
+  rule {
+    source_labels = ["__name__"]
+    regex         = "(prometheus_target_sync_length_seconds_sum|prometheus_target_scrapes_.*|prometheus_target_interval.*|prometheus_sd_discovered_targets|alloy_build.*|prometheus_remote_write_wal_samples_appended_total|process_start_time_seconds)"
+    action        = "keep"
+  }
+}
+
+prometheus.remote_write "metrics_service" {
+  endpoint {
+    url = "https://prometheus-prod-36-prod-us-west-0.grafana.net/api/prom/push"
+
+    basic_auth {
+      username = sys.env("GRAFANA_PROM_USER")
+      password = sys.env("GRAFANA_API_KEY")
+    }
+  }
+}
+
+loki.write "grafana_cloud_loki" {
+  endpoint {
+    url = "https://logs-prod-021.grafana.net/loki/api/v1/push"
+
+    basic_auth {
+      username = sys.env("GRAFANA_LOKI_USER")
+      password = sys.env("GRAFANA_API_KEY")
+    }
+  }
+}
+
+prometheus.exporter.cadvisor "integrations_cadvisor" {
+    docker_only = true
+}
+discovery.relabel "integrations_cadvisor" {
+    targets = prometheus.exporter.cadvisor.integrations_cadvisor.targets
+
+    rule {
+        target_label = "job"
+        replacement  = "integrations/docker"
+    }
+
+    rule {
+        target_label = "instance"
+        replacement  = "pypacktrends-prod"
+    }
+}
+
+prometheus.relabel "integrations_cadvisor" {
+	forward_to = [prometheus.remote_write.metrics_service.receiver]
+
+	rule {
+		source_labels = ["__name__"]
+		regex         = "up|container_cpu_usage_seconds_total|container_fs_inodes_free|container_fs_inodes_total|container_fs_limit_bytes|container_fs_usage_bytes|container_last_seen|container_memory_usage_bytes|container_network_receive_bytes_total|container_network_tcp_usage_total|container_network_transmit_bytes_total|container_spec_memory_reservation_limit_bytes|machine_memory_bytes|machine_scrape_error"
+		action        = "keep"
+	}
+}
+
+prometheus.scrape "integrations_cadvisor" {
+    targets = [{ __address__ = "cadvisor:8080" }]
+    forward_to = [prometheus.relabel.integrations_cadvisor.receiver]
+}
+
+discovery.docker "logs_integrations_docker" {
+    host             = "unix:///var/run/docker.sock"
+    refresh_interval = "5s"
+}
+discovery.relabel "logs_integrations_docker" {
+    targets = []
+
+    rule {
+        target_label = "job"
+        replacement  = "pypacktrends-prod"
+    }
+
+    rule {
+        target_label = "instance"
+        replacement  = "pypacktrends-prod"
+    }
+
+    rule {
+        source_labels = ["__meta_docker_container_name"]
+        regex         = "/(.*)"
+        target_label  = "container"
+    }
+
+    rule {
+        source_labels = ["__meta_docker_container_log_stream"]
+        target_label  = "stream"
+    }
+}
+loki.source.docker "logs_integrations_docker" {
+    host             = "unix:///var/run/docker.sock"
+    targets          = discovery.docker.logs_integrations_docker.targets
+    forward_to       = [loki.write.grafana_cloud_loki.receiver]
+    relabel_rules    = discovery.relabel.logs_integrations_docker.rules
+    refresh_interval = "5s"
+}
+
+
+discovery.relabel "integrations_node_exporter" {
+  targets = prometheus.exporter.unix.integrations_node_exporter.targets
+
+  rule {
+    target_label = "instance"
+    replacement  = "pypacktrends-prod"
+  }
+
+  rule {
+    target_label = "job"
+    replacement = "integrations/node_exporter"
+  }
+}
+
+prometheus.exporter.unix "integrations_node_exporter" {
+  disable_collectors = ["ipvs", "btrfs", "infiniband", "xfs", "zfs"]
+
+  filesystem {
+    fs_types_exclude     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|tmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
+    mount_points_exclude = "^/(dev|proc|run/credentials/.+|sys|var/lib/docker/.+)($|/)"
+    mount_timeout        = "5s"
+  }
+
+  netclass {
+    ignored_devices = "^(veth.*|cali.*|[a-f0-9]{15})$"
+  }
+
+  netdev {
+    device_exclude = "^(veth.*|cali.*|[a-f0-9]{15})$"
+  }
+}
+
+prometheus.scrape "integrations_node_exporter" {
+  targets    = discovery.relabel.integrations_node_exporter.output
+  forward_to = [prometheus.relabel.integrations_node_exporter.receiver]
+}
+
+prometheus.relabel "integrations_node_exporter" {
+  forward_to = [prometheus.remote_write.metrics_service.receiver]
+
+  rule {
+    source_labels = ["__name__"]
+    regex         = "node_scrape_collector_.+"
+    action        = "drop"
+  }
+}
+
+loki.source.journal "logs_integrations_integrations_node_exporter_journal_scrape" {
+  max_age       = "24h0m0s"
+  relabel_rules = discovery.relabel.logs_integrations_integrations_node_exporter_journal_scrape.rules
+  forward_to    = [loki.write.grafana_cloud_loki.receiver]
+}
+
+local.file_match "logs_integrations_integrations_node_exporter_direct_scrape" {
+  path_targets = [{
+    __address__ = "localhost",
+    __path__    = "/var/log/{syslog,messages,*.log}",
+    instance    = constants.hostname,
+    job         = "integrations/node_exporter",
+  }]
+}
+
+discovery.relabel "logs_integrations_integrations_node_exporter_journal_scrape" {
+  targets = []
+
+  rule {
+    source_labels = ["__journal__systemd_unit"]
+    target_label  = "unit"
+  }
+
+  rule {
+    source_labels = ["__journal__boot_id"]
+    target_label  = "boot_id"
+  }
+
+  rule {
+    source_labels = ["__journal__transport"]
+    target_label  = "transport"
+  }
+
+  rule {
+    source_labels = ["__journal_priority_keyword"]
+    target_label  = "level"
+  }
+}
+
+loki.source.file "logs_integrations_integrations_node_exporter_direct_scrape" {
+  targets    = local.file_match.logs_integrations_integrations_node_exporter_direct_scrape.targets
+  forward_to = [loki.write.grafana_cloud_loki.receiver]
+}
