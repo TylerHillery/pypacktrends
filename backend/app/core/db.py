@@ -5,6 +5,7 @@ from typing import Optional
 from sqlalchemy import Connection, Engine, create_engine, event
 
 from app.core.config import settings
+from app.core.logger import logger
 
 
 class DBConnectionManager:
@@ -40,6 +41,12 @@ class DBConnectionManager:
         return engine
 
 
-db_manager = DBConnectionManager(settings.SQLALCHEMY_DATABASE_URI)
-read_engine = db_manager.get_engine(read_only=True)
-write_engine = db_manager.get_engine(read_only=False)
+try:
+    logger.info("Creating database manager instance")
+    db_manager = DBConnectionManager(settings.SQLALCHEMY_DATABASE_URI)
+    read_engine = db_manager.read_engine
+    write_engine = db_manager.write_engine
+    logger.info("Database engines initialized successfully")
+except Exception as e:
+    logger.critical(f"Failed to initialize database: {str(e)}")
+    raise

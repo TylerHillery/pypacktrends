@@ -38,5 +38,5 @@ For example, the directory with the backend code is synchronized in the Docker c
 There is also a command override that runs `fastapi run --reload` instead of the default `fastapi run`. It starts a single server process (instead of multiple, as would be for production) and reloads the process whenever the code changes. Have in mind that if you have a syntax error and save the Python file, it will break and exit, and the container will stop. After that, you can restart the container by fixing the error and running again:
 
 ```console
-$ docker compose watch
+$ docker compose up --build backend caddy --watch
 ```

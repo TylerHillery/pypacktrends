@@ -1,0 +1,58 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+    "filters": {},
+    "formatters": {
+        "detailed": {
+            "format": "[%(levelname)s|%(name)s.%(module)s|L%(lineno)d] %(asctime)s: %(message)s",
+            "datefmt": "%Y-%m-%dT%H:%M:%S%z"
+        }
+    },
+    "handlers": {
+        "stdout": {
+            "class": "logging.StreamHandler",
+            "level": "DEBUG",
+            "formatter": "detailed",
+            "stream": "ext://sys.stdout"
+        },
+        "stderr": {
+            "class": "logging.StreamHandler",
+            "level": "WARNING",
+            "formatter": "detailed",
+            "stream": "ext://sys.stderr"
+        }
+    },
+    "loggers": {
+        "root": {
+            "level": "INFO",
+            "handlers": [
+                "stdout",
+                "stderr"
+            ]
+        },
+        "pypacktrends": {
+            "level": "INFO",
+            "handlers": [
+                "stdout",
+                "stderr"
+            ],
+            "propagate": false
+        },
+        "sqlalchemy.engine": {
+            "level": "WARNING",
+            "handlers": [
+                "stdout",
+                "stderr"
+            ],
+            "propagate": false
+        },
+        "alembic": {
+            "level": "INFO",
+            "handlers": [
+                "stdout",
+                "stderr"
+            ],
+            "propagate": false
+        }
+    }
+}

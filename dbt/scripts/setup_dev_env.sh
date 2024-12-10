@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-set -x
 set -e
 
 echo "Checking for BIGQUERY_USER environment variable..."

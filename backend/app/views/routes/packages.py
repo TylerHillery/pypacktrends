@@ -4,6 +4,7 @@ from fastapi import APIRouter, Form, Header, Request
 from fastapi.responses import HTMLResponse
 
 from app.core.config import templates
+from app.core.logger import logger
 from app.models import TimeRangeValidValues
 from app.utils import (
     generate_altair_colors,
@@ -21,6 +22,7 @@ async def get_package_list(
     request: Request,
     url: Annotated[str, Header(alias="HX-Current-URL")],
 ) -> HTMLResponse:
+    logger.info(f"Fetching package list from URL: {url}")
     query_params = parse_query_params(url)
     package_data = []
     if query_params.packages:
@@ -41,21 +43,27 @@ async def create_package(
     package_name: Annotated[str, Form()],
     url: Annotated[str, Header(alias="HX-Current-URL")],
 ) -> HTMLResponse:
+    logger.info(f"Attempting to add package: {package_name}")
     package_name = package_name.strip()
     query_params = parse_query_params(url)
 
     if package_name in query_params.packages:
+        logger.warning(f"Duplicate package attempt: {package_name}")
         return HTMLResponse(
             status_code=409, content=f"'{package_name}' already selected"
         )
 
     if not validate_package(package_name):
+        logger.error(f"Invalid package name: {package_name} - not found on PyPI")
         return HTMLResponse(
             status_code=422, content=f"'{package_name}' not found on PyPI"
         )
 
     query_params.packages.append(package_name)
     num_of_packages = len(query_params.packages)
+    logger.info(
+        f"Successfully added package: {package_name}. Total packages: {num_of_packages}"
+    )
 
     return templates.TemplateResponse(
         request=request,
@@ -74,10 +82,17 @@ async def delete_package(
     package_name: str,
     url: Annotated[str, Header(alias="HX-Current-URL")],
 ) -> HTMLResponse:
+    logger.info(f"Attempting to delete package: {package_name}")
     package_name = package_name.strip()
     query_params = parse_query_params(url)
 
-    query_params.packages.remove(package_name)
+    try:
+        query_params.packages.remove(package_name)
+        logger.info(f"Successfully removed package: {package_name}")
+    except ValueError:
+        logger.error(f"Failed to remove package {package_name} - not found in list")
+        raise
+
     colors = generate_altair_colors(len(query_params.packages))
 
     package_data = [

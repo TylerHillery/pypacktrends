@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Literal
 
 from fastapi.templating import Jinja2Templates
-from pydantic import HttpUrl, computed_field
+from pydantic import HttpUrl, computed_field, field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -14,6 +14,13 @@ class Settings(BaseSettings):
     SQLITE_DB_PATH: Path = (
         Path(__file__).parent.resolve() / "../../../data/pypacktrends.db"
     )
+
+    @field_validator("SENTRY_DSN", mode="before")
+    @classmethod
+    def validate_sentry_dsn(cls, v: str | None) -> str | None:
+        if not v or v.strip() == "":
+            return None
+        return v
 
     @computed_field  # type: ignore
     @property

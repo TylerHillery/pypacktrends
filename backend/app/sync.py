@@ -1,4 +1,3 @@
-import logging
 import sys
 import time
 from datetime import datetime
@@ -7,11 +6,10 @@ from itertools import islice
 from google.cloud import bigquery
 from sqlalchemy import Engine, text
 
+from app.core.config import settings
 from app.core.db import read_engine, write_engine
+from app.core.logger import logger
 from app.utils import start_of_week
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
-logger = logging.getLogger()
 
 
 def sync_pypi_packages(
@@ -50,7 +48,16 @@ def sync_pypi_packages(
     logger.info(f"Query most recent distributions: {select_query}")
 
     BATCH_SIZE = 50_000
-    rows = client.query(select_query).result()
+
+    job_config = bigquery.QueryJobConfig(
+        labels={
+            "application": "pypacktrends",
+            "component": "sync",
+            "type": "packages",
+            "environment": settings.ENVIRONMENT,
+        }
+    )
+    rows = client.query(select_query, job_config=job_config).result()
     total_rows = rows.total_rows
     logger.info(f"Total rows to insert: {total_rows}")
     rows = iter(rows)
@@ -88,11 +95,13 @@ def sync_pypi_packages(
 def sync_pypi_downloads(
     write_engine: Engine, start_date: str, end_date: str, limit: int | None = None
 ) -> None:
-    logger.info("Syncing PyPI downloads to SQLite...")
+    start_week, end_week = start_of_week(start_date), start_of_week(end_date)
+
+    logger.info(
+        f"Syncing PyPI downloads to SQLite for weeks {start_week} to {end_week}"
+    )
 
     client = bigquery.Client()
-
-    start_week, end_week = start_of_week(start_date), start_of_week(end_date)
 
     select_query = f"""
     select
@@ -115,7 +124,15 @@ def sync_pypi_downloads(
     logger.info(f"Query downloads: {select_query}")
 
     BATCH_SIZE = 50_000
-    rows = client.query(select_query).result()
+    job_config = bigquery.QueryJobConfig(
+        labels={
+            "application": "pypacktrends",
+            "component": "sync",
+            "type": "downloads",
+            "environment": settings.ENVIRONMENT,
+        }
+    )
+    rows = client.query(select_query, job_config=job_config).result()
     total_rows = rows.total_rows
     logger.info(f"Total rows to insert: {total_rows}")
     rows = iter(rows)
@@ -150,14 +167,16 @@ def sync_pypi_downloads(
 
     with write_engine.begin() as conn:
         conn.execute(delete_sql, {"start_week": start_week, "end_week": end_week})
+        row_count = 0
         batch_count = 0
         while batch := list(islice(rows, BATCH_SIZE)):
             batch_count += 1
             start_batch_time = time.time()
 
             packages = [dict(row.items()) for row in batch]
+            row_count += len(packages)
 
-            logger.info(f"Inserting batch {batch_count} of {total_rows} rows...")
+            logger.info(f"Inserting {row_count} of {total_rows} rows...")
 
             conn.execute(insert_sql, packages)
 

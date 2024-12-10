@@ -6,6 +6,7 @@ from sqlalchemy import text
 
 from app.core.config import templates
 from app.core.db import read_engine
+from app.core.logger import logger
 from app.utils import parse_query_params, validate_package
 
 router = APIRouter()
@@ -46,6 +47,7 @@ def get_search_results(
     request: Request,
     package_name: str,
 ) -> HTMLResponse:
+    logger.info(f"Searching for packages matching: '{package_name}'")
     with read_engine.connect() as conn:
         result = conn.execute(
             text("""
@@ -62,6 +64,8 @@ def get_search_results(
             {"package_name": package_name + "%"},
         )
         packages = result.fetchall()
+
+        logger.info(f"Found {len(packages)} results for search term '{package_name}'")
 
     return templates.TemplateResponse(
         "pages/package_search_results.html",
