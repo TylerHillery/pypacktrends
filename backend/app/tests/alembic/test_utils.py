@@ -5,7 +5,6 @@ import pytest
 from sqlalchemy import Engine, text
 
 from app.alembic.utils import (
-    NullLogger,
     get_sql_migration_file,
     read_sql_file,
     run_sql_statements,
@@ -144,7 +143,7 @@ def test_run_sql_statements(
         """
     )
 
-    executed_statements = run_sql_statements(write_engine, sql_file, NullLogger())
+    executed_statements = run_sql_statements(write_engine, sql_file)
 
     assert len(executed_statements) == 2
     assert executed_statements[0].startswith("CREATE TABLE test_table")
@@ -161,4 +160,4 @@ def test_run_sql_statements_error(write_engine: Engine, tmp_path: Path) -> None:
     sql_file.write_text("INSERT INTO non_existent_table (id) VALUES (1);")
 
     with pytest.raises(Exception):
-        run_sql_statements(write_engine, sql_file, logger=NullLogger())
+        run_sql_statements(write_engine, sql_file)
