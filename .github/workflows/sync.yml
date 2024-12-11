@@ -59,6 +59,6 @@ jobs:
           ssh -o StrictHostKeyChecking=no github@pypacktrends-prod '
             docker exec \
               -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/google-credentials.json \
-              -v /tmp/google-credentials.json:/tmp/google-credentials.json:ro \
+              --mount type=bind,source=/tmp/google-credentials.json,target=/tmp/google-credentials.json,readonly \
               pypacktrends-backend-5 python /app/app/sync.py packages
           '
