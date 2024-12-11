@@ -57,8 +57,8 @@ jobs:
 
           echo "Running sync script in backend container..."
           ssh -o StrictHostKeyChecking=no github@pypacktrends-prod '
+            docker cp /tmp/google-credentials.json backend:/tmp/
             docker exec \
               -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/google-credentials.json \
-              --mount type=bind,source=/tmp/google-credentials.json,target=/tmp/google-credentials.json,readonly \
               pypacktrends-backend-5 python /app/app/sync.py packages
           '
