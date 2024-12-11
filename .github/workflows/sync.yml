@@ -51,14 +51,17 @@ jobs:
         uses: 'google-github-actions/setup-gcloud@v2'
 
       - name: Copy credentials and run sync script
+        env:
+          GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
         run: |
           echo "Copying credentials to VPS..."
           scp -o StrictHostKeyChecking=no $GOOGLE_APPLICATION_CREDENTIALS github@pypacktrends-prod:/tmp/google-credentials.json
 
           echo "Running sync script in backend container..."
-          ssh -o StrictHostKeyChecking=no github@pypacktrends-prod '
+          ssh -o StrictHostKeyChecking=no -e github@pypacktrends-prod '
             docker cp /tmp/google-credentials.json pypacktrends-backend-5:/tmp/
             docker exec \
               -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/google-credentials.json \
+              -e GOOGLE_CLOUD_PROJECT=${GCP_PROJECT} \
               pypacktrends-backend-5 python /app/app/sync.py packages
           '
