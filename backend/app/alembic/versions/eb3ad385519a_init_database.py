@@ -6,7 +6,6 @@ Create Date: 2024-11-21 16:39:50.473545
 
 """
 
-import logging
 from typing import Sequence, Union
 
 from app.alembic.utils import get_sql_migration_file, run_sql_statements
@@ -18,12 +17,10 @@ down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-logger = logging.getLogger("alembic.runtime.migration")
-
 
 def upgrade() -> None:
-    run_sql_statements(write_engine, get_sql_migration_file(), logger)
+    run_sql_statements(write_engine, get_sql_migration_file())
 
 
 def downgrade() -> None:
-    run_sql_statements(write_engine, get_sql_migration_file(), logger)
+    run_sql_statements(write_engine, get_sql_migration_file())

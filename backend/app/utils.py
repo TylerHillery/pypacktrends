@@ -3,18 +3,21 @@ import random
 from datetime import datetime, timedelta
 from typing import cast
 from urllib.parse import parse_qs, urlencode, urlparse
+from zoneinfo import ZoneInfo
 
 import altair as alt
 import pandas as pd
 from sqlalchemy import text
 
 from app.core.db import read_engine
+from app.core.logger import logger
 from app.models import QueryParams, TimeRange, TimeRangeValidValues
 
 
-def start_of_week(date: str) -> str:
-    dt = datetime.strptime(date, "%Y-%m-%d")
-    start = dt - timedelta(days=dt.weekday())
+def start_of_week(date: str | datetime) -> str:
+    if isinstance(date, str):
+        date = datetime.strptime(date, "%Y-%m-%d")
+    start = date - timedelta(days=date.weekday())
     return start.strftime("%Y-%m-%d")
 
 
@@ -31,7 +34,10 @@ def validate_package(package_name: str) -> bool:
             """),
             {"package_name": package_name},
         )
-    return result.scalar() is not None
+    exists = result.scalar() is not None
+    if not exists:
+        logger.info(f"Package validation failed for: {package_name}")
+    return exists
 
 
 def parse_query_params(url: str) -> QueryParams:
@@ -85,6 +91,13 @@ def generate_altair_colors(n: int, seed: int = 42) -> list[str]:
 
 
 def generate_chart(query_params: QueryParams, theme: str) -> alt.Chart:
+    start_week = start_of_week(query_params.time_range.date_str)
+    end_week = start_of_week(datetime.now(ZoneInfo("UTC")))
+    logger.info(
+        f"Generating chart for packages: {query_params.packages}, "
+        f"time range: {query_params.time_range.value}, theme: {theme}, "
+        f"date range: {start_week} to {end_week}"
+    )
     packages = {str(i): package for i, package in enumerate(query_params.packages)}
     placeholders = ", ".join(f":{i}" for i in range(len(query_params.packages)))
     theme_config = {
@@ -107,10 +120,10 @@ def generate_chart(query_params: QueryParams, theme: str) -> alt.Chart:
                 pypi_package_downloads_weekly_metrics
             where true
                 and package_name in ({placeholders})
-                and package_downloaded_week >= :week
-                and package_downloaded_week <  date('now', 'weekday 0', '-6 days')
+                and package_downloaded_week >= :start_week
+                and package_downloaded_week <  :end_week
             """),
-            {**packages, "week": start_of_week(query_params.time_range.date_str)},
+            {**packages, "start_week": start_week, "end_week": end_week},
         )
         downloads = result.fetchall()
 

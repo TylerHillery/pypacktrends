@@ -1,9 +1,9 @@
 import inspect
-import logging
 from pathlib import Path
-from typing import Any
 
 from sqlalchemy import Engine, text
+
+from app.core.logger import logger
 
 
 def read_sql_file(sql_file: Path) -> tuple[str, ...]:
@@ -39,21 +39,7 @@ def get_sql_migration_file() -> Path:
     return version_file.parent / f"{version_file.stem}_{caller_function_name}.sql"
 
 
-class NullLogger(logging.Logger):
-    def __init__(self) -> None:
-        super().__init__(name="null_logger")
-
-    def info(self, *args: Any, **kwargs: Any) -> None:
-        pass
-
-    def error(self, *args: Any, **kwargs: Any) -> None:
-        pass
-
-
-def run_sql_statements(
-    write_engine: Engine, sql_file: Path, logger: logging.Logger | None = None
-) -> tuple[str, ...]:
-    logger = logger or NullLogger()
+def run_sql_statements(write_engine: Engine, sql_file: Path) -> tuple[str, ...]:
     executed_statements = []
     with write_engine.begin() as conn:
         for sql in read_sql_file(sql_file):
