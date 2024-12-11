@@ -217,3 +217,34 @@ loki.source.file "logs_integrations_integrations_node_exporter_direct_scrape" {
   targets    = local.file_match.logs_integrations_integrations_node_exporter_direct_scrape.targets
   forward_to = [loki.write.grafana_cloud_loki.receiver]
 }
+
+discovery.relabel "sqlite_metrics" {
+  targets = [{"__address__" = "localhost:8081"}]
+
+  rule {
+    target_label = "instance"
+    replacement  = "pypacktrends-prod"
+  }
+
+  rule {
+    target_label = "job"
+    replacement  = "integrations/sqlite-metrics"
+  }
+}
+
+prometheus.scrape "sqlite_metrics" {
+  targets    = discovery.relabel.sqlite_metrics.output
+  forward_to = [prometheus.relabel.sqlite_metrics.receiver]
+  # Set to scrape every hour to match the collection interval
+  scrape_interval = "3600s"
+}
+
+prometheus.relabel "sqlite_metrics" {
+  forward_to = [prometheus.remote_write.metrics_service.receiver]
+
+  rule {
+    source_labels = ["__name__"]
+    regex         = "sqlite_(database_size_bytes|table_rows|page_count|page_size_bytes|wal_size_bytes)"
+    action        = "keep"
+  }
+}

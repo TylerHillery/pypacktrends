@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
@@ -7,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
 from app.core.logger import logger
+from app.metrics import metrics_collection_task, start_metrics_server
 from app.views.main import api_router
 
 
@@ -15,7 +17,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logger.info(
         f"Starting {settings.PROJECT_NAME} in {settings.ENVIRONMENT} environment"
     )
+    start_metrics_server()
+    app.state.metrics_task = asyncio.create_task(metrics_collection_task())
     yield
+    if hasattr(app.state, "metrics_task"):
+        app.state.metrics_task.cancel()
+        try:
+            await app.state.metrics_task
+        except asyncio.CancelledError:
+            pass
 
 
 if settings.SENTRY_DSN and settings.ENVIRONMENT != "dev":

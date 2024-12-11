@@ -9,6 +9,7 @@ dependencies = [
     "fastapi[standard]>=0.115.4",
     "google-cloud-bigquery>=3.27.0",
     "pandas>=2.2.3",
+    "prometheus-client>=0.21.1",
     "pydantic-settings>=2.6.1",
     "python-dateutil>=2.9.0.post0",
     "sentry-sdk[fastapi]>=2.19.2",
