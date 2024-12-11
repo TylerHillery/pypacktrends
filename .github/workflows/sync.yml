@@ -52,3 +52,4 @@ jobs:
       - name: Echo credentials path
         run: |
           echo "Credentials file path: $GOOGLE_APPLICATION_CREDENTIALS"
+          ls -l $GOOGLE_APPLICATION_CREDENTIALS
