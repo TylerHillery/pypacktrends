@@ -49,7 +49,11 @@ jobs:
           service_account: ${{ secrets.DBT_SERVICE_ACCOUNT_EMAIL }}
       - name: Set up Google Cloud SDK
         uses: 'google-github-actions/setup-gcloud@v2'
-      - name: Echo credentials path
+
+      - name: Copy credentials and test SSH connection
         run: |
-          echo "Credentials file path: $GOOGLE_APPLICATION_CREDENTIALS"
-          ls -l $GOOGLE_APPLICATION_CREDENTIALS
+          echo "Copying credentials to VPS..."
+          scp -o StrictHostKeyChecking=no $GOOGLE_APPLICATION_CREDENTIALS github@pypacktrends-prod:/tmp/google-credentials.json
+
+          echo "Verifying credentials file on VPS..."
+          ssh -o StrictHostKeyChecking=no github@pypacktrends-pord 'ls -l /tmp/google-credentials.json'
