@@ -56,4 +56,4 @@ jobs:
           scp -o StrictHostKeyChecking=no $GOOGLE_APPLICATION_CREDENTIALS github@pypacktrends-prod:/tmp/google-credentials.json
 
           echo "Verifying credentials file on VPS..."
-          ssh -o StrictHostKeyChecking=no github@pypacktrends-pord 'ls -l /tmp/google-credentials.json'
+          ssh -o StrictHostKeyChecking=no github@pypacktrends-prod 'ls -l /tmp/google-credentials.json'
