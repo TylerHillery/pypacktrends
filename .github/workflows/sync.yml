@@ -1,10 +1,10 @@
 name: Sync
 
 on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -49,17 +49,11 @@ jobs:
           service_account: ${{ secrets.DBT_SERVICE_ACCOUNT_EMAIL }}
       - name: Set up Google Cloud SDK
         uses: "google-github-actions/setup-gcloud@v2"
-
-      - name: Copy credentials and run sync script
+      - name: Run sync script
         run: |
-          echo "Copying credentials to VPS..."
-          scp -o StrictHostKeyChecking=no $GOOGLE_APPLICATION_CREDENTIALS github@pypacktrends-prod:/tmp/google-credentials.json
-
-          echo "Running sync script in backend container..."
+          scp -o StrictHostKeyChecking=no "$GOOGLE_APPLICATION_CREDENTIALS" github@pypacktrends-prod:/tmp/google-credentials.json
           ssh -o StrictHostKeyChecking=no github@pypacktrends-prod '
-            docker cp /tmp/google-credentials.json pypacktrends-backend-9:/tmp/
-            docker exec \
-              -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/google-credentials.json \
-              -e GOOGLE_CLOUD_PROJECT=pypacktrends-prod \
-              pypacktrends-backend-9 python /app/app/sync.py packages
+            cd /home/github/pypacktrends && \
+            git pull && \
+            ./sync.sh
           '
