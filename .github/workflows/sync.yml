@@ -63,11 +63,11 @@ jobs:
           END_WEEK=${{ inputs.end_week }}
 
           if [ -z "$START_WEEK" ]; then
-            START_WEEK=$(date -u -d "last Monday" '+%Y-%m-%d')
+            START_WEEK=$(date -u -d "last Monday - 7 days" '+%Y-%m-%d')
           fi
 
           if [ -z "$END_WEEK" ]; then
-            END_WEEK=$(date -u -d "last Monday" '+%Y-%m-%d')
+            END_WEEK=$(date -u -d "last Monday - 7 days" '+%Y-%m-%d')
           fi
 
           # Validate dates
