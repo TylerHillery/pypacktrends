@@ -60,6 +60,11 @@ def sync_pypi_packages(
         page_size=BATCH_SIZE
     )
     total_rows = rows.total_rows
+
+    if total_rows < 1:
+        logger.info("No rows to insert")
+        return
+
     logger.info(f"Total rows to insert: {total_rows}")
 
     upsert_sql = text("""
@@ -79,6 +84,7 @@ def sync_pypi_packages(
             start_batch_time = time.time()
 
             packages = [dict(row.items()) for row in page]
+            print(packages)
             row_count += len(packages)
 
             logger.info(f"Inserting {row_count} of {total_rows} rows...")
@@ -136,6 +142,11 @@ def sync_pypi_downloads(
         page_size=BATCH_SIZE
     )
     total_rows = rows.total_rows
+
+    if total_rows < 1:
+        logger.info("No rows to insert")
+        return
+
     logger.info(f"Total rows to insert: {total_rows}")
 
     delete_sql = text("""
