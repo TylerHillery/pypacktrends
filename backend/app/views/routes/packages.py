@@ -5,7 +5,7 @@ from fastapi.responses import HTMLResponse
 
 from app.chart import generate_altair_colors, generate_chart
 from app.core.logger import logger
-from app.main import templates
+from app.core.templates import templates
 from app.models import TimeRangeValidValues
 from app.utils import (
     generate_hx_push_url,
