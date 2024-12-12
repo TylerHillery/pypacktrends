@@ -6,7 +6,7 @@ from sqlalchemy import text
 
 from app.core.db import read_engine
 from app.core.logger import logger
-from app.main import templates
+from app.core.templates import templates
 from app.utils import parse_query_params, validate_package
 
 router: APIRouter = APIRouter()

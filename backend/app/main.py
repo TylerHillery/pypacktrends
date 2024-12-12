@@ -4,13 +4,10 @@ from typing import AsyncGenerator
 import sentry_sdk
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 
 from app.core.config import settings
 from app.core.logger import logger
 from app.views.main import api_router
-
-templates = Jinja2Templates(directory="app/templates")
 
 
 @asynccontextmanager
