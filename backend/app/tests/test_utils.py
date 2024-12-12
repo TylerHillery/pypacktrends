@@ -1,6 +1,5 @@
 from app.models import QueryParams, TimeRange
 from app.utils import (
-    generate_altair_colors,
     generate_hx_push_url,
     parse_query_params,
     start_of_week,
@@ -34,16 +33,4 @@ def test_generate_hx_push_url_packages() -> None:
 def test_generate_hx_push_url_no_packages() -> None:
     result = generate_hx_push_url(QueryParams(packages=[], time_range=TimeRange()))
     expected_result = "/"
-    assert result == expected_result
-
-
-def test_generate_altair_colors_first_three() -> None:
-    result = generate_altair_colors(3)
-    expected_result = ["#346f9e", "#ffde56", "#2e7d32"]
-    assert result == expected_result
-
-
-def test_generate_altair_colors_more_than_three() -> None:
-    result = len(generate_altair_colors(4))
-    expected_result = 4
     assert result == expected_result

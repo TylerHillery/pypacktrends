@@ -1,7 +1,6 @@
 import sys
 import time
 from datetime import datetime
-from itertools import islice
 
 from google.cloud import bigquery
 from sqlalchemy import Engine, text
@@ -47,7 +46,7 @@ def sync_pypi_packages(
 
     logger.info(f"Query most recent distributions: {select_query}")
 
-    BATCH_SIZE = 50_000
+    BATCH_SIZE = 5000
 
     job_config = bigquery.QueryJobConfig(
         labels={
@@ -57,10 +56,11 @@ def sync_pypi_packages(
             "environment": settings.ENVIRONMENT,
         }
     )
-    rows = client.query(select_query, job_config=job_config).result()
+    rows = client.query(select_query, job_config=job_config).result(
+        page_size=BATCH_SIZE
+    )
     total_rows = rows.total_rows
     logger.info(f"Total rows to insert: {total_rows}")
-    rows = iter(rows)
 
     upsert_sql = text("""
     insert or replace into pypi_packages
@@ -74,11 +74,11 @@ def sync_pypi_packages(
     with write_engine.begin() as conn:
         row_count = 0
         batch_count = 0
-        while batch := list(islice(rows, BATCH_SIZE)):
+        for page in rows.pages:
             batch_count += 1
             start_batch_time = time.time()
 
-            packages = [dict(row.items()) for row in batch]
+            packages = [dict(row.items()) for row in page]
             row_count += len(packages)
 
             logger.info(f"Inserting {row_count} of {total_rows} rows...")
@@ -123,7 +123,7 @@ def sync_pypi_downloads(
 
     logger.info(f"Query downloads: {select_query}")
 
-    BATCH_SIZE = 50_000
+    BATCH_SIZE = 5000
     job_config = bigquery.QueryJobConfig(
         labels={
             "application": "pypacktrends",
@@ -132,10 +132,11 @@ def sync_pypi_downloads(
             "environment": settings.ENVIRONMENT,
         }
     )
-    rows = client.query(select_query, job_config=job_config).result()
+    rows = client.query(select_query, job_config=job_config).result(
+        page_size=BATCH_SIZE
+    )
     total_rows = rows.total_rows
     logger.info(f"Total rows to insert: {total_rows}")
-    rows = iter(rows)
 
     delete_sql = text("""
     delete from pypi_package_downloads_weekly_metrics
@@ -169,11 +170,11 @@ def sync_pypi_downloads(
         conn.execute(delete_sql, {"start_week": start_week, "end_week": end_week})
         row_count = 0
         batch_count = 0
-        while batch := list(islice(rows, BATCH_SIZE)):
+        for page in rows.pages:
             batch_count += 1
             start_batch_time = time.time()
 
-            packages = [dict(row.items()) for row in batch]
+            packages = [dict(row.items()) for row in page]
             row_count += len(packages)
 
             logger.info(f"Inserting {row_count} of {total_rows} rows...")

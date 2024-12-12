@@ -4,12 +4,12 @@ from fastapi import APIRouter, Header, Request
 from fastapi.responses import HTMLResponse
 from sqlalchemy import text
 
-from app.core.config import templates
 from app.core.db import read_engine
 from app.core.logger import logger
+from app.main import templates
 from app.utils import parse_query_params, validate_package
 
-router = APIRouter()
+router: APIRouter = APIRouter()
 
 
 @router.get("/package-search-input", response_class=HTMLResponse)

@@ -3,18 +3,17 @@ from typing import Annotated
 from fastapi import APIRouter, Form, Header, Request
 from fastapi.responses import HTMLResponse
 
-from app.core.config import templates
+from app.chart import generate_altair_colors, generate_chart
 from app.core.logger import logger
+from app.main import templates
 from app.models import TimeRangeValidValues
 from app.utils import (
-    generate_altair_colors,
-    generate_chart,
     generate_hx_push_url,
     parse_query_params,
     validate_package,
 )
 
-router = APIRouter()
+router: APIRouter = APIRouter()
 
 
 @router.get("/package-list", response_class=HTMLResponse)

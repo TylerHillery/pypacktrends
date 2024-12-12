@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 
-from app.core.config import templates
 from app.core.logger import logger
+from app.main import templates
 
-router = APIRouter()
+router: APIRouter = APIRouter()
 
 
 @router.get("/", response_class=HTMLResponse)
