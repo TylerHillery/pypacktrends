@@ -55,5 +55,5 @@ jobs:
           ssh -o StrictHostKeyChecking=no github@pypacktrends-prod '
             cd /home/github/pypacktrends && \
             git pull && \
-            ./sync.sh
+            ./scripts/sync.sh
           '
