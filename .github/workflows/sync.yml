@@ -61,5 +61,5 @@ jobs:
             docker exec \
               -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/google-credentials.json \
               -e GOOGLE_CLOUD_PROJECT=pypacktrends-prod \
-              pypacktrends-backend-5 python /app/app/sync.py packages
+              pypacktrends-backend-6 python /app/app/sync.py packages
           '
