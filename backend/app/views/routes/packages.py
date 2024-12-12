@@ -53,7 +53,7 @@ async def create_package(
         )
 
     if not validate_package(package_name):
-        logger.error(f"Invalid package name: {package_name} - not found on PyPI")
+        logger.warning(f"Invalid package name: {package_name} - not found on PyPI")
         return HTMLResponse(
             status_code=422, content=f"'{package_name}' not found on PyPI"
         )
