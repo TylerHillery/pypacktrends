@@ -84,7 +84,7 @@ def sync_pypi_packages(
             start_batch_time = time.time()
 
             packages = [dict(row.items()) for row in page]
-            print(packages)
+
             row_count += len(packages)
 
             logger.info(f"Inserting {row_count} of {total_rows} rows...")
