@@ -1,10 +1,18 @@
 name: Sync
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+    inputs:
+      start_week:
+        description: 'Start week (YYYY-MM-DD Monday)'
+        required: false
+        type: string
+        default: ''
+      end_week:
+        description: 'End week (YYYY-MM-DD Monday)'
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -51,9 +59,31 @@ jobs:
         uses: "google-github-actions/setup-gcloud@v2"
       - name: Run sync script
         run: |
+          START_WEEK=${{ inputs.start_week }}
+          END_WEEK=${{ inputs.end_week }}
+
+          if [ -z "$START_WEEK" ]; then
+            START_WEEK=$(date -u -d "last Monday" '+%Y-%m-%d')
+          fi
+
+          if [ -z "$END_WEEK" ]; then
+            END_WEEK=$(date -u -d "last Monday" '+%Y-%m-%d')
+          fi
+
+          # Validate dates
+          # Convert dates to seconds since epoch for comparison
+          start_seconds=$(date -d "$START_WEEK" +%s)
+          end_seconds=$(date -d "$END_WEEK" +%s)
+
+          if [ $start_seconds -gt $end_seconds ]; then
+            echo "Error: Start week ($START_WEEK) must be before or equal to end week ($END_WEEK)"
+            exit 1
+          fi
+
+          echo "Using date range: $START_WEEK to $END_WEEK"
           scp -o StrictHostKeyChecking=no "$GOOGLE_APPLICATION_CREDENTIALS" github@pypacktrends-prod:/tmp/google-credentials.json
           ssh -o StrictHostKeyChecking=no github@pypacktrends-prod '
             cd /home/github/pypacktrends && \
             git pull && \
-            ./scripts/sync.sh
+            ./scripts/sync.sh "$START_WEEK" "$END_WEEK"
           '
