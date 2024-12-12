@@ -1,10 +1,11 @@
 name: Sync
 
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
 
 permissions:
   contents: read
@@ -55,5 +56,5 @@ jobs:
           ssh -o StrictHostKeyChecking=no github@pypacktrends-prod '
             cd /home/github/pypacktrends && \
             git pull && \
-            ./sync.sh
+            ./scripts/sync.sh
           '
