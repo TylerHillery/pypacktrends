@@ -85,5 +85,5 @@ jobs:
           ssh -o StrictHostKeyChecking=no github@pypacktrends-prod '
             cd /home/github/pypacktrends && \
             git pull && \
-            ./scripts/sync.sh "$START_WEEK" "$END_WEEK"
+            ./scripts/sync.sh \"$START_WEEK\" \"$END_WEEK\"
           '

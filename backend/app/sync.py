@@ -237,6 +237,9 @@ def main() -> None:
             sync_pypi_packages(read_engine, write_engine)
         case "downloads":
             sync_pypi_downloads(write_engine, *parse_dates(sys.argv))
+        case "all":
+            sync_pypi_packages(read_engine, write_engine)
+            sync_pypi_downloads(write_engine, *parse_dates(sys.argv))
         case _:
             logger.error("Unknown entity. Please use 'packages' or 'downloads'")
             sys.exit(1)

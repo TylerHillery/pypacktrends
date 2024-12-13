@@ -18,12 +18,8 @@ fi
 echo "Using container: $backend_container"
 
 docker cp ${REMOTE_CREDS_PATH} $backend_container:${REMOTE_CREDS_PATH}
-docker exec \
-    -e GOOGLE_APPLICATION_CREDENTIALS=${REMOTE_CREDS_PATH} \
-    -e GOOGLE_CLOUD_PROJECT=pypacktrends-prod \
-    $backend_container python /app/app/sync.py packages
 
 docker exec \
     -e GOOGLE_APPLICATION_CREDENTIALS=${REMOTE_CREDS_PATH} \
     -e GOOGLE_CLOUD_PROJECT=pypacktrends-prod \
-    $backend_container python /app/app/sync.py downloads ${START_WEEK} ${END_WEEK}
+    $backend_container python /app/app/sync.py all ${START_WEEK} ${END_WEEK}
