@@ -7,7 +7,7 @@
     {% set start_week = start_date - modules.datetime.timedelta(days=start_date.weekday()) %}
     {% set end_week = end_date - modules.datetime.timedelta(days=end_date.weekday()) %}
 
-    {% set day_count = (start_week - end_week).days %}
+    {% set day_count = (end_week - start_week).days %}
     {% set week_count = day_count // 7 %}
 
     {% if week_count < 0 %}
