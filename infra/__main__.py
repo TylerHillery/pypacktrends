@@ -54,8 +54,19 @@ do_ssh_key = digitalocean.SshKey(
     public_key=ssh_key.public_key_openssh,
 )
 
+cloudflare_r2_bucket_pypacktrends_litestream = cloudflare.R2Bucket(
+    "cloudflare-r2-bucket-pypacktrends-litestream",
+    account_id=settings.CLOUDFLARE_ACCOUNT_ID,
+    name="pypacktrends-prod-litestream",
+    location="WNAM",
+)
+
 user_data = render_template(
     template_name="cloud-init.yml",
+    cloudflare_account_id=settings.CLOUDFLARE_ACCOUNT_ID,
+    cloudflare_r2_bucket_name=cloudflare_r2_bucket_pypacktrends_litestream.name,
+    cloudflare_r2_access_key_id=settings.CLOUDFLARE_R2_ACCESS_KEY_ID,
+    cloudflare_r2_secret_access_key=settings.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
     github_username=settings.GITHUB_USERNAME,
     grafana_api_key=settings.GRAFANA_API_KEY,
     grafana_loki_user=settings.GRAFANA_LOKI_USER,
@@ -124,7 +135,7 @@ cloudflare_a_record_www_dbt_docs = cloudflare.Record(
     proxied=False,
 )
 
-cloudfalre_email_routing_catch_all = cloudflare.EmailRoutingCatchAll(
+cloudflare_email_routing_catch_all = cloudflare.EmailRoutingCatchAll(
     "cloudfalre-email-routing-catch-all ",
     zone_id=settings.CLOUDFLARE_ZONE_ID,
     name="Catch-All",
@@ -132,7 +143,6 @@ cloudfalre_email_routing_catch_all = cloudflare.EmailRoutingCatchAll(
     matchers=[{"type": "all"}],
     actions=[{"type": "forward", "values": [settings.CLOUDFLARE_FORWARD_EMAIL]}],
 )
-
 
 create = create_cmd(
     vps_project_path=settings.VPS_PROJECT_PATH,

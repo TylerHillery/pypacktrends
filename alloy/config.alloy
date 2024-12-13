@@ -217,3 +217,33 @@ loki.source.file "logs_integrations_integrations_node_exporter_direct_scrape" {
   targets    = local.file_match.logs_integrations_integrations_node_exporter_direct_scrape.targets
   forward_to = [loki.write.grafana_cloud_loki.receiver]
 }
+
+discovery.relabel "litestream" {
+  targets = [{ __address__ = "litestream:9090" }]
+
+  rule {
+    target_label = "instance"
+    replacement  = "pypacktrends-prod"
+  }
+
+  rule {
+    target_label = "job"
+    replacement  = "integrations/litestream"
+  }
+}
+
+prometheus.scrape "litestream" {
+  targets    = discovery.relabel.litestream.output
+  forward_to = [prometheus.relabel.litestream.receiver]
+  scrape_interval = "60s"
+}
+
+prometheus.relabel "litestream" {
+  forward_to = [prometheus.remote_write.metrics_service.receiver]
+
+  rule {
+    source_labels = ["__name__"]
+    regex         = "litestream_.+"
+    action        = "keep"
+  }
+}

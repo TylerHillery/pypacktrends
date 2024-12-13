@@ -49,7 +49,27 @@ runcmd:
   - chown {{ vps_username }}:{{ vps_username }} {{ vps_project_path }}/dbt/target
 
   # start containers using full path to docker-compose.yml
-  - sudo -u {{ vps_username }} GRAFANA_API_KEY={{ grafana_api_key }} GRAFANA_PROM_USER={{ grafana_prom_user }} GRAFANA_LOKI_USER={{ grafana_loki_user }} SENTRY_DSN={{ sentry_dsn }} docker compose -f {{ vps_project_path }}/docker-compose.yml up -d
+  - |
+    sudo -u {{ vps_username }} \
+      CLOUDFLARE_ACCOUNT_ID={{ cloudflare_account_id }} \
+      CLOUDFLARE_R2_BUCKET_NAME={{ cloudflare_r2_bucket_name }} \
+      CLOUDFLARE_R2_ACCESS_KEY_ID={{ cloudflare_r2_access_key_id }} \
+      CLOUDFLARE_R2_SECRET_ACCESS_KEY={{ cloudflare_r2_secret_access_key }} \
+      GRAFANA_API_KEY={{ grafana_api_key }} \
+      GRAFANA_PROM_USER={{ grafana_prom_user }} \
+      GRAFANA_LOKI_USER={{ grafana_loki_user }} \
+      SENTRY_DSN={{ sentry_dsn }} \
+      docker compose -f {{ vps_project_path }}/docker-compose.yml up -d
+
+  # add swap file
+  - fallocate -l 1G /swapfile
+  - chmod 600 /swapfile
+  - mkswap /swapfile
+  - swapon /swapfile
+  - cp /etc/fstab /etc/fstab.bak
+  - echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+  - sysctl vm.swappiness=10
+  - sysctl vm.vfs_cache_pressure=50
 
   # ufw configs
   - ufw allow OpenSSH
