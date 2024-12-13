@@ -41,6 +41,7 @@ weekly_downloads as (
         ) and date_trunc(
             {{ end_date }}, week (monday)
         )
+        and {{ pypi_package_filter('package_name') }}
     group by
         1, 2
 )
