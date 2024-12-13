@@ -51,18 +51,34 @@ services:
     container_name: alloy
     image: grafana/alloy:latest
     restart: always
+    command: >
+      run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
     volumes:
       - ./alloy/config.alloy:/etc/alloy/config.alloy
       - grafana_data:/var/lib/alloy/data
       - /var/run/docker.sock:/var/run/docker.sock
-    command: >
-      run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
     networks:
       - caddy
     environment:
       GRAFANA_API_KEY: ${GRAFANA_API_KEY}
       GRAFANA_PROM_USER: ${GRAFANA_PROM_USER}
       GRAFANA_LOKI_USER: ${GRAFANA_LOKI_USER}
+
+  litestream:
+    container_name: litestream
+    image: litestream/litestream
+    restart: always
+    command: replicate
+    volumes:
+      - ./data/:/data
+      - ./litestream/litestream.yml:/etc/litestream.yml
+    networks:
+      - caddy
+    environment:
+      CLOUDFLARE_ACCOUNT_ID: ${CLOUDFLARE_ACCOUNT_ID}
+      CLOUDFLARE_R2_BUCKET_NAME: ${CLOUDFLARE_R2_BUCKET_NAME}
+      CLOUDFLARE_R2_ACCESS_KEY_ID: ${CLOUDFLARE_R2_ACCESS_KEY_ID}
+      CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${CLOUDFLARE_R2_SECRET_ACCESS_KEY}
 
 networks:
   caddy:

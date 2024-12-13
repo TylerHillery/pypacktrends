@@ -52,8 +52,18 @@ class Settings:
     CLOUDFLARE_FORWARD_EMAIL: str = (
         project_config.get("cloudflare-forward-email") or "tyhillery@gmail.com"
     )
+    CLOUDFLARE_ACCOUNT_ID: str = (
+        project_config.get("cloudflare-account-id")
+        or "e57deed2a6fbc6ca1d3570353f246f7a"
+    )
     CLOUDFLARE_ZONE_ID: str = (
         project_config.get("cloudflare-zone-id") or "d973f173bbb9a119f2821c25bb312bef"
+    )
+    CLOUDFLARE_R2_ACCESS_KEY_ID: pulumi.Output | None = project_config.get_secret(
+        "cloudflare-r2-access-key-id"
+    )
+    CLOUDFLARE_R2_SECRET_ACCESS_KEY: pulumi.Output | None = project_config.get_secret(
+        "cloudflare-r2-secret-access-key"
     )
     SMOKESHOW_AUTH_KEY: pulumi.Output | None = project_config.get_secret(
         "smokeshow-auth-key"

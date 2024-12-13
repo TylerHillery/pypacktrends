@@ -1,0 +1,10 @@
+addr: "0.0.0.0:9090"
+
+dbs:
+  - path: /data/pypacktrends.db
+    replicas:
+      - type: s3
+        endpoint: https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com
+        bucket: ${CLOUDFLARE_R2_BUCKET_NAME}
+        access-key-id: ${CLOUDFLARE_R2_ACCESS_KEY_ID}
+        secret-access-key: ${CLOUDFLARE_R2_SECRET_ACCESS_KEY}

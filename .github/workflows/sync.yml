@@ -82,8 +82,8 @@ jobs:
 
           echo "Using date range: $START_WEEK to $END_WEEK"
           scp -o StrictHostKeyChecking=no "$GOOGLE_APPLICATION_CREDENTIALS" github@pypacktrends-prod:/tmp/google-credentials.json
-          ssh -o StrictHostKeyChecking=no github@pypacktrends-prod '
+          ssh -o StrictHostKeyChecking=no github@pypacktrends-prod  "START_WEEK='$START_WEEK' END_WEEK='$END_WEEK' bash -c  '
             cd /home/github/pypacktrends && \
             git pull && \
-            ./scripts/sync.sh \"$START_WEEK\" \"$END_WEEK\"
-          '
+            ./scripts/sync.sh \$START_WEEK \$END_WEEK
+          '"
