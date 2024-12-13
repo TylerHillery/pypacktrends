@@ -2,6 +2,9 @@
 
 set -e
 
+START_WEEK=$1
+END_WEEK=$2
+
 BACKEND_IMAGE="ghcr.io/tylerhillery/pypacktrends/backend:latest"
 REMOTE_CREDS_PATH="/tmp/google-credentials.json"
 
@@ -19,3 +22,8 @@ docker exec \
     -e GOOGLE_APPLICATION_CREDENTIALS=${REMOTE_CREDS_PATH} \
     -e GOOGLE_CLOUD_PROJECT=pypacktrends-prod \
     $backend_container python /app/app/sync.py packages
+
+docker exec \
+    -e GOOGLE_APPLICATION_CREDENTIALS=${REMOTE_CREDS_PATH} \
+    -e GOOGLE_CLOUD_PROJECT=pypacktrends-prod \
+    $backend_container python /app/app/sync.py downloads ${START_WEEK} ${END_WEEK}
