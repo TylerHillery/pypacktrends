@@ -19,7 +19,7 @@
     {% endif %}
 
     {% set date_list = [] %}
-    {% for i in range(0, week_count + 1) %}
+    {% for i in range(0, week_count) %}
         {% set the_date = (modules.datetime.timedelta(weeks=i) + start_week) %}
         {% if not out_fmt %}
             {% set _ = date_list.append(the_date) %}

@@ -1,7 +1,7 @@
-{% set partitions_to_replace = get_date_range_bounds() %}
+{% set date_range = get_date_range_bounds() %}
 
-{% set start_date = partitions_to_replace[0] %}
-{% set end_date = partitions_to_replace[1] %}
+{% set start_date = date_range[0] %}
+{% set end_date = date_range[1] %}
 
 {% set partitions_to_replace = weeks_in_range(
     start_date_str=start_date,
@@ -35,12 +35,9 @@ weekly_downloads as (
         count(*)                                               as downloads
     from
         {{ ref('stg_bq_public_data_pypi__file_downloads') }}
-    where
-        date(package_downloaded_at) between date_trunc(
-            {{ start_date }}, week (monday)
-        ) and date_trunc(
-            {{ end_date }}, week (monday)
-        )
+    where true
+        and package_downloaded_at >= timestamp(date_trunc({{ start_date }}, week (monday)))
+        and package_downloaded_at < timestamp(date_trunc({{ end_date}}, week (monday)))
         and {{ pypi_package_filter('package_name') }}
     group by
         1, 2
