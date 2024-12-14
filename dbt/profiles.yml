@@ -9,7 +9,7 @@ pypacktrends:
       priority: batch
       threads: 4
       timeout_seconds: 300
-      maximum_bytes_billed: 300000000000
+      maximum_bytes_billed: 10000000000
 
     ci:
       type: bigquery
@@ -19,7 +19,7 @@ pypacktrends:
       priority: batch
       threads: 4
       timeout_seconds: 300
-      maximum_bytes_billed: 300000000000
+      maximum_bytes_billed: 10000000000
     prod:
       type: bigquery
       method: oauth

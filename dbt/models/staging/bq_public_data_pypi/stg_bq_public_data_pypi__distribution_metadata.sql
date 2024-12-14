@@ -6,7 +6,7 @@ source as (
 renamed as (
     select
         metadata_version         as package_metadata_version,
-        name                     as package_name,
+        lower(name)              as package_name,
         version                  as package_version,
         summary                  as package_summary,
         description              as package_description,
