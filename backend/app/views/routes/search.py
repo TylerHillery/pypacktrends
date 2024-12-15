@@ -57,9 +57,9 @@ def get_search_results(
             from
                 pypi_packages
             where
-                lower(package_name) like :package_name
+                package_name like :package_name
             order by
-                lower(package_name) limit 10
+                package_name limit 10
             """),
             {"package_name": package_name + "%"},
         )
