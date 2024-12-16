@@ -48,6 +48,23 @@ runcmd:
   - mkdir -p {{ vps_project_path }}/dbt/target
   - chown {{ vps_username }}:{{ vps_username }} {{ vps_project_path }}/dbt/target
 
+  # create data directory and set ownership
+  - mkdir -p {{ vps_project_path }}/data
+  - chown {{ vps_username }}:{{ vps_username }} {{ vps_project_path }}/data
+
+  # restore database
+  - |
+    sudo -u {{ vps_username }} \
+      docker run --rm \
+      -v {{ vps_project_path }}/data:/data \
+      -v {{ vps_project_path }}/litestream/litestream.yml:/etc/litestream.yml \
+      -e CLOUDFLARE_ACCOUNT_ID={{ cloudflare_account_id }} \
+      -e CLOUDFLARE_R2_BUCKET_NAME={{ cloudflare_r2_bucket_name }} \
+      -e CLOUDFLARE_R2_ACCESS_KEY_ID={{ cloudflare_r2_access_key_id }} \
+      -e CLOUDFLARE_R2_SECRET_ACCESS_KEY={{ cloudflare_r2_secret_access_key }} \
+      litestream/litestream restore -if-replica-exists \
+      -o {{ vps_project_path }}/data/pypacktrends.db /data/pypacktrends.db
+
   # start containers using full path to docker-compose.yml
   - |
     sudo -u {{ vps_username }} \
@@ -60,16 +77,6 @@ runcmd:
       GRAFANA_LOKI_USER={{ grafana_loki_user }} \
       SENTRY_DSN={{ sentry_dsn }} \
       docker compose -f {{ vps_project_path }}/docker-compose.yml up -d
-
-  # add swap file
-  - fallocate -l 1G /swapfile
-  - chmod 600 /swapfile
-  - mkswap /swapfile
-  - swapon /swapfile
-  - cp /etc/fstab /etc/fstab.bak
-  - echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
-  - sysctl vm.swappiness=10
-  - sysctl vm.vfs_cache_pressure=50
 
   # ufw configs
   - ufw allow OpenSSH
