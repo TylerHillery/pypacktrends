@@ -23,6 +23,11 @@ async def get_package_list(
 ) -> HTMLResponse:
     logger.info(f"Fetching package list from URL: {url}")
     query_params = parse_query_params(url)
+
+    if query_params.error:
+        logger.warning(query_params.error)
+        return HTMLResponse(status_code=422, content=query_params.error)
+
     package_data = []
     if query_params.packages:
         colors = generate_altair_colors(len(query_params.packages))
@@ -45,6 +50,10 @@ async def create_package(
     logger.info(f"Attempting to add package: {package_name}")
     package_name = package_name.strip()
     query_params = parse_query_params(url)
+
+    if query_params.error:
+        logger.warning(query_params.error)
+        return HTMLResponse(status_code=422, content=query_params.error)
 
     if package_name in query_params.packages:
         logger.warning(f"Duplicate package attempt: {package_name}")
@@ -85,6 +94,10 @@ async def delete_package(
     package_name = package_name.strip()
     query_params = parse_query_params(url)
 
+    if query_params.error:
+        logger.warning(query_params.error)
+        return HTMLResponse(status_code=422, content=query_params.error)
+
     try:
         query_params.packages.remove(package_name)
         logger.info(f"Successfully removed package: {package_name}")
@@ -114,6 +127,11 @@ async def get_graph(
     time_range: TimeRangeValidValues | None = None,
 ) -> HTMLResponse:
     query_params = parse_query_params(url)
+
+    if query_params.error:
+        logger.warning(query_params.error)
+        return HTMLResponse(status_code=422, content=query_params.error)
+
     theme = request.cookies.get("theme", "light")
     chart_html = ""
 

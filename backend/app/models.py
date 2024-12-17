@@ -55,3 +55,4 @@ class TimeRange(BaseModel):
 class QueryParams(BaseModel):
     packages: list[str] = []
     time_range: TimeRange = TimeRange(value="3months")
+    error: str | None = None

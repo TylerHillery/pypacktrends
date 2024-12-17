@@ -20,6 +20,11 @@ def get_search_input(
 ) -> HTMLResponse:
     package_name = package_name.strip()
     query_params = parse_query_params(url)
+
+    if query_params.error:
+        logger.warning(query_params.error)
+        return HTMLResponse(status_code=422, content=query_params.error)
+
     error_message = ""
     is_valid_submission = True
 
