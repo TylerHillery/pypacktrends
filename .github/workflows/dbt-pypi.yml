@@ -1,4 +1,4 @@
-name: Sync
+name: dbt PyPI
 
 on:
   workflow_dispatch:
@@ -23,7 +23,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  sync:
+  dbt-pypi:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -40,8 +40,8 @@ jobs:
           enable-cache: true
       - name: Install python dependencies
         run: |
-          export UV_PROJECT_ENVIRONMENT="${pythonLocation}"
-          uv sync --frozen
+            export UV_PROJECT_ENVIRONMENT="${pythonLocation}"
+            uv sync --frozen
       - name: Connect Tailscale
         uses: tailscale/github-action@v2
         with:
@@ -56,8 +56,10 @@ jobs:
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.DBT_SERVICE_ACCOUNT_EMAIL }}
       - name: Set up Google Cloud SDK
-        uses: "google-github-actions/setup-gcloud@v2"
-      - name: Run sync script
+        uses: 'google-github-actions/setup-gcloud@v2'
+      - name: Install dbt dependencies
+        run: dbt deps
+      - name: dbt Build
         run: |
           START_WEEK=${{ inputs.start_week }}
           END_WEEK=${{ inputs.end_week }}
@@ -80,9 +82,8 @@ jobs:
           fi
 
           echo "Using date range: $START_WEEK to $END_WEEK"
-          scp -o StrictHostKeyChecking=no "$GOOGLE_APPLICATION_CREDENTIALS" github@pypacktrends-prod:/tmp/google-credentials.json
-          ssh -o StrictHostKeyChecking=no github@pypacktrends-prod  "START_WEEK='$START_WEEK' END_WEEK='$END_WEEK' bash -c  '
-            cd /home/github/pypacktrends && \
-            git pull && \
-            ./scripts/sync.sh \$START_WEEK \$END_WEEK
-          '"
+          dbt build --target prod --fail-fast --select +pypi_package_downloads_weekly_metrics --vars '{"start_date": $START_WEEK, "end_date": $END_WEEK}'
+      - name: dbt Doc Generate
+        run: dbt docs generate --target prod
+      - name: Sync dbt docs to VPS
+        run: rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" target/ github@pypacktrends-prod:/home/github/pypacktrends/dbt/target

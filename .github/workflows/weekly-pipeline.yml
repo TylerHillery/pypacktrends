@@ -1,0 +1,32 @@
+name: Weekly Pipeline
+on:
+  schedule:
+    - cron: '0 10 * * 1' # Runs at 10:00 UTC on Monday
+  workflow_dispatch:
+    inputs:
+      start_week:
+        description: 'Start week (YYYY-MM-DD Monday Inclusive)'
+        required: false
+        type: string
+        default: ''
+      end_week:
+        description: 'End week (YYYY-MM-DD Monday Inclusive)'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  run-dbt:
+    uses: ./.github/workflows/dbt-pypi.yml
+    with:
+      start_week: ${{ github.event.inputs.start_week || (github.event_name == 'schedule' && format('{0}-{1}-{2}', github.event.schedule.year, github.event.schedule.month, github.event.schedule.day)) || '' }}
+      end_week: ${{ github.event.inputs.end_week || (github.event_name == 'schedule' && format('{0}-{1}-{2}', github.event.schedule.year, github.event.schedule.month, github.event.schedule.day)) || '' }}
+    secrets: inherit
+
+  run-sync:
+    needs: run-dbt
+    uses: ./.github/workflows/sync.yml
+    with:
+      start_week: ${{ github.event.inputs.start_week || (github.event_name == 'schedule' && format('{0}-{1}-{2}', github.event.schedule.year, github.event.schedule.month, github.event.schedule.day)) || '' }}
+      end_week: ${{ github.event.inputs.end_week || (github.event_name == 'schedule' && format('{0}-{1}-{2}', github.event.schedule.year, github.event.schedule.month, github.event.schedule.day)) || '' }}
+    secrets: inherit
