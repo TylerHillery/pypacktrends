@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from typing import cast
 from urllib.parse import parse_qs, urlencode, urlparse
 
+from pydantic import ValidationError
 from sqlalchemy import text
 
 from app.core.db import read_engine
@@ -36,12 +37,15 @@ def validate_package(package_name: str) -> bool:
 
 
 def parse_query_params(url: str) -> QueryParams:
-    qs = parse_qs(urlparse(url).query)
-    packages = qs.get("packages", [])
-    time_range = TimeRange(
-        value=cast(TimeRangeValidValues, qs.get("time_range", ["3months"])[0])
-    )
-    return QueryParams(time_range=time_range, packages=packages)
+    try:
+        qs = parse_qs(urlparse(url).query)
+        packages = qs.get("packages", [])
+        time_range = TimeRange(
+            value=cast(TimeRangeValidValues, qs.get("time_range", ["3months"])[0])
+        )
+        return QueryParams(time_range=time_range, packages=packages)
+    except ValidationError as e:
+        return QueryParams(error=str(e))
 
 
 def generate_hx_push_url(query_params: QueryParams) -> str:

@@ -15,6 +15,7 @@ def test_start_of_week() -> None:
 def test_parse_query_params() -> None:
     url = "https://localhost:8000/?packages=duckdb&packages=pandas&time_range=1month"
     result = parse_query_params(url)
+
     expected_result = QueryParams(
         packages=["duckdb", "pandas"], time_range=TimeRange(value="1month")
     )
