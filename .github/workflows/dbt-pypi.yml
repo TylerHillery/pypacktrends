@@ -94,7 +94,7 @@ jobs:
           fi
 
           echo "Using date range: $START_WEEK to $END_WEEK"
-          dbt build --target prod --fail-fast --select +pypi_package_downloads_weekly_metrics --vars '{"start_date": $START_WEEK, "end_date": $END_WEEK}'
+          dbt build --target prod --fail-fast --select +pypi_package_downloads_weekly_metrics --vars "{\"start_date\": \"$START_WEEK\", \"end_date\": \"$END_WEEK\"}"
       - name: dbt Doc Generate
         run: dbt docs generate --target prod
       - name: Sync dbt docs to VPS
