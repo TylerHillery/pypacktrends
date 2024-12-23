@@ -13,6 +13,18 @@ on:
         required: false
         type: string
         default: ''
+  workflow_call:
+    inputs:
+      start_week:
+        description: 'Start week (YYYY-MM-DD Monday Inclusive)'
+        required: false
+        type: string
+        default: ''
+      end_week:
+        description: 'End week (YYYY-MM-DD Monday Inclusive)'
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
