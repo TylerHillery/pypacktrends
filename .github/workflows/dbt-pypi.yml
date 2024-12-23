@@ -80,7 +80,7 @@ jobs:
             START_WEEK=$(date -u -d "monday last week" '+%Y-%m-%d')
           fi
           if [ -z "$END_WEEK" ]; then
-              END_WEEK=$(date -u -d "monday last week" '+%Y-%m-%d')
+              END_WEEK=$(date -u -d "monday" '+%Y-%m-%d')
           fi
 
           # Validate dates
