@@ -37,7 +37,7 @@ weekly_downloads as (
         {{ ref('stg_bq_public_data_pypi__file_downloads') }}
     where true
         and package_downloaded_at >= timestamp(date_trunc({{ start_date }}, week (monday)))
-        and package_downloaded_at < timestamp(date_trunc({{ end_date}}, week (monday)))
+        and package_downloaded_at < (timestamp(date_trunc({{ end_date}}, week (monday))) + interval 1 week )
         and {{ pypi_package_filter('package_name') }}
     group by
         1, 2

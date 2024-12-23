@@ -5,7 +5,7 @@
     {% set one_week_ago = (run_started_week - modules.datetime.timedelta(weeks=1)).strftime("%Y-%m-%d") %}
 
     {% set start_date = var('start_date', one_week_ago) | string %}
-    {% set end_date = var('end_date', run_started_week_str) | string %}
+    {% set end_date = var('end_date', one_week_ago) | string %}
 
     {% set start_datetime = modules.datetime.datetime.strptime(start_date, "%Y-%m-%d") %}
     {% set end_datetime = modules.datetime.datetime.strptime(end_date, "%Y-%m-%d") %}
@@ -13,7 +13,7 @@
     {% set start_week = start_datetime - modules.datetime.timedelta(days=start_datetime.weekday()) %}
     {% set end_week = end_datetime - modules.datetime.timedelta(days=end_datetime.weekday()) %}
 
-    {% if start_week >= end_week %}
+    {% if start_week > end_week %}
         {% do exceptions.raise_compiler_error("start_date week (" ~ start_week.strftime("%Y-%m-%d") ~ ") must be before end_date week (" ~ end_week.strftime("%Y-%m-%d") ~ ")") %}
     {% endif %}
 
