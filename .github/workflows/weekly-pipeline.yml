@@ -19,14 +19,14 @@ jobs:
   run-dbt:
     uses: ./.github/workflows/dbt-pypi.yml
     with:
-      start_week: ${{ github.event.inputs.start_week || (github.event_name == 'schedule' && format('{0}-{1}-{2}', github.event.schedule.year, github.event.schedule.month, github.event.schedule.day)) || '' }}
-      end_week: ${{ github.event.inputs.end_week || (github.event_name == 'schedule' && format('{0}-{1}-{2}', github.event.schedule.year, github.event.schedule.month, github.event.schedule.day)) || '' }}
+      start_week: ${{ github.event.inputs.start_week }}
+      end_week: ${{ github.event.inputs.end_week }}
     secrets: inherit
 
   run-sync:
     needs: run-dbt
     uses: ./.github/workflows/sync.yml
     with:
-      start_week: ${{ github.event.inputs.start_week || (github.event_name == 'schedule' && format('{0}-{1}-{2}', github.event.schedule.year, github.event.schedule.month, github.event.schedule.day)) || '' }}
-      end_week: ${{ github.event.inputs.end_week || (github.event_name == 'schedule' && format('{0}-{1}-{2}', github.event.schedule.year, github.event.schedule.month, github.event.schedule.day)) || '' }}
+      start_week: ${{ github.event.inputs.start_week }}
+      end_week: ${{ github.event.inputs.end_week }}
     secrets: inherit
