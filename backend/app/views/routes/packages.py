@@ -148,5 +148,4 @@ async def get_graph(
             "chart": chart_html,
             "query_params": query_params,
         },
-        headers={"HX-Push-Url": generate_hx_push_url(query_params)},
     )
