@@ -141,6 +141,11 @@ async def get_graph(
     if query_params.packages:
         chart_html = generate_chart(query_params, theme).to_html()
 
+    headers = {}
+
+    if request.headers["HX-Trigger"] == "time-range":
+        headers["HX-Push-Url"] = generate_hx_push_url(query_params)
+
     return templates.TemplateResponse(
         request=request,
         name="fragments/chart.html",
@@ -148,4 +153,5 @@ async def get_graph(
             "chart": chart_html,
             "query_params": query_params,
         },
+        headers=headers,
     )
