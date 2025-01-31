@@ -134,7 +134,7 @@ select[name="time_range"] {
   min-height: 0;
   height: auto;
   background-color: transparent;
-  border: none;
+  border: var(--pico-border-width) solid var(--pico-form-element-border-color);
   border-radius: 0;
   display: inline;
   width: auto;
