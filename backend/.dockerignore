@@ -10,3 +10,4 @@ README.md
 .gitignore
 .python-version
 .ruff_cache
+Dockerfile

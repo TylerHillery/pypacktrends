@@ -1,43 +1,48 @@
-FROM python:3.12
+FROM python:3.13-slim AS base
 
-ENV PYTHONUNBUFFERED=1
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app/
+# Tweak Python to run better in Docker
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+# Build stage: dev & build dependencies can be installed here
+FROM base AS build
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install uv
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
-COPY --from=ghcr.io/astral-sh/uv:0.4.15 /uv /bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.5.29 /uv /bin/uv
 
-# Place executables in the environment at the front of the path
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#using-the-environment
-ENV PATH="/app/.venv/bin:$PATH"
+# UV_COMPILE_BYTECODE=1 is an important startup time optimization
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
-# Compile bytecode
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#compiling-bytecode
-ENV UV_COMPILE_BYTECODE=1
+WORKDIR /app/
 
-# uv Cache
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#caching
-ENV UV_LINK_MODE=copy
-
-# Install dependencies
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
+COPY uv.lock pyproject.toml ./
 RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-project
+  uv sync --frozen --no-install-project --no-dev
 
-ENV PYTHONPATH=/app
-
-COPY ./scripts /app/scripts
-
-COPY ./pyproject.toml ./uv.lock ./alembic.ini /app/
-
-COPY ./app /app/app
-
-# Sync the project
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
+COPY . .
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync
+  uv sync --frozen --no-dev
+
+# Runtime stage: copy only the virtual environment.
+FROM base AS runtime
+WORKDIR /app
+
+RUN addgroup --gid 1001 --system nonroot && \
+    adduser --no-create-home --shell /bin/false \
+      --disabled-password --uid 1001 --system --group nonroot
+
+USER nonroot:nonroot
+
+ENV VIRTUAL_ENV=/app/.venv \
+    PATH="/app/.venv/bin:$PATH"
+
+COPY --from=build --chown=nonroot:nonroot /app ./
 
 CMD ["/app/scripts/start_backend.sh"]
