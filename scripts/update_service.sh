@@ -18,6 +18,12 @@ LOG_FILE="/home/github/logs/update_service_${SERVICE_NAME}.log"
 # Retrieve the Caddy container name (static name as specified in Docker Compose)
 caddy_container="caddy"
 
+# Logging function
+log() {
+    local message="$1"
+    echo "$(date '+%Y-%m-%d %H:%M:%S') [$SERVICE_NAME] $message" | tee -a "$LOG_FILE"
+}
+
 # Check if the Caddy container is running
 if docker ps --filter "name=^${caddy_container}$" --format "{{.Names}}" | grep -q "^${caddy_container}$"; then
     log "Caddy container found: $caddy_container"
@@ -26,11 +32,6 @@ else
     exit 1
 fi
 
-# Logging function
-log() {
-    local message="$1"
-    echo "$(date '+%Y-%m-%d %H:%M:%S') [$SERVICE_NAME] $message" | tee -a "$LOG_FILE"
-}
 
 # Function to update Caddy with the new container name
 update_caddy() {
