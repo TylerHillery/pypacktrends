@@ -3,7 +3,7 @@ name = "infra"
 version = "0.1.0"
 description = ""
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
     "jinja2>=3.1.4",
     "pip>=24.3.1",
