@@ -34,15 +34,9 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 FROM base AS runtime
 WORKDIR /app
 
-RUN addgroup --gid 1001 --system nonroot && \
-    adduser --no-create-home --shell /bin/false \
-      --disabled-password --uid 1001 --system --group nonroot
-
-USER nonroot:nonroot
-
 ENV VIRTUAL_ENV=/app/.venv \
     PATH="/app/.venv/bin:$PATH"
 
-COPY --from=build --chown=nonroot:nonroot /app ./
+COPY --from=build /app ./
 
 CMD ["/app/scripts/start_backend.sh"]
