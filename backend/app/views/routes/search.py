@@ -18,7 +18,7 @@ def get_search_input(
     package_name: str,
     url: Annotated[str, Header(alias="HX-Current-URL")],
 ) -> HTMLResponse:
-    package_name = package_name.strip()
+    package_name = package_name.strip().lower()
     query_params = parse_query_params(url)
 
     if query_params.error:
