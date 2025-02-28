@@ -48,7 +48,7 @@ async def create_package(
     url: Annotated[str, Header(alias="HX-Current-URL")],
 ) -> HTMLResponse:
     logger.info(f"Attempting to add package: {package_name}")
-    package_name = package_name.strip()
+    package_name = package_name.strip().lower()
     query_params = parse_query_params(url)
 
     if query_params.error:
@@ -91,7 +91,7 @@ async def delete_package(
     url: Annotated[str, Header(alias="HX-Current-URL")],
 ) -> HTMLResponse:
     logger.info(f"Attempting to delete package: {package_name}")
-    package_name = package_name.strip()
+    package_name = package_name.strip().lower()
     query_params = parse_query_params(url)
 
     if query_params.error:
