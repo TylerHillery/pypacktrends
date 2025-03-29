@@ -158,3 +158,28 @@ async def get_graph(
         },
         headers=headers,
     )
+
+
+@router.get("/embed", response_class=HTMLResponse)
+async def get_embed(
+    request: Request,
+    time_range: TimeRangeValidValues | None = None,
+) -> HTMLResponse:
+    """Endpoint for embedded charts that can be used in iframes."""
+    query_params = parse_query_params(str(request.url))
+
+    if query_params.error:
+        logger.warning(query_params.error)
+        return HTMLResponse(status_code=422, content=query_params.error)
+
+    theme = request.cookies.get("theme", "light")
+
+    if time_range is not None:
+        query_params.time_range.value = time_range
+
+    if not query_params.packages:
+        return HTMLResponse(content="No packages selected")
+
+    chart_html = generate_chart(query_params, theme).to_html(fullhtml=True)
+
+    return HTMLResponse(content=chart_html)
