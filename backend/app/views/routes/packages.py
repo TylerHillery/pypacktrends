@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Form, Header, Request
 from fastapi.responses import HTMLResponse
@@ -164,6 +164,7 @@ async def get_graph(
 async def get_embed(
     request: Request,
     time_range: TimeRangeValidValues | None = None,
+    theme: Literal["light", "dark"] | None = None,
 ) -> HTMLResponse:
     """Endpoint for embedded charts that can be used in iframes."""
     query_params = parse_query_params(str(request.url))
@@ -172,7 +173,8 @@ async def get_embed(
         logger.warning(query_params.error)
         return HTMLResponse(status_code=422, content=query_params.error)
 
-    theme = request.cookies.get("theme", "light")
+    if not theme:
+        theme = request.cookies.get("theme", "light")
 
     if time_range is not None:
         query_params.time_range.value = time_range
