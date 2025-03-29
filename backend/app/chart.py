@@ -162,7 +162,7 @@ def generate_chart(query_params: QueryParams, theme: str) -> alt.Chart:
             usermeta={
                 "embedOptions": {
                     "tooltip": {"theme": theme_config[theme]["tooltip"]},
-                    "actions": False,
+                    "actions": True,
                 },
             },
         )

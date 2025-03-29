@@ -8,6 +8,7 @@ from app.core.logger import logger
 from app.core.templates import templates
 from app.models import TimeRangeValidValues
 from app.utils import (
+    extract_last_script_tag,
     generate_hx_push_url,
     parse_query_params,
     validate_package,
@@ -134,12 +135,14 @@ async def get_graph(
 
     theme = request.cookies.get("theme", "light")
     chart_html = ""
+    last_script_tag = ""
 
     if time_range is not None:
         query_params.time_range.value = time_range
 
     if query_params.packages:
-        chart_html = generate_chart(query_params, theme).to_html()
+        chart_html = generate_chart(query_params, theme).to_html(fullhtml=False)
+        last_script_tag = extract_last_script_tag(chart_html) or ""
 
     headers = {}
 
@@ -150,7 +153,7 @@ async def get_graph(
         request=request,
         name="fragments/chart.html",
         context={
-            "chart": chart_html,
+            "chart": last_script_tag,
             "query_params": query_params,
         },
         headers=headers,

@@ -122,12 +122,6 @@ svg.icon-theme-toggle.moon :first-child path {
 
 #vis {
   width: 100%;
-  opacity: 1;
-  transition: opacity 1s ease-out;
-}
-
-#vis.htmx-added {
-  opacity: 0;
 }
 
 select[name="time_range"] {
