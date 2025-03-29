@@ -58,3 +58,15 @@ def generate_hx_push_url(query_params: QueryParams) -> str:
         ),
         doseq=True,
     )
+
+
+def extract_last_script_tag(html_content: str) -> str | None:
+    pos = len(html_content)
+    while True:
+        pos = html_content.rfind("<script", 0, pos)
+        if pos == -1:
+            return None
+
+        end_pos = html_content.find("</script>", pos)
+        if end_pos != -1:
+            return html_content[pos : end_pos + len("</script>")]

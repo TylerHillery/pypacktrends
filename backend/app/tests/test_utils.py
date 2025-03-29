@@ -1,5 +1,6 @@
 from app.models import QueryParams, TimeRange
 from app.utils import (
+    extract_last_script_tag,
     generate_hx_push_url,
     parse_query_params,
     start_of_week,
@@ -35,3 +36,19 @@ def test_generate_hx_push_url_no_packages() -> None:
     result = generate_hx_push_url(QueryParams(packages=[], time_range=TimeRange()))
     expected_result = "/"
     assert result == expected_result
+
+
+def test_extract_last_script_tag() -> None:
+    html_content = """
+    <html>
+        <script>First script</script>
+        <div>Some content</div>
+        <script>Last script</script>
+    </html>
+    """
+    result = extract_last_script_tag(html_content)
+    assert result == "<script>Last script</script>"
+
+    html_content_no_script = "<html><div>No script here</div></html>"
+    result_no_script = extract_last_script_tag(html_content_no_script)
+    assert result_no_script is None

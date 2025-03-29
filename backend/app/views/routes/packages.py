@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Form, Header, Request
 from fastapi.responses import HTMLResponse
@@ -8,6 +8,7 @@ from app.core.logger import logger
 from app.core.templates import templates
 from app.models import TimeRangeValidValues
 from app.utils import (
+    extract_last_script_tag,
     generate_hx_push_url,
     parse_query_params,
     validate_package,
@@ -134,12 +135,14 @@ async def get_graph(
 
     theme = request.cookies.get("theme", "light")
     chart_html = ""
+    last_script_tag = ""
 
     if time_range is not None:
         query_params.time_range.value = time_range
 
     if query_params.packages:
-        chart_html = generate_chart(query_params, theme).to_html()
+        chart_html = generate_chart(query_params, theme).to_html(fullhtml=False)
+        last_script_tag = extract_last_script_tag(chart_html) or ""
 
     headers = {}
 
@@ -150,8 +153,35 @@ async def get_graph(
         request=request,
         name="fragments/chart.html",
         context={
-            "chart": chart_html,
+            "chart": last_script_tag,
             "query_params": query_params,
         },
         headers=headers,
     )
+
+
+@router.get("/embed", response_class=HTMLResponse)
+async def get_embed(
+    request: Request,
+    time_range: TimeRangeValidValues | None = None,
+    theme: Literal["light", "dark"] | None = None,
+) -> HTMLResponse:
+    """Endpoint for embedded charts that can be used in iframes."""
+    query_params = parse_query_params(str(request.url))
+
+    if query_params.error:
+        logger.warning(query_params.error)
+        return HTMLResponse(status_code=422, content=query_params.error)
+
+    if not theme:
+        theme = request.cookies.get("theme", "light")
+
+    if time_range is not None:
+        query_params.time_range.value = time_range
+
+    if not query_params.packages:
+        return HTMLResponse(content="No packages selected")
+
+    chart_html = generate_chart(query_params, theme).to_html(fullhtml=True)
+
+    return HTMLResponse(content=chart_html)
