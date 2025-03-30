@@ -26,9 +26,13 @@ def test_parse_query_params() -> None:
 
 def test_generate_hx_push_url_packages() -> None:
     result = generate_hx_push_url(
-        QueryParams(packages=["duckdb", "pandas"], time_range=TimeRange())
+        QueryParams(
+            packages=["duckdb", "pandas"], time_range=TimeRange(), show_percentage="off"
+        )
     )
-    expected_result = "?packages=duckdb&packages=pandas&time_range=3months"
+    expected_result = (
+        "?packages=duckdb&packages=pandas&time_range=3months&show_percentage=off"
+    )
     assert result == expected_result
 
 
