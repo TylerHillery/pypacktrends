@@ -55,5 +55,5 @@ class TimeRange(BaseModel):
 class QueryParams(BaseModel):
     packages: list[str] = []
     time_range: TimeRange = TimeRange(value="3months")
-    show_percentage: Literal["on", "off"] = "off"
+    show_percentage: Literal["on"] | None = None
     error: str | None = None
