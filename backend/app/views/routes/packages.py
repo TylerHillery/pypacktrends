@@ -126,6 +126,7 @@ async def get_graph(
     request: Request,
     url: Annotated[str, Header(alias="HX-Current-URL")],
     time_range: TimeRangeValidValues | None = None,
+    show_percentage: Literal["on", "off"] = "off",
 ) -> HTMLResponse:
     query_params = parse_query_params(url)
 
@@ -140,13 +141,16 @@ async def get_graph(
     if time_range is not None:
         query_params.time_range.value = time_range
 
+    if show_percentage is not None:
+        query_params.show_percentage = show_percentage
+
     if query_params.packages:
         chart_html = generate_chart(query_params, theme).to_html(fullhtml=False)
         last_script_tag = extract_last_script_tag(chart_html) or ""
 
     headers = {}
 
-    if request.headers["HX-Trigger"] == "time-range":
+    if request.headers["HX-Trigger"] in ["time-range", "show-percentage"]:
         headers["HX-Push-Url"] = generate_hx_push_url(query_params)
 
     return templates.TemplateResponse(
@@ -165,6 +169,7 @@ async def get_embed(
     request: Request,
     time_range: TimeRangeValidValues | None = None,
     theme: Literal["light", "dark"] | None = None,
+    show_percentage: Literal["on", "off"] = "off",
 ) -> HTMLResponse:
     """Endpoint for embedded charts that can be used in iframes."""
     query_params = parse_query_params(str(request.url))
@@ -178,6 +183,9 @@ async def get_embed(
 
     if time_range is not None:
         query_params.time_range.value = time_range
+
+    if show_percentage is not None:
+        query_params.show_percentage = show_percentage
 
     if not query_params.packages:
         return HTMLResponse(content="No packages selected")
