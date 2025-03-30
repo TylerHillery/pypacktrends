@@ -43,9 +43,7 @@ def parse_query_params(url: str) -> QueryParams:
         time_range = TimeRange(
             value=cast(TimeRangeValidValues, qs.get("time_range", ["3months"])[0])
         )
-        show_percentage = cast(
-            Literal["on", "off"], qs.get("show_percentage", ["off"])[0]
-        )
+        show_percentage = cast(Literal["on"], qs.get("show_percentage", [None])[0])
         return QueryParams(
             time_range=time_range, packages=packages, show_percentage=show_percentage
         )
@@ -56,14 +54,13 @@ def parse_query_params(url: str) -> QueryParams:
 def generate_hx_push_url(query_params: QueryParams) -> str:
     if not query_params.packages:
         return "/"
-    return "?" + urlencode(
-        dict(
-            packages=[package for package in query_params.packages],
-            time_range=query_params.time_range.value,
-            show_percentage=query_params.show_percentage,
-        ),
-        doseq=True,
-    )
+    params = {
+        "packages": [package for package in query_params.packages],
+        "time_range": query_params.time_range.value,
+    }
+    if query_params.show_percentage is not None:
+        params["show_percentage"] = [query_params.show_percentage]
+    return "?" + urlencode(params, doseq=True)
 
 
 def extract_last_script_tag(html_content: str) -> str | None:
