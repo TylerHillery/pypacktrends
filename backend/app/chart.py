@@ -124,12 +124,15 @@ def generate_chart(query_params: QueryParams, theme: str) -> alt.Chart:
 
     y_weekly_downloads = dict(shorthand="downloads:Q", title="Downloads", format=",")
 
-    if query_params.time_range.value in (
+    is_cumulative = query_params.time_range.value in (
         "allTimeCumulative",
         "allTimeCumulativeAlignTimeline",
-    ):
+    )
+    show_percentage = query_params.show_percentage == "on" and not is_cumulative
+
+    if is_cumulative:
         y = y_cumulative_downloads
-    elif query_params.show_percentage == "on":
+    elif show_percentage:
         y = y_perecent_of_total
     else:
         y = y_weekly_downloads
@@ -146,20 +149,18 @@ def generate_chart(query_params: QueryParams, theme: str) -> alt.Chart:
             axis=alt.Axis(
                 tickCount=3,
                 labelFontSize=14,
-                format=".0%" if query_params.show_percentage == "on" else alt.Undefined,
+                format=".0%" if show_percentage else alt.Undefined,
             ),
-            scale=alt.Scale(domain=[0, 1])
-            if query_params.show_percentage == "on"
-            else alt.Undefined,
+            scale=alt.Scale(domain=[0, 1]) if show_percentage else alt.Undefined,
         ),
         color="package:N",
         tooltip=[
             alt.Tooltip("package:N"),
             alt.Tooltip(**x_week),
-            alt.Tooltip(**x_weeks_since_first_release),
             alt.Tooltip(**y_weekly_downloads),
             alt.Tooltip(**y_cumulative_downloads),
             alt.Tooltip(**y_perecent_of_total),
+            alt.Tooltip(**x_weeks_since_first_release),
         ],
     )
 
