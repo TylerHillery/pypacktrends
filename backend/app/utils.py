@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import cast
+from typing import Literal, cast
 from urllib.parse import parse_qs, urlencode, urlparse
 
 from pydantic import ValidationError
@@ -43,7 +43,12 @@ def parse_query_params(url: str) -> QueryParams:
         time_range = TimeRange(
             value=cast(TimeRangeValidValues, qs.get("time_range", ["3months"])[0])
         )
-        return QueryParams(time_range=time_range, packages=packages)
+        show_percentage = cast(
+            Literal["on", "off"], qs.get("show_percentage", ["off"])[0]
+        )
+        return QueryParams(
+            time_range=time_range, packages=packages, show_percentage=show_percentage
+        )
     except ValidationError as e:
         return QueryParams(error=str(e))
 
@@ -55,6 +60,7 @@ def generate_hx_push_url(query_params: QueryParams) -> str:
         dict(
             packages=[package for package in query_params.packages],
             time_range=query_params.time_range.value,
+            show_percentage=query_params.show_percentage,
         ),
         doseq=True,
     )

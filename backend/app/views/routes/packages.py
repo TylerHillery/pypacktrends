@@ -126,6 +126,7 @@ async def get_graph(
     request: Request,
     url: Annotated[str, Header(alias="HX-Current-URL")],
     time_range: TimeRangeValidValues | None = None,
+    show_percentage: Literal["on", "off"] = "off",
 ) -> HTMLResponse:
     query_params = parse_query_params(url)
 
@@ -140,13 +141,16 @@ async def get_graph(
     if time_range is not None:
         query_params.time_range.value = time_range
 
+    if show_percentage is not None:
+        query_params.show_percentage = show_percentage
+
     if query_params.packages:
         chart_html = generate_chart(query_params, theme).to_html(fullhtml=False)
         last_script_tag = extract_last_script_tag(chart_html) or ""
 
     headers = {}
 
-    if request.headers["HX-Trigger"] == "time-range":
+    if request.headers["HX-Trigger"] in ["time-range", "show-percentage"]:
         headers["HX-Push-Url"] = generate_hx_push_url(query_params)
 
     return templates.TemplateResponse(
