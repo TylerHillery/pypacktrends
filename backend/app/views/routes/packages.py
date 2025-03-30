@@ -169,6 +169,7 @@ async def get_embed(
     request: Request,
     time_range: TimeRangeValidValues | None = None,
     theme: Literal["light", "dark"] | None = None,
+    show_percentage: Literal["on", "off"] = "off",
 ) -> HTMLResponse:
     """Endpoint for embedded charts that can be used in iframes."""
     query_params = parse_query_params(str(request.url))
@@ -182,6 +183,9 @@ async def get_embed(
 
     if time_range is not None:
         query_params.time_range.value = time_range
+
+    if show_percentage is not None:
+        query_params.show_percentage = show_percentage
 
     if not query_params.packages:
         return HTMLResponse(content="No packages selected")
