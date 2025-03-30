@@ -10,6 +10,18 @@ www.{$DOMAIN} {
 	redir https://{$DOMAIN}{uri}
 }
 
+datasette.{$DOMAIN} {
+	reverse_proxy datasette:8001
+
+	handle_errors {
+		respond "{err.status_code} {err.status_text}"
+	}
+}
+
+www.datasette.{$DOMAIN} {
+	redir http://datasette.{$DOMAIN}{uri}
+}
+
 dbtdocs.{$DOMAIN} {
 	root * /srv/www/dbtdocs
 	file_server

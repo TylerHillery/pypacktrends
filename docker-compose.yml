@@ -80,6 +80,18 @@ services:
       CLOUDFLARE_R2_ACCESS_KEY_ID: ${CLOUDFLARE_R2_ACCESS_KEY_ID}
       CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${CLOUDFLARE_R2_SECRET_ACCESS_KEY}
 
+  datasette:
+    container_name: datasette
+    image: datasetteproject/datasette
+    restart: always
+    volumes:
+      - ./data/:/mnt
+      - ./datasette/metadata.yml:/metadata.yml
+    networks:
+      - caddy
+    command: >
+      datasette -p 8001 -h 0.0.0.0 /mnt/pypacktrends.db -m /metadata.yml
+
 networks:
   caddy:
     name: caddy

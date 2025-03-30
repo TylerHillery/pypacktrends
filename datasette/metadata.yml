@@ -1,0 +1,35 @@
+title: PyPack Trends
+description_html: |-
+  <p>Weekly PyPI Package Downloads</p>
+source: "Linehaul Project"
+source_url: "https://github.com/pypi/linehaul-cloud-function"
+allow_sql: false
+databases:
+  pypacktrends:
+    queries:
+      package_search:
+        sql: |-
+          select
+              package_name,
+              package_downloaded_week,
+              downloads,
+              cumulative_downloads,
+              weeks_since_first_distribution
+          from
+              pypi_package_downloads_weekly_metrics
+          where true
+              and package_name = :package
+          order by package_downloaded_week desc
+        title: "Package Weeekly Download Stats"
+        write: false
+    tables:
+      pypi_packages:
+        hidden: true
+      pypi_package_downloads_weekly_metrics:
+        hidden: true
+      _litestream_lock:
+        hidden: true
+      _litestream_seq:
+        hidden: true
+      alembic_version:
+        hidden: true
