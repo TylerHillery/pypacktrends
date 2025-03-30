@@ -81,7 +81,9 @@
   </div>
 
 
-  <div id="packages-graph" hx-trigger="dataRefresh from:body" hx-get="/packages-graph" hx-swap="innerHTML">
+  <div id="packages-graph" hx-trigger="dataRefresh from:body" hx-get="/packages-graph" hx-swap="innerHTML"
+  hx-include="[name='time_range'], [name='show_percentage']"
+  >
   </div>
   <div id=vis></div>
 
