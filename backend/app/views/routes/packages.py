@@ -192,4 +192,34 @@ async def get_embed(
 
     chart_html = generate_chart(query_params, theme).to_html(fullhtml=True)
 
-    return HTMLResponse(content=chart_html)
+    attribution_style = """
+        <style>
+            .pypacktrends-attribution {
+                text-align: center;
+                padding: 8px;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                font-size: 12px;
+            }
+            .pypacktrends-attribution a {
+                color: #666;
+                text-decoration: none;
+            }
+            .pypacktrends-attribution a:hover {
+                text-decoration: underline;
+            }
+        </style>
+    """
+
+    attribution_html = f"""
+        <div class="pypacktrends-attribution">
+            <a href="{str(request.url).replace('/embed', '')}" target="_blank">
+                View on pypacktrends.com
+            </a>
+        </div>
+    """
+
+    modified_html = chart_html.replace(
+        "<body>", f"<body>{attribution_style}{attribution_html}"
+    )
+
+    return HTMLResponse(content=modified_html)
