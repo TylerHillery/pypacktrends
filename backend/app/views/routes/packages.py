@@ -147,6 +147,9 @@ async def get_graph(
     ):
         query_params.show_percentage = show_percentage
 
+    if len(query_params.packages) == 1:
+        query_params.show_percentage = None
+
     if query_params.packages:
         chart_html = generate_chart(query_params, theme).to_html(fullhtml=False)
         last_script_tag = extract_last_script_tag(chart_html) or ""

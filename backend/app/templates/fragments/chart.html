@@ -15,7 +15,7 @@
             <option value="allTimeCumulative" {% if query_params.time_range.value == 'allTimeCumulative' %}selected{% endif %}>All Time Cumulative</option>
             <option value="allTimeCumulativeAlignTimeline" {% if query_params.time_range.value == 'allTimeCumulativeAlignTimeline' %}selected{% endif %}>All Time Cumulative (Align Timeline)</option>
         </select>
-        {% if query_params.time_range.value not in ['allTimeCumulative', 'allTimeCumulativeAlignTimeline'] %}
+        {% if query_params.time_range.value not in ['allTimeCumulative', 'allTimeCumulativeAlignTimeline'] and query_params.packages | length > 1 %}
         <label for="show-percentage">
             <strong>Show as % of Total</strong>
             <input type="checkbox" id="show-percentage" name="show_percentage"
