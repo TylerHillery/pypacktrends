@@ -74,6 +74,9 @@ async def create_package(
         f"Successfully added package: {package_name}. Total packages: {num_of_packages}"
     )
 
+    if len(query_params.packages) == 1:
+        query_params.show_percentage = None
+
     return templates.TemplateResponse(
         request=request,
         name="fragments/package_line_item.html",
@@ -113,6 +116,9 @@ async def delete_package(
         for package, color in zip(query_params.packages, colors)
     ]
 
+    if len(query_params.packages) == 1:
+        query_params.show_percentage = None
+
     return templates.TemplateResponse(
         request=request,
         name="fragments/package_list.html",
@@ -146,6 +152,9 @@ async def get_graph(
         or request.headers["HX-Trigger"] == "show-percentage"
     ):
         query_params.show_percentage = show_percentage
+
+    if len(query_params.packages) == 1:
+        query_params.show_percentage = None
 
     if query_params.packages:
         chart_html = generate_chart(query_params, theme).to_html(fullhtml=False)
