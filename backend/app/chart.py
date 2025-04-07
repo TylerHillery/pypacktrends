@@ -167,7 +167,7 @@ def generate_chart(query_params: QueryParams, theme: str) -> alt.Chart:
     points = base.mark_circle().encode(opacity=alt.value(0)).add_params(highlight)
 
     lines = base.mark_line(
-        interpolate="natural", strokeWidth=4, strokeCap="round"
+        interpolate="monotone", strokeWidth=4, strokeCap="round"
     ).encode(
         size=alt.when(~highlight).then(alt.value(2)).otherwise(alt.value(3)),
         color=alt.Color(
