@@ -28,4 +28,4 @@ pypacktrends:
       priority: interactive
       threads: 4
       timeout_seconds: 600
-      maximum_bytes_billed: 305000000000
+      maximum_bytes_billed: 400000000000
