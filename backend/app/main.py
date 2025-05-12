@@ -25,7 +25,7 @@ if settings.SENTRY_DSN and settings.ENVIRONMENT != "dev":
         enable_tracing=True,
         traces_sample_rate=1.0,
         _experiments={
-            "continuous_profiling_auto_start": True,
+            "continuous_profiling_auto_start": False,
         },
     )
 
