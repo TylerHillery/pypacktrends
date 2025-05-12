@@ -5,6 +5,8 @@ on:
     types:
       - opened
       - synchronize
+    paths:
+      - 'dbt/models/**'
 
 permissions:
   contents: read
