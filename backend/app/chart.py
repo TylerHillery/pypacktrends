@@ -176,7 +176,7 @@ def generate_chart(query_params: QueryParams, theme: str) -> alt.Chart:
                 domain=packages.values(),
                 range=generate_altair_colors(len(packages)),
             ),
-        ).legend(orient="right", titleFontSize=16, labelFontSize=14),
+        ).legend(orient="top", title=None, labelFontSize=14),
     )
 
     return (

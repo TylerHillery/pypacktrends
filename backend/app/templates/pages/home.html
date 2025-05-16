@@ -6,7 +6,7 @@
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="initial-scale=1, width=device-width" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="description" content="PyPackTrends: Compare and analyze download statistics for Python packages on PyPI. Visualize trends, track popularity, and make informed decisions about Python libraries.">
   <script src="https://unpkg.com/htmx.org@2.0.3"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
@@ -72,7 +72,8 @@
         {{ package_search_input() }}
       </div>
     </form>
-    <div hx-trigger="load" hx-get="/package-list" hx-target="#package-list" hx-swap="innerHTML">
+    <div class="package-list-container" hx-trigger="load" hx-get="/package-list" hx-target="#package-list"
+      hx-swap="innerHTML">
       <ul id="package-list" class="package-list" hx-on::after-swap="htmx.trigger('#packages-graph', 'dataRefresh')">
         <div style="height: 50px"></div>
       </ul>
@@ -81,8 +82,7 @@
 
 
   <div id="packages-graph" hx-trigger="dataRefresh from:body" hx-get="/packages-graph" hx-swap="innerHTML"
-  hx-include="[name='time_range'], [name='show_percentage']"
-  >
+    hx-include="[name='time_range'], [name='show_percentage']" class="pico chart-container">
   </div>
   <div id=vis></div>
 
