@@ -1,28 +1,32 @@
 {% if query_params.packages | length < 1 %}
 <div id=vis hx-swap-oob="true"></div>
 {% else %}
-    <div class="pico" style="display: flex;">
-        <label for="time-range" style="margin-right: 10px;"><strong>Time Range:</strong></label>
-        <select name="time_range" id="time-range" hx-trigger="change" hx-get="/packages-graph" hx-target="#packages-graph"
-            hx-swap="innerHTML" hx-include="[name='show_percentage']" style="margin-right: 20px;">
-            <option value="1month" {% if query_params.time_range.value == '1month' %}selected{% endif %}>1 month</option>
-            <option value="3months" {% if query_params.time_range.value == '3months' %}selected{% endif %}>3 months</option>
-            <option value="6months" {% if query_params.time_range.value == '6months' %}selected{% endif %}>6 months</option>
-            <option value="1year" {% if query_params.time_range.value == '1year' %}selected{% endif %}>1 year</option>
-            <option value="2years" {% if query_params.time_range.value == '2years' %}selected{% endif %}>2 years</option>
-            <option value="5years" {% if query_params.time_range.value == '5years' %}selected{% endif %}>5 years</option>
-            <option value="allTime" {% if query_params.time_range.value == 'allTime' %}selected{% endif %}>All Time</option>
-            <option value="allTimeCumulative" {% if query_params.time_range.value == 'allTimeCumulative' %}selected{% endif %}>All Time Cumulative</option>
-            <option value="allTimeCumulativeAlignTimeline" {% if query_params.time_range.value == 'allTimeCumulativeAlignTimeline' %}selected{% endif %}>All Time Cumulative (Align Timeline)</option>
-        </select>
-        {% if query_params.time_range.value not in ['allTimeCumulative', 'allTimeCumulativeAlignTimeline'] and query_params.packages | length > 1 %}
-        <label for="show-percentage">
-            <strong>Show as % of Total</strong>
-            <input type="checkbox" id="show-percentage" name="show_percentage"
-            hx-get="/packages-graph" hx-target="#packages-graph" hx-trigger="change" hx-include="[name='time_range']"
-            {% if query_params.show_percentage == 'on' %}checked{%endif %}
-            >
-        </label>
+    <div class="pico controls-container">
+        <div class="control-group">
+            <label for="time-range"><strong>Time Range:</strong></label>
+            <select name="time_range" id="time-range" hx-trigger="change" hx-get="/packages-graph"
+                hx-target="#packages-graph" hx-swap="innerHTML" hx-include="[name='show_percentage']">
+                <option value="1month" {% if query_params.time_range.value == '1month' %}selected{% endif %}>1 month</option>
+                <option value="3months" {% if query_params.time_range.value == '3months' %}selected{% endif %}>3 months</option>
+                <option value="6months" {% if query_params.time_range.value == '6months' %}selected{% endif %}>6 months</option>
+                <option value="1year" {% if query_params.time_range.value == '1year' %}selected{% endif %}>1 year</option>
+                <option value="2years" {% if query_params.time_range.value == '2years' %}selected{% endif %}>2 years</option>
+                <option value="5years" {% if query_params.time_range.value == '5years' %}selected{% endif %}>5 years</option>
+                <option value="allTime" {% if query_params.time_range.value == 'allTime' %}selected{% endif %}>All Time</option>
+                <option value="allTimeCumulative" {% if query_params.time_range.value == 'allTimeCumulative' %}selected{%endif %}>All Time Cumulative</option>
+                <option value="allTimeCumulativeAlignTimeline" {% if query_params.time_range.value == 'allTimeCumulativeAlignTimeline' %}selected{% endif %}>All Time Cumulative (Align Timeline)</option>
+            </select>
+        </div>
+        {% if query_params.time_range.value not in ['allTimeCumulative', 'allTimeCumulativeAlignTimeline'] and
+        query_params.packages | length > 1 %}
+        <div class="control-group">
+            <label for="show-percentage">
+                <strong>Show as % of Total</strong>
+                <input type="checkbox" id="show-percentage" name="show_percentage" hx-get="/packages-graph"
+                    hx-target="#packages-graph" hx-trigger="change" hx-include="[name='time_range']"
+                    {% if query_params.show_percentage == 'on' %}checked{%endif %}>
+            </label>
+        </div>
         {% endif %}
     </div>
     {{ chart | safe }}

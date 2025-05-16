@@ -55,13 +55,15 @@
 
 .package-item {
   min-width: fit-content;
+  width: auto;
+  display: inline-flex;
   height: 30px;
-  display: flex;
   align-items: center;
   padding: 0.5rem 2rem 0.5rem 0.75rem;
   border: 0.12rem solid var(--pico-form-element-active-border-color);
   border-radius: var(--pico-border-radius);
   position: relative;
+  margin-bottom: 0.25rem;
 }
 
 .delete-x {
@@ -124,6 +126,82 @@ svg.icon-theme-toggle.moon :first-child path {
   width: 100%;
 }
 
+.controls-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Package list container */
+.package-list-container {
+  width: 100%;
+}
+
+.control-group {
+  display: flex;
+  align-items: flex-start;
+}
+
+.control-group:not(:last-child) {
+  margin-right: 1.5rem;
+}
+
+#packages-graph {
+  margin-top: 1rem;
+}
+
+.chart-container {
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 576px) {
+  .controls-container {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .controls-container>* {
+    margin-bottom: 0.5rem;
+    width: 100%;
+  }
+
+  select[name="time_range"] {
+    width: 100%;
+    margin-right: 0 !important;
+  }
+
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  label[for="time-range"],
+  label[for="show-percentage"] {
+    margin-bottom: 0.5rem;
+    margin-right: 0;
+    display: block;
+  }
+
+  /* Keep package items side by side but with better spacing on mobile */
+  #package-list {
+    gap: 0.5rem;
+  }
+
+  .package-item {
+    margin-bottom: 0.25rem;
+  }
+
+  #vis {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 select[name="time_range"] {
   min-height: 0;
   height: auto;
@@ -133,13 +211,23 @@ select[name="time_range"] {
   display: inline;
   width: auto;
   padding: 0 1.8rem 0 0.2rem !important;
-  vertical-align: baseline;
+  vertical-align: top;
   font-size: inherit;
   font-family: inherit;
   font-weight: inherit;
   color: inherit;
 }
 
-label[for="time-range"] {
-    display: inline;
+/* Checkbox alignment */
+input[type="checkbox"]#show-percentage {
+  vertical-align: middle;
+  margin-top: 0;
+  margin-left: 0.5rem;
+}
+
+label[for="time-range"],
+label[for="show-percentage"] {
+  display: inline;
+  vertical-align: top;
+  margin-right: 0.5rem;
 }
