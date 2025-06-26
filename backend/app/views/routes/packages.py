@@ -102,12 +102,11 @@ async def delete_package(
         logger.warning(query_params.error)
         return HTMLResponse(status_code=422, content=query_params.error)
 
-    try:
+    if package_name in query_params.packages:
         query_params.packages.remove(package_name)
         logger.info(f"Successfully removed package: {package_name}")
-    except ValueError:
-        logger.error(f"Failed to remove package {package_name} - not found in list")
-        raise
+    else:
+        logger.warning(f"Package {package_name} not found in current URL state")
 
     colors = generate_altair_colors(len(query_params.packages))
 
