@@ -40,12 +40,6 @@ jobs:
     defaults:
       run:
         working-directory: ./backend
-        env:
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          CLOUDFLARE_R2_PUBLIC_BUCKET_NAME: ${{ secrets.CLOUDFLARE_R2_PUBLIC_BUCKET_NAME }}
-          CLOUDFLARE_R2_CUSTOM_DOMAIN: ${{ secrets.CLOUDFLARE_R2_CUSTOM_DOMAIN }}
-          CLOUDFLARE_R2_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
-          CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -71,6 +65,13 @@ jobs:
       - name: Set up Google Cloud SDK
         uses: "google-github-actions/setup-gcloud@v2"
       - name: Publish
+        env:
+          GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_R2_PUBLIC_BUCKET_NAME: ${{ secrets.CLOUDFLARE_R2_PUBLIC_BUCKET_NAME }}
+          CLOUDFLARE_R2_CUSTOM_DOMAIN: ${{ secrets.CLOUDFLARE_R2_CUSTOM_DOMAIN }}
+          CLOUDFLARE_R2_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+          CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
         run: |
           START_WEEK=${{ inputs.start_week }}
           END_WEEK=${{ inputs.end_week }}
