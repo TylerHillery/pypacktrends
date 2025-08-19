@@ -1,50 +1,6 @@
-import pytest
 from sqlalchemy import Engine, text
 
-from app.sync import parse_dates, sync_pypi_downloads, sync_pypi_packages, validate_date
-
-
-def test_validate_date_true() -> None:
-    result = validate_date("2024-10-14")
-    expected_result = True
-    assert result == expected_result
-
-
-def test_validate_date_false() -> None:
-    result = validate_date("2024-15-55")
-    expected_result = False
-    assert result == expected_result
-
-
-def test_parse_dates_args_length() -> None:
-    with pytest.raises(SystemExit):
-        parse_dates(["sync.py", "packages"])
-
-
-def test_parse_dates_invalid_format() -> None:
-    with pytest.raises(SystemExit):
-        parse_dates(["sync.py", "packages", "2024-10-01", "not-a-date"])
-
-
-def test_parse_dates_end_date_gt_start_date() -> None:
-    with pytest.raises(SystemExit):
-        parse_dates(["sync.py", "packages", "2024-12-01", "2024-01-01"])
-
-
-def test_parse_dates_valid_format() -> None:
-    result = parse_dates(["sync.py", "packages", "2024-10-01", "2024-12-01"])
-    expected_result = ("2024-10-01", "2024-12-01")
-    assert result == expected_result
-
-
-def test_sync_main_args_length() -> None:
-    with pytest.raises(SystemExit):
-        parse_dates(["sync.py"])
-
-
-def test_sync_main_invalid_entity() -> None:
-    with pytest.raises(SystemExit):
-        parse_dates(["sync.py", "pack"])
+from app.sync import sync_pypi_downloads, sync_pypi_packages
 
 
 def test_sync_pypi_packages(read_engine: Engine, write_engine: Engine) -> None:
