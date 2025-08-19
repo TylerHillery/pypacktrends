@@ -13,13 +13,18 @@ document.addEventListener("DOMContentLoaded", function () {
     htmx.trigger("#packages-graph", "dataRefresh");
   };
 
+
   window.updateButton = function () {
-    const button = document.querySelector("[aria-label]");
-    button.setAttribute(
-      "aria-label",
-      theme === "dark" ? "Turn off dark mode" : "Turn on dark mode"
-    );
-    const svg = button.querySelector("svg");
-    svg.classList.toggle("moon", theme === "dark");
+    const themeButton = document.querySelector("a[onclick*='switchTheme']");
+    if (themeButton) {
+      themeButton.setAttribute(
+        "aria-label",
+        theme === "dark" ? "Turn off dark mode" : "Turn on dark mode"
+      );
+      const themeSvg = themeButton.querySelector("svg.icon-theme-toggle");
+      if (themeSvg) {
+        themeSvg.classList.toggle("moon", theme === "dark");
+      }
+    }
   };
 });
