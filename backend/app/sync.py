@@ -1,6 +1,5 @@
 import sys
 import time
-from datetime import datetime
 
 from google.cloud import bigquery
 from sqlalchemy import Engine, text
@@ -8,7 +7,7 @@ from sqlalchemy import Engine, text
 from app.core.config import settings
 from app.core.db import read_engine, write_engine
 from app.core.logger import logger
-from app.utils import start_of_week
+from app.utils import parse_dates, start_of_week
 
 
 def sync_pypi_packages(
@@ -199,47 +198,21 @@ def sync_pypi_downloads(
     logger.info(f"Sync completed in {total_time:.2f} seconds.")
 
 
-def validate_date(date_text: str) -> bool:
-    try:
-        datetime.strptime(date_text, "%Y-%m-%d")
-        return True
-    except ValueError:
-        return False
-
-
-def parse_dates(args: list[str]) -> tuple[str, str]:
-    if len(args) != 4:
-        logger.error("Please provide start date and end date for syncing downloads")
-        sys.exit(1)
-
-    start_date, end_date = args[2], args[3]
-
-    if not all(validate_date(date) for date in (start_date, end_date)):
-        logger.error("Start date and end date must be in YYYY-MM-DD format")
-        sys.exit(1)
-
-    if end_date < start_date:
-        logger.error("End date must be greater than or equal to the start date")
-        sys.exit(1)
-
-    return start_date, end_date
-
-
 def main() -> None:
-    if len(sys.argv) < 2:
-        logger.error("Please provide the entity to sync: 'packages' or 'downloads'")
+    if len(sys.argv) != 4:
+        logger.error("Usage: python sync.py <entity> <start_date> <end_date>")
         sys.exit(1)
 
-    entity = sys.argv[1]
+    _, entity, start_date, end_date = sys.argv
 
     match entity:
         case "packages":
             sync_pypi_packages(read_engine, write_engine)
         case "downloads":
-            sync_pypi_downloads(write_engine, *parse_dates(sys.argv))
+            sync_pypi_downloads(write_engine, *parse_dates((start_date, end_date)))
         case "all":
             sync_pypi_packages(read_engine, write_engine)
-            sync_pypi_downloads(write_engine, *parse_dates(sys.argv))
+            sync_pypi_downloads(write_engine, *parse_dates((start_date, end_date)))
         case _:
             logger.error("Unknown entity. Please use 'packages' or 'downloads'")
             sys.exit(1)

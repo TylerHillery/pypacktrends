@@ -1,0 +1,97 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_week:
+        description: 'Start week (YYYY-MM-DD Monday Inclusive)'
+        required: false
+        type: string
+        default: ''
+      end_week:
+        description: 'End week (YYYY-MM-DD Monday Inclusive)'
+        required: false
+        type: string
+        default: ''
+  workflow_call:
+    inputs:
+      start_week:
+        description: 'Start week (YYYY-MM-DD Monday Inclusive)'
+        required: false
+        type: string
+        default: ''
+      end_week:
+        description: 'End week (YYYY-MM-DD Monday Inclusive)'
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - name: Install python dependencies
+        working-directory: ./backend
+        run: |
+          export UV_PROJECT_ENVIRONMENT="${pythonLocation}"
+          uv sync --frozen
+      - name: Authenticate with Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.DBT_SERVICE_ACCOUNT_EMAIL }}
+      - name: Set up Google Cloud SDK
+        uses: "google-github-actions/setup-gcloud@v2"
+      - name: Publish
+        env:
+          GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_R2_PUBLIC_BUCKET_NAME: ${{ secrets.CLOUDFLARE_R2_PUBLIC_BUCKET_NAME }}
+          CLOUDFLARE_R2_CUSTOM_DOMAIN: ${{ secrets.CLOUDFLARE_R2_CUSTOM_DOMAIN }}
+          CLOUDFLARE_R2_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
+          CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+        run: |
+          START_WEEK=${{ inputs.start_week }}
+          END_WEEK=${{ inputs.end_week }}
+
+          if [ -z "$START_WEEK" ]; then
+            START_WEEK=$(date -u -d "monday last week" '+%Y-%m-%d')
+          fi
+          if [ -z "$END_WEEK" ]; then
+              END_WEEK=$(date -u -d "monday last week" '+%Y-%m-%d')
+          fi
+
+          # Validate dates
+          # Convert dates to seconds since epoch for comparison
+          start_seconds=$(date -d "$START_WEEK" +%s)
+          end_seconds=$(date -d "$END_WEEK" +%s)
+
+          if [ $start_seconds -gt $end_seconds ]; then
+            echo "Error: Start week ($START_WEEK) must be before or equal to end week ($END_WEEK)"
+            exit 1
+          fi
+
+          echo "Using date range: $START_WEEK to $END_WEEK"
+          python ./app/publish.py \$START_WEEK \$END_WEEK

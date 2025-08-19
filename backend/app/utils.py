@@ -1,3 +1,4 @@
+import sys
 from datetime import datetime, timedelta
 from typing import Literal, cast
 from urllib.parse import parse_qs, urlencode, urlparse
@@ -73,3 +74,25 @@ def extract_last_script_tag(html_content: str) -> str | None:
         end_pos = html_content.find("</script>", pos)
         if end_pos != -1:
             return html_content[pos : end_pos + len("</script>")]
+
+
+def validate_date(date_text: str) -> bool:
+    try:
+        datetime.strptime(date_text, "%Y-%m-%d")
+        return True
+    except ValueError:
+        return False
+
+
+def parse_dates(dates: tuple[str, str]) -> tuple[str, str]:
+    start_date, end_date = dates[0], dates[1]
+
+    if not all(validate_date(date) for date in (start_date, end_date)):
+        logger.error("Start date and end date must be in YYYY-MM-DD format")
+        sys.exit(1)
+
+    if end_date < start_date:
+        logger.error("End date must be greater than or equal to the start date")
+        sys.exit(1)
+
+    return start_date, end_date

@@ -30,3 +30,11 @@ jobs:
       start_week: ${{ github.event.inputs.start_week }}
       end_week: ${{ github.event.inputs.end_week }}
     secrets: inherit
+
+  run-publish:
+    needs: run-dbt
+    uses: ./.github/workflows/publish.yml
+    with:
+      start_week: ${{ github.event.inputs.start_week }}
+      end_week: ${{ github.event.inputs.end_week }}
+    secrets: inherit
