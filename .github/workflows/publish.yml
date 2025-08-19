@@ -72,6 +72,9 @@ jobs:
           CLOUDFLARE_R2_CUSTOM_DOMAIN: ${{ secrets.CLOUDFLARE_R2_CUSTOM_DOMAIN }}
           CLOUDFLARE_R2_ACCESS_KEY_ID: ${{ secrets.CLOUDFLARE_R2_ACCESS_KEY_ID }}
           CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+          GOOGLE_OAUTH_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+          GOOGLE_APPLICATION_CREDENTIALS: ""
+          CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: ""
         run: |
           START_WEEK=${{ inputs.start_week }}
           END_WEEK=${{ inputs.end_week }}
