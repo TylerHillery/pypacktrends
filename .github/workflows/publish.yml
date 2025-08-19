@@ -94,4 +94,4 @@ jobs:
           fi
 
           echo "Using date range: $START_WEEK to $END_WEEK"
-          python ./app/publish.py \$START_WEEK \$END_WEEK
+          python ./app/publish.py $START_WEEK $END_WEEK
