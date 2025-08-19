@@ -16,14 +16,14 @@ class DuckDBClient:
         r2_secret_access_key: str,
         r2_account_id: str,
         r2_bucket_name: str,
-        r2_public_domain: str,
+        r2_custom_domain: str,
     ):
         self.gcp_project = gcp_project
         self.r2_access_key_id = r2_access_key_id
         self.r2_secret_access_key = r2_secret_access_key
         self.r2_account_id = r2_account_id
         self.r2_bucket_path = f"r2://{r2_bucket_name}"
-        self.r2_public_domain = r2_public_domain
+        self.r2_custom_domain = r2_custom_domain
         self.conn = self._init_duckdb_client()
 
     def _init_duckdb_client(self) -> DuckDBPyConnection:
@@ -56,7 +56,7 @@ with urls as (
     select distinct
         regexp_extract(filename, 'package_downloaded_week=([0-9\\-]+)', 1) AS package_downloaded_week,
         replace(
-            replace(filename, '{duckdb_client.r2_bucket_path}', '{duckdb_client.r2_public_domain}'),
+            replace(filename, '{duckdb_client.r2_bucket_path}', '{duckdb_client.r2_custom_domain}'),
             '=',
             '%3D'
         ) as url
@@ -146,9 +146,9 @@ def main() -> None:
             "CLOUDFLARE_R2_PUBLIC_BUCKET_NAME environment variable is not set"
         )
 
-    r2_public_domain = os.getenv("CLOUDFLARE_R2_PUBLIC_DOMAIN")
-    if r2_public_domain is None:
-        raise ValueError("CLOUDFLARE_R2_PUBLIC_DOMAIN environment variable is not set")
+    r2_custom_domain = os.getenv("CLOUDFLARE_R2_CUSTOM_DOMAIN")
+    if r2_custom_domain is None:
+        raise ValueError("CLOUDFLARE_R2_CUSTOM_DOMAIN environment variable is not set")
 
     duckdb_client = DuckDBClient(
         gcp_project=gcp_project,
@@ -156,7 +156,7 @@ def main() -> None:
         r2_secret_access_key=r2_secret_access_key,
         r2_account_id=cloudflare_account_id,
         r2_bucket_name=r2_bucket_name,
-        r2_public_domain=r2_public_domain,
+        r2_custom_domain=r2_custom_domain,
     )
 
     publish_pypi_downloads(duckdb_client, *parse_dates((start_date, end_date)))
