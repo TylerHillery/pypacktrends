@@ -26,7 +26,7 @@ class DuckDBClient:
         self.r2_secret_access_key = r2_secret_access_key
         self.r2_account_id = r2_account_id
         self.r2_bucket_path = f"r2://{r2_bucket_name}"
-        self.r2_custom_domain = r2_custom_domain
+        self.r2_custom_domain = f"https://{r2_custom_domain}"
         self.conn = self._init_duckdb_client()
 
     def _init_duckdb_client(self) -> DuckDBPyConnection:
