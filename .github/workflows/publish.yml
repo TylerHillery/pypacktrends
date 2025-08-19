@@ -64,15 +64,11 @@ jobs:
           service_account: ${{ secrets.DBT_SERVICE_ACCOUNT_EMAIL }}
       - name: Set up Google Cloud SDK
         uses: "google-github-actions/setup-gcloud@v2"
-      - name: Debug Credentials
+      - name: Setup Application Default Credentials
         run: |
-          echo "GOOGLE_APPLICATION_CREDENTIALS: $GOOGLE_APPLICATION_CREDENTIALS"
-          echo "Credentials file exists: $(test -f "$GOOGLE_APPLICATION_CREDENTIALS" && echo "YES" || echo "NO")"
-          if [ -f "$GOOGLE_APPLICATION_CREDENTIALS" ]; then
-            echo "Credentials file content (first 100 chars):"
-            head -c 100 "$GOOGLE_APPLICATION_CREDENTIALS"
-          fi
-          gcloud auth list
+          gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+          gcloud auth application-default login --no-launch-browser
       - name: Publish
         env:
           GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
