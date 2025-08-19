@@ -111,7 +111,7 @@ droplet = digitalocean.Droplet(
 pulumi.export("droplet:ipv4", droplet.ipv4_address)
 
 # Cloudflare Configs
-cloudflare_a_record_root = cloudflare.Record(
+cloudflare_a_record_root = cloudflare.DnsRecord(
     "cloudflare-a-record-root",
     zone_id=settings.CLOUDFLARE_ZONE_ID,
     type="A",
@@ -121,7 +121,7 @@ cloudflare_a_record_root = cloudflare.Record(
     proxied=False,
 )
 
-cloudflare_a_record_www = cloudflare.Record(
+cloudflare_a_record_www = cloudflare.DnsRecord(
     "cloudflare-a-record-www",
     zone_id=settings.CLOUDFLARE_ZONE_ID,
     type="A",
@@ -131,7 +131,7 @@ cloudflare_a_record_www = cloudflare.Record(
     proxied=False,
 )
 
-cloudflare_a_record_root_dbt_docs = cloudflare.Record(
+cloudflare_a_record_root_dbt_docs = cloudflare.DnsRecord(
     "cloudflare-a-record-root-dbt-docs",
     zone_id=settings.CLOUDFLARE_ZONE_ID,
     type="A",
@@ -141,7 +141,7 @@ cloudflare_a_record_root_dbt_docs = cloudflare.Record(
     proxied=False,
 )
 
-cloudflare_a_record_www_dbt_docs = cloudflare.Record(
+cloudflare_a_record_www_dbt_docs = cloudflare.DnsRecord(
     "cloudflare-a-record-www-dbt-docs",
     zone_id=settings.CLOUDFLARE_ZONE_ID,
     type="A",
