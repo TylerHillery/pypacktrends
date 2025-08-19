@@ -1,9 +1,12 @@
 import os
 import sys
+import time
 
 import duckdb
 from duckdb import DuckDBPyConnection
+from google.cloud import bigquery
 
+from app.core.config import settings
 from app.core.logger import logger
 from app.utils import parse_dates
 
@@ -27,18 +30,24 @@ class DuckDBClient:
         self.conn = self._init_duckdb_client()
 
     def _init_duckdb_client(self) -> DuckDBPyConnection:
-        conn = duckdb.connect()
+        conn = duckdb.connect("/tmp/duckdb_github_actions.db")
         sql = f"""
-INSTALL bigquery FROM community;
-LOAD bigquery;
-
-ATTACH 'project={self.gcp_project}' as bq (TYPE bigquery, READ_ONLY);
-
 CREATE SECRET (
     TYPE r2,
     KEY_ID '{self.r2_access_key_id}',
     SECRET '{self.r2_secret_access_key}',
     ACCOUNT_ID '{self.r2_account_id}'
+);
+
+CREATE OR REPLACE TABLE pypi_downloads (
+    package_name VARCHAR,
+    package_downloaded_week DATE,
+    downloads BIGINT,
+    cumulative_downloads BIGINT,
+    first_distribution_week DATE,
+    weeks_since_first_distribution INTEGER,
+    published_at TIMESTAMP,
+    week DATE
 );
 """
         conn.execute(sql)
@@ -77,40 +86,92 @@ def publish_pypi_downloads(
     duckdb_client: DuckDBClient, start_date: str, end_date: str
 ) -> None:
     export_path = f"{duckdb_client.r2_bucket_path}/pypi-weekly-downloads/"
-    sql = f"""
-CREATE TABLE pypi_downloads AS (
-    SELECT
-        *
-    FROM
-        BIGQUERY_QUERY(
-            '{duckdb_client.gcp_project}',
-            "
-            SELECT
-                package_name,
-                package_downloaded_week,
-                downloads,
-                cumulative_downloads,
-                first_distribution_week,
-                weeks_since_first_distribution,
-                current_datetime('UTC') as synced_at,
-                package_downloaded_week as week
-            FROM
-                `{duckdb_client.gcp_project}.dbt.pypi_package_downloads_weekly_metrics`
-            WHERE
-                package_downloaded_week BETWEEN '{start_date}' AND '{end_date}'"
-        )
-    ORDER BY
-        package_downloaded_week,
-        package_name
-);
 
+    client = bigquery.Client()
+
+    select_query = f"""
+SELECT
+    package_name,
+    package_downloaded_week,
+    downloads,
+    cumulative_downloads,
+    first_distribution_week,
+    weeks_since_first_distribution,
+    current_datetime('UTC') as published_at,
+    package_downloaded_week as week
+FROM
+    `{duckdb_client.gcp_project}.dbt.pypi_package_downloads_weekly_metrics`
+WHERE
+    package_downloaded_week BETWEEN '{start_date}' AND '{end_date}'
+ORDER BY
+    package_downloaded_week,
+    package_name
+"""
+
+    logger.info(f"Query most recent distributions: {select_query}")
+
+    job_config = bigquery.QueryJobConfig(
+        labels={
+            "application": "pypacktrends",
+            "component": "publish",
+            "type": "downloads",
+            "environment": settings.ENVIRONMENT,
+        }
+    )
+    rows = client.query(select_query, job_config=job_config).result()
+    total_rows = rows.total_rows
+
+    if total_rows < 1:
+        logger.info("No rows to insert")
+        return
+
+    logger.info(f"Total rows to insert: {total_rows}")
+
+    upsert_sql = """
+    INSERT INTO pypi_downloads
+        (package_name, package_downloaded_week, downloads, cumulative_downloads, first_distribution_week, weeks_since_first_distribution, published_at, week)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """
+
+    start_time = time.time()
+    row_count = 0
+    batch_count = 0
+    for page in rows.pages:
+        batch_count += 1
+        start_batch_time = time.time()
+
+        downloads = [
+            (
+                row["package_name"],
+                row["package_downloaded_week"],
+                row["downloads"],
+                row["cumulative_downloads"],
+                row["first_distribution_week"],
+                row["weeks_since_first_distribution"],
+                row["published_at"],
+                row["week"],
+            )
+            for row in page
+        ]
+
+        row_count += len(downloads)
+
+        logger.info(f"Inserting {row_count} of {total_rows} rows...")
+
+        duckdb_client.conn.executemany(upsert_sql, downloads)
+
+        batch_time = time.time() - start_batch_time
+        logger.info(f"Batch {batch_count} inserted in {batch_time:.2f} seconds.")
+
+    export_sql = f"""
 COPY pypi_downloads TO '{export_path}'
 (FORMAT parquet, PARTITION_BY (week), OVERWRITE_OR_IGNORE);
 """
 
-    duckdb_client.conn.execute(sql)
+    duckdb_client.conn.execute(export_sql)
+    total_time = time.time() - start_time
     logger.info(
-        f"Successfully exported PyPI weekly downloads from {start_date} to {end_date} to R2 bucket path: {export_path}"
+        f"Successfully exported PyPI weekly downloads from {start_date} to {end_date} to R2 bucket path: {export_path} in {total_time:.2f} seconds."
     )
 
 
