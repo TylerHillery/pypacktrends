@@ -54,6 +54,22 @@ do_ssh_key = digitalocean.SshKey(
     public_key=ssh_key.public_key_openssh,
 )
 
+cloudflare_r2_bucket_pypacktrends_public = cloudflare.R2Bucket(
+    "cloudflare-r2-bucket-pypacktrends-public",
+    account_id=settings.CLOUDFLARE_ACCOUNT_ID,
+    name="pypacktrends-prod-public",
+    location="WNAM",
+)
+
+r2_domain = cloudflare.R2CustomDomain(
+    "pypacktrends-public-domain",
+    account_id=settings.CLOUDFLARE_ACCOUNT_ID,
+    bucket_name=cloudflare_r2_bucket_pypacktrends_public.name,
+    domain=settings.PUBLIC_DATA_DOMAIN,
+    zone_id=settings.CLOUDFLARE_ZONE_ID,
+    enabled=True,
+)
+
 cloudflare_r2_bucket_pypacktrends_litestream = cloudflare.R2Bucket(
     "cloudflare-r2-bucket-pypacktrends-litestream",
     account_id=settings.CLOUDFLARE_ACCOUNT_ID,
@@ -360,4 +376,39 @@ github_actions_secret_sentry_project = github.ActionsSecret(
     secret_name="SENTRY_PROJECT",
     repository=settings.PROJECT_NAME,
     plaintext_value=settings.SENTRY_PROJECT,
+)
+
+github_actions_secret_cloudflare_account_id = github.ActionsSecret(
+    "github-actions-secret-cloudflare-account-id",
+    secret_name="CLOUDFLARE_ACCOUNT_ID",
+    repository=settings.PROJECT_NAME,
+    plaintext_value=settings.CLOUDFLARE_ACCOUNT_ID,
+)
+
+github_actions_secret_cloudflare_r2_public_bucket_name = github.ActionsSecret(
+    "github-actions-secret-cloudflare-r2-public-bucket-name",
+    secret_name="CLOUDFLARE_R2_PUBLIC_BUCKET_NAME",
+    repository=settings.PROJECT_NAME,
+    plaintext_value=cloudflare_r2_bucket_pypacktrends_public,
+)
+
+github_actions_secret_cloudflare_r2_custom_domain = github.ActionsSecret(
+    "github-actions-secret-cloudflare-r2-custom-domain",
+    secret_name="CLOUDFLARE_R2_CUSTOM_DOMAIN",
+    repository=settings.PROJECT_NAME,
+    plaintext_value=settings.PUBLIC_DATA_DOMAIN,
+)
+
+github_actions_secret_cloudflare_r2_access_key_id = github.ActionsSecret(
+    "github-actions-secret-cloudflare-r2-access-key-id",
+    secret_name="CLOUDFLARE_R2_ACCESS_KEY_ID",
+    repository=settings.PROJECT_NAME,
+    plaintext_value=settings.CLOUDFLARE_R2_ACCESS_KEY_ID,
+)
+
+github_actions_secret_cloudflare_r2_secret_access_key = github.ActionsSecret(
+    "github-actions-secret-cloudflare-r2-secret-access-key",
+    secret_name="CLOUDFLARE_R2_SECRET_ACCESS_KEY",
+    repository=settings.PROJECT_NAME,
+    plaintext_value=settings.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
 )

@@ -109,5 +109,9 @@ class Settings:
     def VPS_PROJECT_PATH(self) -> str:
         return f"/home/{self.VPS_USERNAME}/{self.PROJECT_NAME}"
 
+    @property
+    def PUBLIC_DATA_DOMAIN(self) -> str:
+        return f"data.{self.DOMAIN_NAME}"
+
 
 settings = Settings()
