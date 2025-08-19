@@ -64,10 +64,11 @@ jobs:
           service_account: ${{ secrets.DBT_SERVICE_ACCOUNT_EMAIL }}
       - name: Set up Google Cloud SDK
         uses: "google-github-actions/setup-gcloud@v2"
-      - name: Setup Application Default Credentials
+      - name: Setup Application Default Credentials and get token
         run: |
-          gcloud auth application-default print-access-token > /dev/null
+          ACCESS_TOKEN=$(gcloud auth application-default print-access-token)
           echo "ADC is working"
+          echo "GOOGLE_CLOUD_ACCESS_TOKEN=$ACCESS_TOKEN" >> $GITHUB_ENV
       - name: Publish
         env:
           GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
