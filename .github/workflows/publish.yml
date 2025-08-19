@@ -66,9 +66,8 @@ jobs:
         uses: "google-github-actions/setup-gcloud@v2"
       - name: Setup Application Default Credentials
         run: |
-          gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
-          gcloud auth application-default login --no-launch-browser
+          gcloud auth application-default print-access-token > /dev/null
+          echo "ADC is working"
       - name: Publish
         env:
           GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
