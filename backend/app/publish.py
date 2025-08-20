@@ -63,7 +63,7 @@ def publish_pypi_downloads_manifest(duckdb_client: DuckDBClient) -> None:
 CREATE TABLE pypi_downloads_manifest AS
 with urls as (
     select distinct
-        regexp_extract(filename, 'package_downloaded_week=([0-9\\-]+)', 1) AS package_downloaded_week,
+        regexp_extract(filename, 'week=([0-9\\-]+)', 1) AS week,
         replace(
             replace(filename, '{duckdb_client.r2_bucket_path}', '{duckdb_client.r2_custom_domain}'),
             '=',
