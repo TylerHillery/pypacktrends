@@ -60,7 +60,7 @@ def publish_pypi_downloads_manifest(duckdb_client: DuckDBClient) -> None:
     manifest_path = f"{export_path}/manifest.parquet"
 
     sql = f"""
-CREATE TABLE pypi_downloads_manifest AS
+CREATE OR REPLACE TABLE pypi_downloads_manifest AS
 with urls as (
     select distinct
         regexp_extract(filename, 'week=([0-9\\-]+)', 1) AS week,
