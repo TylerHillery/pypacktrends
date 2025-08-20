@@ -163,7 +163,7 @@ svg.icon-theme-toggle.moon :first-child path {
     margin-bottom: 1rem;
   }
 
-  .controls-container>* {
+  .controls-container > * {
     margin-bottom: 0.5rem;
     width: 100%;
   }
