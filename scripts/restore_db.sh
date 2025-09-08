@@ -10,10 +10,12 @@ fi
 
 mkdir -p "$PROJECT_ROOT/data"
 
-env $(cat "$PROJECT_ROOT/.env") litestream restore \
-    -config "$PROJECT_ROOT/litestream/litestream.yml" \
-    -o "$PROJECT_ROOT/data/pypacktrends.db" \
-    /data/pypacktrends.db
+docker run --rm \
+  --env-file "$PROJECT_ROOT/.env" \
+  -v "$PROJECT_ROOT/data:/data" \
+  -v "$PROJECT_ROOT/litestream/litestream.yml:/etc/litestream.yml" \
+  litestream/litestream restore -if-replica-exists \
+  -o /data/pypacktrends.db /data/pypacktrends.db
 
 if [ $? -eq 0 ]; then
     echo "Database successfully restored to $PROJECT_ROOT/data/pypacktrends.db"

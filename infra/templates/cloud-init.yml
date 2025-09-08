@@ -63,7 +63,13 @@ runcmd:
       -e CLOUDFLARE_R2_ACCESS_KEY_ID={{ cloudflare_r2_access_key_id }} \
       -e CLOUDFLARE_R2_SECRET_ACCESS_KEY={{ cloudflare_r2_secret_access_key }} \
       litestream/litestream restore -if-replica-exists \
-      -o {{ vps_project_path }}/data/pypacktrends.db /data/pypacktrends.db
+      -o /data/pypacktrends.db /data/pypacktrends.db
+
+  # ensure restored DB file is owned by the project user so docker-compose services can access it
+  - chown {{ vps_username }}:{{ vps_username }} {{ vps_project_path }}/data/pypacktrends.db
+
+  # ensure docker container user has access to pypacktrends.db
+  - sudo -u {{ vps_username }} chmod 666 {{ vps_project_path }}/data/pypacktrends.db
 
   # start containers using full path to docker-compose.yml
   - |
