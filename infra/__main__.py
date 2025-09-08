@@ -97,7 +97,7 @@ pulumi.export("droplet:user-data", user_data)
 
 droplet = digitalocean.Droplet(
     "digitalocean-droplet",
-    image="ubuntu-20-04-x64",
+    image="ubuntu-24-04-x64",
     name=f"{settings.PROJECT_NAME}-prod",
     region=digitalocean.Region.SFO3,
     size=digitalocean.DropletSlug.DROPLET_S1_VCPU2_GB,
