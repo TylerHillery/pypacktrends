@@ -7,6 +7,7 @@ from sqlalchemy import text
 from app.core.db import read_engine
 from app.core.logger import logger
 from app.core.templates import templates
+from app.normalization import NormalizedPackageName
 from app.utils import parse_query_params, validate_package
 
 router: APIRouter = APIRouter()
@@ -15,10 +16,9 @@ router: APIRouter = APIRouter()
 @router.get("/package-search-input", response_class=HTMLResponse)
 def get_search_input(
     request: Request,
-    package_name: str,
+    package_name: NormalizedPackageName,
     url: Annotated[str, Header(alias="HX-Current-URL")],
 ) -> HTMLResponse:
-    package_name = package_name.strip().lower()
     query_params = parse_query_params(url)
 
     if query_params.error:
@@ -50,7 +50,7 @@ def get_search_input(
 @router.get("/package-search-results", response_class=HTMLResponse)
 def get_search_results(
     request: Request,
-    package_name: str,
+    package_name: NormalizedPackageName,
 ) -> HTMLResponse:
     logger.info(f"Searching for packages matching: '{package_name}'")
     with read_engine.connect() as conn:

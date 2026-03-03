@@ -4,6 +4,7 @@ from urllib.request import Request, urlopen
 
 from app.core.config import settings
 from app.core.logger import logger
+from app.normalization import normalize_package_name
 
 
 def capture_package_requested_events(
@@ -20,7 +21,7 @@ def capture_package_requested_events(
         return
 
     normalized_packages = [
-        package.strip().lower() for package in packages if package.strip()
+        normalize_package_name(package) for package in packages if package.strip()
     ]
 
     if not normalized_packages:

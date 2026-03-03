@@ -33,7 +33,8 @@ class DBConnectionManager:
                 cursor = dbapi_connection.cursor()
                 cursor.execute("PRAGMA foreign_keys = ON")
                 cursor.execute("PRAGMA busy_timeout = 5000")
-                cursor.execute("pragma synchronous = normal;")
+                cursor.execute("PRAGMA synchronous = normal;")
+                cursor.execute("PRAGMA case_sensitive_like = ON")
                 cursor.close()
 
     def get_engine(self, read_only: bool = True) -> Engine:
