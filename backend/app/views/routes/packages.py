@@ -8,6 +8,7 @@ from app.chart import generate_altair_colors, generate_chart
 from app.core.logger import logger
 from app.core.templates import templates
 from app.models import TimeRangeValidValues
+from app.normalization import NormalizedPackageName
 from app.utils import (
     extract_last_script_tag,
     generate_hx_push_url,
@@ -46,11 +47,10 @@ async def get_package_list(
 @router.post("/package-list", response_class=HTMLResponse)
 async def create_package(
     request: Request,
-    package_name: Annotated[str, Form()],
+    package_name: Annotated[NormalizedPackageName, Form()],
     url: Annotated[str, Header(alias="HX-Current-URL")],
 ) -> HTMLResponse:
     logger.info(f"Attempting to add package: {package_name}")
-    package_name = package_name.strip().lower()
     query_params = parse_query_params(url)
 
     if query_params.error:
@@ -92,11 +92,10 @@ async def create_package(
 @router.delete("/package-list", response_class=HTMLResponse)
 async def delete_package(
     request: Request,
-    package_name: str,
+    package_name: NormalizedPackageName,
     url: Annotated[str, Header(alias="HX-Current-URL")],
 ) -> HTMLResponse:
     logger.info(f"Attempting to delete package: {package_name}")
-    package_name = package_name.strip().lower()
     query_params = parse_query_params(url)
 
     if query_params.error:

@@ -5,6 +5,8 @@ from zoneinfo import ZoneInfo
 from dateutil.relativedelta import relativedelta
 from pydantic import BaseModel, computed_field
 
+from app.normalization import NormalizedPackageName
+
 TIME_RANGE_MAPPING = {
     "1month": dict(months=1),
     "3months": dict(months=3),
@@ -53,7 +55,7 @@ class TimeRange(BaseModel):
 
 
 class QueryParams(BaseModel):
-    packages: list[str] = []
+    packages: list[NormalizedPackageName] = []
     time_range: TimeRange = TimeRange(value="3months")
     show_percentage: Literal["on"] | None = None
     error: str | None = None
