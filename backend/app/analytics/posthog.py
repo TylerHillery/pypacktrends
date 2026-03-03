@@ -1,6 +1,7 @@
 import json
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
+from uuid import uuid4
 
 from app.core.config import settings
 from app.core.logger import logger
@@ -12,6 +13,7 @@ def capture_package_requested_events(
     time_range: str,
     show_percentage: bool,
     hx_trigger: str | None,
+    request_id: str | None = None,
 ) -> None:
     if not settings.ENABLE_SERVER_ANALYTICS:
         return
@@ -20,12 +22,14 @@ def capture_package_requested_events(
         logger.warning("Skipping PostHog package analytics: missing API key")
         return
 
-    normalized_packages = [
+    normalized_packages = sorted(
         normalize_package_name(package) for package in packages if package.strip()
-    ]
+    )
 
     if not normalized_packages:
         return
+
+    normalized_request_id = request_id or str(uuid4())
 
     capture_url = f"{str(settings.POSTHOG_HOST).rstrip('/')}/capture/"
 
@@ -40,6 +44,7 @@ def capture_package_requested_events(
                 "time_range": time_range,
                 "show_percentage": show_percentage,
                 "hx_trigger": hx_trigger,
+                "request_id": normalized_request_id,
                 "source": "server_htmx",
             },
         }
@@ -56,7 +61,8 @@ def capture_package_requested_events(
             logger.info(
                 "Submitted PostHog package_requested event "
                 f"for package='{package}', packages={normalized_packages}, "
-                f"time_range='{time_range}', hx_trigger='{hx_trigger}'"
+                f"time_range='{time_range}', hx_trigger='{hx_trigger}', "
+                f"request_id='{normalized_request_id}'"
             )
         except (HTTPError, URLError, TimeoutError) as e:
             logger.warning(

@@ -72,10 +72,11 @@ def test_capture_package_requested_events_emits_one_per_package(
     monkeypatch.setattr("app.analytics.posthog.urlopen", fake_urlopen)
 
     capture_package_requested_events(
-        packages=["duckdb", "pandas"],
+        packages=["pandas", "duckdb"],
         time_range="3months",
         show_percentage=True,
         hx_trigger="dataRefresh",
+        request_id="req-123",
     )
 
     assert len(request_payloads) == 2
@@ -90,8 +91,10 @@ def test_capture_package_requested_events_emits_one_per_package(
     assert first_payload["properties"]["time_range"] == "3months"
     assert first_payload["properties"]["show_percentage"] is True
     assert first_payload["properties"]["hx_trigger"] == "dataRefresh"
+    assert first_payload["properties"]["request_id"] == "req-123"
     assert first_payload["properties"]["source"] == "server_htmx"
 
     second_payload = request_payloads[1]
     assert second_payload["properties"]["package"] == "pandas"
     assert second_payload["properties"]["packages"] == ["duckdb", "pandas"]
+    assert second_payload["properties"]["request_id"] == "req-123"

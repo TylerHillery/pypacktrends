@@ -162,6 +162,7 @@ async def get_graph(
         time_range=query_params.time_range.value,
         show_percentage=query_params.show_percentage == "on",
         hx_trigger=request.headers.get("HX-Trigger"),
+        request_id=request.headers.get("X-Request-ID"),
     )
 
     if query_params.packages:
