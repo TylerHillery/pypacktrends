@@ -46,6 +46,9 @@ jobs:
           color: always
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
+          POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
+          ENABLE_SERVER_ANALYTICS: ${{ secrets.ENABLE_SERVER_ANALYTICS }}
 
       - name: Create Sentry release
         if: steps.pulumi.outputs['docker-build-image-backend:ref'] != steps.pulumi.outputs['docker-build-image-backend:old-ref']

@@ -90,6 +90,9 @@ user_data = render_template(
     project_name=settings.PROJECT_NAME,
     tailscale_auth_key=settings.TAILSCALE_AUTH_KEY,
     sentry_dsn=settings.SENTRY_DSN,
+    posthog_api_key=settings.POSTHOG_API_KEY,
+    posthog_host=settings.POSTHOG_HOST,
+    enable_server_analytics="true" if settings.ENABLE_SERVER_ANALYTICS else "false",
     vps_username=settings.VPS_USERNAME,
     vps_project_path=settings.VPS_PROJECT_PATH,
 )
@@ -163,6 +166,9 @@ cloudflare_email_routing_catch_all = cloudflare.EmailRoutingCatchAll(
 create = create_cmd(
     vps_project_path=settings.VPS_PROJECT_PATH,
     sentry_dsn=settings.SENTRY_DSN,
+    posthog_api_key=settings.POSTHOG_API_KEY,
+    posthog_host=settings.POSTHOG_HOST,
+    enable_server_analytics="true" if settings.ENABLE_SERVER_ANALYTICS else "false",
     container_registry_prefix=settings.CONTAINER_REGISTRY_PREFIX,
     backend_service_name=settings.BACKEND_SERVICE_NAME,
 )
@@ -411,4 +417,25 @@ github_actions_secret_cloudflare_r2_secret_access_key = github.ActionsSecret(
     secret_name="CLOUDFLARE_R2_SECRET_ACCESS_KEY",
     repository=settings.PROJECT_NAME,
     plaintext_value=settings.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
+)
+
+github_actions_secret_posthog_api_key = github.ActionsSecret(
+    "github-actions-secret-posthog-api-key",
+    secret_name="POSTHOG_API_KEY",
+    repository=settings.PROJECT_NAME,
+    plaintext_value=settings.POSTHOG_API_KEY,
+)
+
+github_actions_secret_posthog_host = github.ActionsSecret(
+    "github-actions-secret-posthog-host",
+    secret_name="POSTHOG_HOST",
+    repository=settings.PROJECT_NAME,
+    plaintext_value=settings.POSTHOG_HOST,
+)
+
+github_actions_secret_enable_server_analytics = github.ActionsSecret(
+    "github-actions-secret-enable-server-analytics",
+    secret_name="ENABLE_SERVER_ANALYTICS",
+    repository=settings.PROJECT_NAME,
+    plaintext_value="true" if settings.ENABLE_SERVER_ANALYTICS else "false",
 )

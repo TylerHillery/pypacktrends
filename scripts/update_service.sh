@@ -53,7 +53,7 @@ start_container() {
 
         log "Starting container for service $SERVICE_NAME..."
 
-        SENTRY_DSN="${SENTRY_DSN}" docker compose -f docker-compose.yml up -d --no-deps "$SERVICE_NAME"
+        SENTRY_DSN="${SENTRY_DSN}" POSTHOG_API_KEY="${POSTHOG_API_KEY}" POSTHOG_HOST="${POSTHOG_HOST}" ENABLE_SERVER_ANALYTICS="${ENABLE_SERVER_ANALYTICS}" docker compose -f docker-compose.yml up -d --no-deps "$SERVICE_NAME"
 
         new_container=$(docker ps --filter "ancestor=${FULL_IMAGE_NAME}" --format "{{.Names}}" | grep "$SERVICE_NAME" | tail -n 1)
 
@@ -104,7 +104,7 @@ fi
 
 # Scale up the specified service to two containers
 log "Scaling up service $SERVICE_NAME to two containers..."
-SENTRY_DSN="${SENTRY_DSN}" docker compose -f docker-compose.yml up -d --no-deps --scale "$SERVICE_NAME"=2 --no-recreate "$SERVICE_NAME"
+SENTRY_DSN="${SENTRY_DSN}" POSTHOG_API_KEY="${POSTHOG_API_KEY}" POSTHOG_HOST="${POSTHOG_HOST}" ENABLE_SERVER_ANALYTICS="${ENABLE_SERVER_ANALYTICS}" docker compose -f docker-compose.yml up -d --no-deps --scale "$SERVICE_NAME"=2 --no-recreate "$SERVICE_NAME"
 
 # Get the name of the new container for the specified service
 new_container=$(docker ps --filter "ancestor=${FULL_IMAGE_NAME}" --format "{{.Names}}" | grep "$SERVICE_NAME" | tail -n 1)
