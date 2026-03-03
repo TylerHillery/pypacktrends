@@ -18,7 +18,11 @@ def create_cmd(**kwargs: str | pulumi.Output | None) -> Any:
         return f"""
         cd {kwargs["vps_project_path"]}
         git pull
-        SENTRY_DSN='{kwargs["sentry_dsn"]}' ./scripts/update_service.sh {kwargs["container_registry_prefix"]} {kwargs["backend_service_name"]}
+        SENTRY_DSN='{kwargs["sentry_dsn"]}' \
+        POSTHOG_API_KEY='{kwargs["posthog_api_key"]}' \
+        POSTHOG_HOST='{kwargs["posthog_host"]}' \
+        ENABLE_SERVER_ANALYTICS='{kwargs["enable_server_analytics"]}' \
+        ./scripts/update_service.sh {kwargs["container_registry_prefix"]} {kwargs["backend_service_name"]}
     """
 
     return pulumi.Output.all(**kwargs).apply(_create_cmd)

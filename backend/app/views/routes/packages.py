@@ -1,8 +1,9 @@
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Form, Header, Request
+from fastapi import APIRouter, BackgroundTasks, Form, Header, Request
 from fastapi.responses import HTMLResponse
 
+from app.analytics.posthog import capture_package_requested_events
 from app.chart import generate_altair_colors, generate_chart
 from app.core.logger import logger
 from app.core.templates import templates
@@ -129,6 +130,7 @@ async def delete_package(
 @router.get("/packages-graph", response_class=HTMLResponse)
 async def get_graph(
     request: Request,
+    background_tasks: BackgroundTasks,
     url: Annotated[str, Header(alias="HX-Current-URL")],
     time_range: TimeRangeValidValues | None = None,
     show_percentage: Literal["on"] | None = None,
@@ -154,6 +156,14 @@ async def get_graph(
 
     if len(query_params.packages) == 1:
         query_params.show_percentage = None
+
+    background_tasks.add_task(
+        capture_package_requested_events,
+        packages=query_params.packages,
+        time_range=query_params.time_range.value,
+        show_percentage=query_params.show_percentage == "on",
+        hx_trigger=request.headers.get("HX-Trigger"),
+    )
 
     if query_params.packages:
         chart_html = generate_chart(query_params, theme).to_html(fullhtml=False)
@@ -223,7 +233,7 @@ async def get_embed(
 
     attribution_html = f"""
         <div class="pypacktrends-attribution">
-            <a href="{str(request.url).replace('/embed', '')}" target="_blank">
+            <a href="{str(request.url).replace("/embed", "")}" target="_blank">
                 View on pypacktrends.com
             </a>
         </div>

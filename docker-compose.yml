@@ -9,6 +9,9 @@ services:
     environment:
       ENVIRONMENT: prod
       SENTRY_DSN: ${SENTRY_DSN}
+      POSTHOG_API_KEY: ${POSTHOG_API_KEY}
+      POSTHOG_HOST: ${POSTHOG_HOST-https://us.i.posthog.com}
+      ENABLE_SERVER_ANALYTICS: ${ENABLE_SERVER_ANALYTICS-false}
       SQLITE_DB_PATH: ${SQLITE_DB_PATH-/app/data/pypacktrends.db}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health-check/"]

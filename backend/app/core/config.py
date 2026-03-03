@@ -9,6 +9,9 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "pypacktrends"
     ENVIRONMENT: Literal["dev", "ci", "prod"] = "dev"
     SENTRY_DSN: HttpUrl | None = None
+    POSTHOG_API_KEY: str | None = None
+    POSTHOG_HOST: str = "https://us.i.posthog.com"
+    ENABLE_SERVER_ANALYTICS: bool = False
     SQLITE_DB_PATH: Path = (
         Path(__file__).parent.resolve() / "../../../data/pypacktrends.db"
     )
@@ -16,6 +19,13 @@ class Settings(BaseSettings):
     @field_validator("SENTRY_DSN", mode="before")
     @classmethod
     def validate_sentry_dsn(cls, v: str | None) -> str | None:
+        if not v or v.strip() == "":
+            return None
+        return v
+
+    @field_validator("POSTHOG_API_KEY", mode="before")
+    @classmethod
+    def validate_posthog_api_key(cls, v: str | None) -> str | None:
         if not v or v.strip() == "":
             return None
         return v

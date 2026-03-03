@@ -48,6 +48,16 @@ class Settings:
     GRAFANA_LOKI_USER: pulumi.Output | None = grafana.get_secret("loki-user")
     GRAFANA_PROM_USER: pulumi.Output | None = grafana.get_secret("prom-user")
 
+    posthog_config: pulumi.Config = pulumi.Config("posthog")
+    POSTHOG_API_KEY: str = (
+        posthog_config.get("api-key")
+        or "phc_p0ITJzZ8QM1sBKYur3ugA5kqgemya2DMEpccVw5KmMO"
+    )
+    POSTHOG_HOST: str = posthog_config.get("host") or "https://us.i.posthog.com"
+    ENABLE_SERVER_ANALYTICS: bool = (
+        posthog_config.get_bool("enable-server-analytics") or False
+    )
+
     project_config: pulumi.Config = pulumi.Config()
     CLOUDFLARE_FORWARD_EMAIL: str = (
         project_config.get("cloudflare-forward-email") or "tyhillery@gmail.com"
